@@ -10,6 +10,7 @@ import { enableScreens } from 'react-native-screens';
 enableScreens();
 
 import Screens from './navigation/Screens';
+import ScreensEx from './navigation/ScreensEx';
 import { Images, materialTheme } from './constants/';
 
 const assetImages = [
@@ -65,7 +66,8 @@ export default class App extends React.Component {
           <GalioProvider theme={materialTheme}>
             <Block flex>
               {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-              <Screens />
+              {/* <Screens /> */}
+              <ScreensEx />
             </Block>
           </GalioProvider>
         </NavigationContainer>
