@@ -338,7 +338,19 @@ function HomeStack(props) {
   );
 }
 
-const UserMenu = () => {
+const Tabs = () => {
+  const Tab = createBottomTabNavigator();
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Search" component={ManStack} />
+      <Tab.Screen name="Status" component={ManStack} />
+      <Tab.Screen name="Message" component={ManStack} />
+    </Tab.Navigator>
+  );
+}
+
+export default function AppStack(props) {
   return (
     <Drawer.Navigator
       style={{ flex: 1 }}
@@ -370,6 +382,10 @@ const UserMenu = () => {
       }}
       initialRouteName="Home"
     >
+      <Drawer.Screen
+        name="Tabs"
+        component={Tabs}
+      />
       <Drawer.Screen
         name="Home"
         component={HomeStack}
@@ -429,17 +445,5 @@ const UserMenu = () => {
         }}
       />
     </Drawer.Navigator>
-  );
-}
-
-export default function AppStack(props) {
-  const Tab = createBottomTabNavigator();
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Search" component={ManStack} />
-      <Tab.Screen name="Status" component={ManStack} />
-      <Tab.Screen name="Message" component={ManStack} />
-    </Tab.Navigator>
   );
 }
