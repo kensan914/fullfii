@@ -68,8 +68,7 @@ class Header extends React.Component {
 
     switch (title) {
       case 'Home':
-      case 'Search':
-      case 'Message':
+      case 'Notification':
       case "":
         return ([
           <ChatButton key='chat-search' navigation={navigation} isWhite={white} />,
@@ -152,10 +151,8 @@ class Header extends React.Component {
     switch (prevTitle) {
       case "Home":
         return "ホーム";
-      case "Search":
-        return "検索";
-      case "Message":
-        return "メッセージ";
+      case "Notification":
+        return "通知";
       default:
         return prevTitle;
     }

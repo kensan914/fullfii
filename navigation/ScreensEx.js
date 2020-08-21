@@ -163,10 +163,6 @@ const HomeTabNavigator = () => {
           width: width / 3.7,
         }
       }}>
-      {/* <Tab.Screen name="Work" component={HomeScreen} options={{ tabBarLabel: "仕事", }} />
-      <Tab.Screen name="Child" component={HomeScreen} options={{ tabBarLabel: "子供" }} />
-      <Tab.Screen name="Family" component={HomeScreen} options={{ tabBarLabel: "家庭" }} />
-      <Tab.Screen name="Love" component={HomeScreen} options={{ tabBarLabel: "恋愛" }} />       */}
       <Tab.Screen name="Work" component={HomeScreen} />
       <Tab.Screen name="Child" component={HomeScreen} />
       <Tab.Screen name="Family" component={HomeScreen} />
@@ -206,10 +202,8 @@ const BottomTabNavigator = () => {
       }}
     >
       <Tab.Screen name="Home" component={HomeTabNavigator} />
-      {/* <Tab.Screen name="Search" component={SearchScreen} /> */}
       <Tab.Screen name="Status" component={DealsScreen} />
       <Tab.Screen name="Notification" component={DealsScreen} />
-      {/* <Tab.Screen name="Message" component={DealsScreen} options={{ tabBarBadge: "3", }} /> */}
     </Tab.Navigator>
   );
 }

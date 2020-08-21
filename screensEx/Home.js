@@ -9,24 +9,23 @@ import consultants from '../constantsEx/Consultants';
 
 export default class Home extends React.Component {
   renderConsultants = () => {
+    const numColumns = 2;
     return (
       <FlatList
-        // data={consultants.concat(consultants)}
-        data={consultants}
+        data={consultants.concat(consultants)}
+        // data={consultants}
         style={styles.consultants}
         renderItem={({ item, index }) => {
-          const ml = (index % 2 === 0) ? theme.SIZES.BASE / 2 : 0;
-          const mr = (index % 2 !== 0) ? theme.SIZES.BASE / 2 : 0;
+          const ml = (index % numColumns === 0) ? theme.SIZES.BASE / 2 : 0;
+          const mr = ((index % numColumns) + 1 === numColumns) ? theme.SIZES.BASE / 2 : 0;
+          const mt = (index < numColumns) ? theme.SIZES.BASE * 2 : 0;
           return (
-            <>
-              {/* {index === 0 && <Block style={{ width: width, height: 100, backgroundColor: "red"}}/>} */}
-              <Block flex style={[styles.consultItem, { marginLeft: ml, marginRight: mr }]} key={item.key}>
-                <ConsultantCard item={item} />
-              </Block>
-            </>
+            <Block flex style={[styles.consultItem, { marginLeft: ml, marginRight: mr, marginTop: mt }]} key={item.key}>
+              <ConsultantCard item={item} />
+            </Block>
           );
         }}
-        numColumns={2}
+        numColumns={numColumns}
         keyExtractor={(item, index) => index.toString()}
       />
     )
@@ -47,8 +46,6 @@ const styles = StyleSheet.create({
   },
   consultants: {
     width: width,
-    // paddingVertical: theme.SIZES.BASE * 2,
-    paddingVertical: 0,
   },
   consultItem: {
     flex: 0.5,
