@@ -3,6 +3,7 @@ import { Easing, Dimensions } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 import { Icon, Header } from "../componentsEx";
 import { Images, materialTheme } from "../constants";
@@ -113,6 +114,17 @@ function HomeStack(props) {
   );
 }
 
+const HomeTabNavigator = () => {
+  const Tab = createMaterialTopTabNavigator();
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={DealsScreen} />
+      <Tab.Screen name="Status" component={DealsScreen} />
+      <Tab.Screen name="Notification" component={DealsScreen} />
+    </Tab.Navigator>
+  );
+}
+
 const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
   return (
@@ -143,7 +155,7 @@ const BottomTabNavigator = () => {
         showLabel: false,
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeTabNavigator} />
       {/* <Tab.Screen name="Search" component={SearchScreen} /> */}
       <Tab.Screen name="Status" component={DealsScreen} />
       <Tab.Screen name="Notification" component={DealsScreen} />
