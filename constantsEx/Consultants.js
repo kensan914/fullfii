@@ -1,44 +1,54 @@
-const home = [
+const consultants = [
   {
+    id: 1,
     name: 'サンプル太郎',
     image: 'https://images.unsplash.com/photo-1539314171919-908b0cd96f03?crop=entropy&w=840&h=840&fit=crop',
     status: "accepting",
+    gender: "男",
     age: 35,
     numOfGoods: 125,
     numOfComments: 13,
     introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
   },
   {
+    id: 12,
     name: 'サンプル男爵',
     image: 'https://images.unsplash.com/photo-1515709980177-7a7d628c09ba?crop=entropy&w=840&h=840&fit=crop',
     status: "inConsultation",
+    gender: "女",
     age: 35,
     numOfGoods: 125,
     numOfComments: 13,
     introduction: "職場の人間関係の悩みなどをよく相談に乗っています。職場の人間関係の悩みなどをよく相談に乗っています。",
   },
   {
+    id: 123,
     name: 'サンプル伯爵',
     image: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?crop=entropy&w=840&h=840&fit=crop',
     status: "accepting",
+    gender: "男",
     age: 35,
     numOfGoods: 125,
     numOfComments: 13,
     introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
   },
   {
+    id: 1234,
     name: 'サンプル人民共和国',
     image: 'https://images.unsplash.com/photo-1536303006682-2ee36ba49592?crop=entropy&w=840&h=840&fit=crop',
     status: "accepting",
+    gender: "女",
     age: 35,
     numOfGoods: 125,
     numOfComments: 13,
     introduction: "職場の人間関係の悩みなどをよく相談に乗っています。職場の人間関係の悩みなどをよく相談に乗っています。",
   },
   {
+    id: 12345,
     name: 'サンプル１２３４１２３４１２３４１２３４世',
     image: 'https://images.unsplash.com/photo-1491336477066-31156b5e4f35?crop=entropy&w=840&h=840&fit=crop',
     status: "accepting",
+    gender: "男",
     age: 35,
     numOfGoods: 125,
     numOfComments: 13,
@@ -46,40 +56,68 @@ const home = [
   },
 ];
 
-const deals = [
-  {
-    title: 'Hardly Anything Takes More Coura...',
-    // image: 'https://source.unsplash.com/dS2hi__ZZMk/840x840',
+export default consultants;
+
+
+export const fullConsultants = {
+  "1": {
+    id: 1,
+    name: 'サンプル太郎',
     image: 'https://images.unsplash.com/photo-1539314171919-908b0cd96f03?crop=entropy&w=840&h=840&fit=crop',
-    price: 180,
-    horizontal: true,
+    status: "accepting",
+    gender: "男",
+    age: 35,
+    numOfGoods: 125,
+    numOfComments: 13,
+    introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
+    features: ["口調やさしめ", "サバサバ", "相槌しません", "思ったこと言います"],
   },
-  {
-    title: 'Find the cheapest deals on our range...',
-    // image: 'https://source.unsplash.com/tb6ulgGY5Zc/840x840',
+  "12": {
+    id: 12,
+    name: 'サンプル男爵',
     image: 'https://images.unsplash.com/photo-1515709980177-7a7d628c09ba?crop=entropy&w=840&h=840&fit=crop',
-    price: 220,
+    status: "inConsultation",
+    gender: "女",
+    age: 35,
+    numOfGoods: 125,
+    numOfComments: 13,
+    introduction: "職場の人間関係の悩みなどをよく相談に乗っています。職場の人間関係の悩みなどをよく相談に乗っています。",
+    features: ["口調やさしめ", "サバサバ", "相槌しません"],
   },
-  {
-    title: "Looking for Men's watches?",
-    // image: 'https://source.unsplash.com/YHbcum51JB0/840x840',
+  "123": {
+    id: 123,
+    name: 'サンプル伯爵',
     image: 'https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?crop=entropy&w=840&h=840&fit=crop',
-    price: 40,
+    status: "accepting",
+    gender: "男",
+    age: 35,
+    numOfGoods: 125,
+    numOfComments: 13,
+    introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
+    features: ["口調やさしめ", "サバサバ", "相槌しません", "思ったこと言います"],
   },
-  {
-    title: 'Curious Blossom Skin Care Kit.',
-    // image: 'https://source.unsplash.com/I7BSOoPa5hM/840x840',
+  "1234": {
+    id: 1234,
+    name: 'サンプル人民共和国',
     image: 'https://images.unsplash.com/photo-1536303006682-2ee36ba49592?crop=entropy&w=840&h=840&fit=crop',
-    price: 188,
-    horizontal: true,
+    status: "accepting",
+    gender: "女",
+    age: 35,
+    numOfGoods: 125,
+    numOfComments: 13,
+    introduction: "職場の人間関係の悩みなどをよく相談に乗っています。職場の人間関係の悩みなどをよく相談に乗っています。",
+    features: ["口調やさしめ", "サバサバ", "相槌しません", "思ったこと言います"],
   },
-  {
-    title: 'Adjust your watch to your outfit.',
-    // image: 'https://source.unsplash.com/Ws4wd-vJ9M0/840x840',
+  "12345": {
+    id: 12345,
+    name: 'サンプル１２３４１２３４１２３４１２３４世',
     image: 'https://images.unsplash.com/photo-1491336477066-31156b5e4f35?crop=entropy&w=840&h=840&fit=crop',
-    price: 180,
-  },
-];
-
-
-export default home;
+    status: "accepting",
+    gender: "男",
+    age: 35,
+    numOfGoods: 125,
+    numOfComments: 13,
+    introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
+    features: ["口調やさしめ", "サバサバ", "相槌しません", "思ったこと言います"],
+  }
+};

@@ -4,40 +4,21 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import { Icon, Header } from "../components";
+import { Icon, Header } from "../componentsEx";
 import { Images, materialTheme } from "../constants";
 
 // screens
-import OnboardingScreen from "../screens/Onboarding";
-import HomeScreen from "../screens/Home";
-import WomanScreen from "../screens/Woman";
-import ManScreen from "../screens/Man";
-import KidsScreen from "../screens/Kids";
-import NewCollectionScreen from "../screens/NewCollection";
+import HomeScreen from "../screensEx/Home";
+import SearchScreen from "../screensEx/Search";
+
 import DealsScreen from "../screens/Deals";
+import ProfileScreen from "../screensEx/Profile";
+import ChatScreen from "../screensEx/Chat";
+import CartScreen from "../screensEx/Cart";
 
-import CategoriesScreen from "../screens/Categories";
-import CategoryScreen from "../screens/Category";
-import ProductScreen from "../screens/Product";
-import GalleryScreen from "../screens/Gallery";
-import ChatScreen from "../screens/Chat";
+import CustomDrawerContent from "./MenuEx";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import CartScreen from "../screens/Cart";
-import SignInScreen from "../screens/SignIn";
-import SignUpScreen from "../screens/SignUp";
-
-import SearchScreen from "../screens/Search";
-import ComponentsScreen from "../screens/Components";
-
-import ProfileScreen from "../screens/Profile";
-import SettingsScreen from "../screens/Settings";
-import NotificationsScreen from "../screens/Notifications";
-import PrivacyScreen from "../screens/Privacy";
-import AboutScreen from "../screens/About";
-import AgreementScreen from "../screens/Agreement";
-
-import CustomDrawerContent from "./Menu";
-import { tabs } from "../constants";
 
 const { width } = Dimensions.get("screen");
 
@@ -46,226 +27,34 @@ const Drawer = createDrawerNavigator();
 
 const profile = {
   avatar: Images.Profile,
-  name: "Rachel Brown",
-  type: "Seller",
-  plan: "Pro",
-  rating: 4.8
+  name: "けんさん",
+  coins: 500,
 };
-
-function ManStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Man"
-        component={ManScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="Man"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
-          header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
-            return (
-              <Header
-                back
-                title={title}
-                navigation={navigation}
-                scene={scene}
-              />
-            );
-          }
-        }}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
 
 function HomeStack(props) {
   return (
     <Stack.Navigator mode="card" headerMode="screen">
       <Stack.Screen
         name="Home"
-        component={HomeScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              // search
-              // options
-              title="Home"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
+        component={BottomTabNavigator}
+        options={({ route }) => ({
           header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
+            const title = route.state
+              ? route.state.routes[route.state.index].name
+              : "Home";
             return (
-              <Header
-                back
+              < Header
                 title={title}
                 navigation={navigation}
                 scene={scene}
-              />
-            );
+                profile={profile}
+              />);
           }
-        }}
+        })}
       />
       <Stack.Screen
-        name="Product"
-        component={ProductScreen}
+        name="Profile"
+        component={ProfileScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
@@ -275,23 +64,7 @@ function HomeStack(props) {
               title=""
               navigation={navigation}
               scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
+              profile={profile}
             />
           ),
           headerTransparent: true
@@ -307,6 +80,7 @@ function HomeStack(props) {
               title="Rachel Brown"
               navigation={navigation}
               scene={scene}
+              profile={profile}
             />
           )
         }}
@@ -321,6 +95,7 @@ function HomeStack(props) {
               title="Shopping Cart"
               navigation={navigation}
               scene={scene}
+              profile={profile}
             />
           )
         }}
@@ -330,7 +105,7 @@ function HomeStack(props) {
         component={SearchScreen}
         options={{
           header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
+            <Header back title="Search" navigation={navigation} scene={scene} profile={profile} />
           )
         }}
       />
@@ -338,14 +113,41 @@ function HomeStack(props) {
   );
 }
 
-const Tabs = () => {
+const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Search" component={ManStack} />
-      <Tab.Screen name="Status" component={ManStack} />
-      <Tab.Screen name="Message" component={ManStack} />
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home';
+          } else if (route.name === 'Search') {
+            iconName = focused ? 'search' : 'search';
+          } else if (route.name === 'Status') {
+            iconName = focused ? 'ios-list-box' : 'ios-list';
+          } else if (route.name === 'Message') {
+            iconName = focused ? 'envelope-o' : 'envelope-o';
+          } else if (route.name === 'Notification') {
+            iconName = focused ? 'bell' : 'bell-o';
+          }
+
+          // You can return any component that you like here!
+          return <Icon family="font-awesome" name={iconName} size={size} color={color} />;
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: '#F69896',
+        inactiveTintColor: 'gray',
+        showLabel: false,
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} />
+      {/* <Tab.Screen name="Search" component={SearchScreen} /> */}
+      <Tab.Screen name="Status" component={DealsScreen} />
+      <Tab.Screen name="Notification" component={DealsScreen} />
+      {/* <Tab.Screen name="Message" component={DealsScreen} options={{ tabBarBadge: "3", }} /> */}
     </Tab.Navigator>
   );
 }
@@ -383,10 +185,6 @@ export default function AppStack(props) {
       initialRouteName="Home"
     >
       <Drawer.Screen
-        name="Tabs"
-        component={Tabs}
-      />
-      <Drawer.Screen
         name="Home"
         component={HomeStack}
         options={{
@@ -395,50 +193,6 @@ export default function AppStack(props) {
               size={16}
               name="shop"
               family="GalioExtra"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-
-      <Drawer.Screen
-        name="Man"
-        component={ManStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="man"
-              family="entypo"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-
-      <Drawer.Screen
-        name="Sign In"
-        component={SignInScreen}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="ios-log-in"
-              family="ionicon"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Sign Up"
-        component={SignUpScreen}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="md-person-add"
-              family="ionicon"
               color={focused ? "white" : materialTheme.COLORS.MUTED}
             />
           )
