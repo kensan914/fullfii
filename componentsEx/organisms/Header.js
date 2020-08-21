@@ -166,7 +166,7 @@ class Header extends React.Component {
     // const { routeName } = navigation.state;
     // const { options } = scene.descriptor;
     // const routeName = scene.descriptor?.options.headerTitle ?? '';
-    const noShadow = ["Search", "Profile"].includes(title);
+    const noShadow = ["Search", "Profile", "Home"].includes(title);
     const headerStyles = [
       !noShadow ? styles.shadow : null,
       transparent ? { backgroundColor: 'rgba(0,0,0,0)' } : null,

@@ -117,10 +117,20 @@ function HomeStack(props) {
 const HomeTabNavigator = () => {
   const Tab = createMaterialTopTabNavigator();
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={DealsScreen} />
-      <Tab.Screen name="Status" component={DealsScreen} />
-      <Tab.Screen name="Notification" component={DealsScreen} />
+    <Tab.Navigator
+      tabBarOptions={{
+        activeTintColor: '#F69896',
+        inactiveTintColor: 'gray',
+        indicatorStyle: {
+          backgroundColor: '#F69896',
+        },
+        style: {
+          backgroundColor: "white",
+        },
+      }}>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Status" component={HomeScreen} />
+      <Tab.Screen name="Notification" component={HomeScreen} />
     </Tab.Navigator>
   );
 }
