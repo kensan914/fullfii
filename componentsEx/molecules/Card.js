@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   consultantCard: {
-    width: width / 2 - theme.SIZES.BASE * 2,
+    width: width / 2 - theme.SIZES.BASE * 1.8,
     marginRight: "auto",
     marginLeft: "auto",
   },

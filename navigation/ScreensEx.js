@@ -18,7 +18,7 @@ import ChatScreen from "../screensEx/Chat";
 import CartScreen from "../screensEx/Cart";
 
 import CustomDrawerContent from "./MenuEx";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Text } from 'galio-framework';
 
 
 const { width } = Dimensions.get("screen");
@@ -118,19 +118,59 @@ const HomeTabNavigator = () => {
   const Tab = createMaterialTopTabNavigator();
   return (
     <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarLabel: ({ focused, color, size }) => {
+          let iconName;
+          let title;
+          if (route.name === 'Work') {
+            iconName = focused ? 'shopping-bag' : 'shopping-bag';
+            title = "仕事";
+          } else if (route.name === 'Child') {
+            iconName = focused ? 'child' : 'child';
+            title = "子供";
+          } else if (route.name === 'Family') {
+            iconName = focused ? 'users' : 'users';
+            title = "家庭";
+          } else if (route.name === 'Love') {
+            iconName = focused ? 'heart' : 'heart';
+            title = "恋愛";
+          }
+          return (
+            <Text size={size} color={color} >
+              <Icon family="font-awesome" name={iconName} size={size} color={color} /> {title}
+            </Text>
+          );
+        },
+      })}
       tabBarOptions={{
-        activeTintColor: '#F69896',
-        inactiveTintColor: 'gray',
+        activeTintColor: "#F69896",
+        inactiveTintColor: "gray",
         indicatorStyle: {
-          backgroundColor: '#F69896',
+          backgroundColor: "#F69896",
         },
         style: {
           backgroundColor: "white",
+          borderTopColor: "silver",
+          borderTopWidth: 0.5,
+          shadowColor: "black",
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 6,
+          shadowOpacity: 0.2,
         },
+        scrollEnabled: true,
+        showIcon: true,
+        tabStyle: {
+          width: width / 3.7,
+        }
       }}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Status" component={HomeScreen} />
-      <Tab.Screen name="Notification" component={HomeScreen} />
+      {/* <Tab.Screen name="Work" component={HomeScreen} options={{ tabBarLabel: "仕事", }} />
+      <Tab.Screen name="Child" component={HomeScreen} options={{ tabBarLabel: "子供" }} />
+      <Tab.Screen name="Family" component={HomeScreen} options={{ tabBarLabel: "家庭" }} />
+      <Tab.Screen name="Love" component={HomeScreen} options={{ tabBarLabel: "恋愛" }} />       */}
+      <Tab.Screen name="Work" component={HomeScreen} />
+      <Tab.Screen name="Child" component={HomeScreen} />
+      <Tab.Screen name="Family" component={HomeScreen} />
+      <Tab.Screen name="Love" component={HomeScreen} />
     </Tab.Navigator>
   );
 }

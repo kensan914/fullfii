@@ -1,28 +1,34 @@
 import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, FlatList } from 'react-native';
-import { Button, Block, Text, Input, theme } from 'galio-framework';
+import { StyleSheet, Dimensions, FlatList } from 'react-native';
+import { Block, theme, Text } from 'galio-framework';
 
-import { Icon, ConsultantCard } from '../componentsEx/';
+import { ConsultantCard } from '../componentsEx/';
 
-const { width } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 import consultants from '../constantsEx/Consultants';
 
 export default class Home extends React.Component {
   renderConsultants = () => {
     return (
-      <Block flex>
-        <FlatList
-          data={consultants}
-          style={styles.consultants}
-          renderItem={({ item }) => (
-            <Block flex style={styles.consultItem} key={item.key}>
-              <ConsultantCard item={item} />
-            </Block>
-          )}
-          numColumns={2}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </Block>
+      <FlatList
+        // data={consultants.concat(consultants)}
+        data={consultants}
+        style={styles.consultants}
+        renderItem={({ item, index }) => {
+          const ml = (index % 2 === 0) ? theme.SIZES.BASE / 2 : 0;
+          const mr = (index % 2 !== 0) ? theme.SIZES.BASE / 2 : 0;
+          return (
+            <>
+              {/* {index === 0 && <Block style={{ width: width, height: 100, backgroundColor: "red"}}/>} */}
+              <Block flex style={[styles.consultItem, { marginLeft: ml, marginRight: mr }]} key={item.key}>
+                <ConsultantCard item={item} />
+              </Block>
+            </>
+          );
+        }}
+        numColumns={2}
+        keyExtractor={(item, index) => index.toString()}
+      />
     )
   }
 
@@ -39,49 +45,10 @@ const styles = StyleSheet.create({
   home: {
     width: width,
   },
-  search: {
-    height: 48,
-    width: width - 32,
-    marginHorizontal: 16,
-    borderWidth: 1,
-    borderRadius: 3,
-  },
-  header: {
-    backgroundColor: theme.COLORS.WHITE,
-    shadowColor: theme.COLORS.BLACK,
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowRadius: 8,
-    shadowOpacity: 0.2,
-    elevation: 4,
-    zIndex: 2,
-  },
-  tabs: {
-    marginBottom: 24,
-    marginTop: 10,
-    elevation: 4,
-  },
-  tab: {
-    backgroundColor: theme.COLORS.TRANSPARENT,
-    width: width * 0.50,
-    borderRadius: 0,
-    borderWidth: 0,
-    height: 24,
-    elevation: 0,
-  },
-  tabTitle: {
-    lineHeight: 19,
-    fontWeight: '300'
-  },
-  divider: {
-    borderRightWidth: 0.3,
-    borderRightColor: theme.COLORS.MUTED,
-  },
   consultants: {
-    width: width - theme.SIZES.BASE * 2,
-    paddingVertical: theme.SIZES.BASE * 2,
+    width: width,
+    // paddingVertical: theme.SIZES.BASE * 2,
+    paddingVertical: 0,
   },
   consultItem: {
     flex: 0.5,
