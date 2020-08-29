@@ -1,57 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { Easing, Dimensions } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { Text } from "galio-framework";
 
 import { Icon, Header } from "../componentsEx";
-import { Images, materialTheme } from "../constants";
+import { materialTheme } from "../constantsEx";
 
 // screens
 import HomeScreen from "../screensEx/Home";
-import SearchScreen from "../screensEx/Search";
-
-import DealsScreen from "../screens/Deals";
 import ProfileScreen from "../screensEx/Profile";
 import ChatScreen from "../screensEx/Chat";
 import CartScreen from "../screensEx/Cart";
+import ProfileEditorScreen from "../screensEx/ProfileEditor";
+import ProfileInputScreen from "../screensEx/ProfileInput";
+import DealsScreen from "../screens/Deals";
 
 import CustomDrawerContent from "./MenuEx";
-import { Text } from 'galio-framework';
-
+import { profile } from "../constantsEx/consultants";
 
 const { width } = Dimensions.get("screen");
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-const profile = {
-  avatar: Images.Profile,
-  name: "けんさん",
-  coins: 500,
-};
 
-function HomeStack(props) {
+const HomeStack = (props) => {
   return (
-    <Stack.Navigator mode="card" headerMode="screen">
+    <Stack.Navigator mode="card" headerMode="screen" >
       <Stack.Screen
         name="Home"
         component={BottomTabNavigator}
-        options={({ route }) => ({
-          header: ({ navigation, scene }) => {
-            const title = route.state
-              ? route.state.routes[route.state.index].name
-              : "Home";
-            return (
-              < Header
-                title={title}
-                navigation={navigation}
-                scene={scene}
-                profile={profile}
-              />);
+        options={({ route, navigation }) => {
+          let drawer = navigation.dangerouslyGetParent();
+          drawer.setOptions({
+            gestureEnabled: true,
+          })
+          return {
+            header: ({ navigation, scene }) => {
+              const title = route.state
+                ? route.state.routes[route.state.index].name
+                : "Home";
+              return (
+                < Header
+                  title={title}
+                  navigation={navigation}
+                  scene={scene}
+                  profile={profile}
+                />);
+            }
           }
-        })}
+        }}
       />
       <Stack.Screen
         name="Profile"
@@ -60,9 +61,9 @@ function HomeStack(props) {
           header: ({ navigation, scene }) => (
             <Header
               back
+              title=""
               white
               transparent
-              title=""
               navigation={navigation}
               scene={scene}
               profile={profile}
@@ -72,18 +73,59 @@ function HomeStack(props) {
         }}
       />
       <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
+        name="ProfileEditor"
+        component={ProfileEditorScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
               back
-              title="Rachel Brown"
+              title="ProfileEditor"
               navigation={navigation}
               scene={scene}
               profile={profile}
             />
           )
+        }}
+      />
+      <Stack.Screen
+        name="ProfileInput"
+        component={ProfileInputScreen}
+        options={({ route }) => ({
+          header: ({ navigation, scene }) => {
+            const title = route.params.screen;
+            return (
+              < Header
+                back
+                title={title}
+                navigation={navigation}
+                scene={scene}
+                profile={profile}
+              />);
+          }
+        })}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ route, navigation }) => {
+          let drawer = navigation.dangerouslyGetParent();
+          drawer.setOptions({
+            gestureEnabled: false
+          })
+          return {
+            header: ({ navigation, scene }) => {
+              const title = route.params.user.name;
+              return (
+                <Header
+                  title={title}
+                  navigation={navigation}
+                  scene={scene}
+                  profile={profile}
+                />
+              );
+            },
+            gestureEnabled: false,
+          }
         }}
       />
       <Stack.Screen
@@ -101,16 +143,7 @@ function HomeStack(props) {
           )
         }}
       />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} profile={profile} />
-          )
-        }}
-      />
-    </Stack.Navigator>
+    </Stack.Navigator >
   );
 }
 
@@ -122,17 +155,17 @@ const HomeTabNavigator = () => {
         tabBarLabel: ({ focused, color, size }) => {
           let iconName;
           let title;
-          if (route.name === 'Work') {
-            iconName = focused ? 'shopping-bag' : 'shopping-bag';
+          if (route.name === "Work") {
+            iconName = focused ? "shopping-bag" : "shopping-bag";
             title = "仕事";
-          } else if (route.name === 'Child') {
-            iconName = focused ? 'child' : 'child';
+          } else if (route.name === "Child") {
+            iconName = focused ? "child" : "child";
             title = "子供";
-          } else if (route.name === 'Family') {
-            iconName = focused ? 'users' : 'users';
+          } else if (route.name === "Family") {
+            iconName = focused ? "users" : "users";
             title = "家庭";
-          } else if (route.name === 'Love') {
-            iconName = focused ? 'heart' : 'heart';
+          } else if (route.name === "Love") {
+            iconName = focused ? "heart" : "heart";
             title = "恋愛";
           }
           return (
@@ -179,16 +212,12 @@ const BottomTabNavigator = () => {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home';
-          } else if (route.name === 'Search') {
-            iconName = focused ? 'search' : 'search';
-          } else if (route.name === 'Status') {
-            iconName = focused ? 'ios-list-box' : 'ios-list';
-          } else if (route.name === 'Message') {
-            iconName = focused ? 'envelope-o' : 'envelope-o';
-          } else if (route.name === 'Notification') {
-            iconName = focused ? 'bell' : 'bell-o';
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home";
+          } else if (route.name === "Chat") {
+            iconName = focused ? "comments" : "comments-o";
+          } else if (route.name === "Notification") {
+            iconName = focused ? "bell" : "bell-o";
           }
 
           // You can return any component that you like here!
@@ -196,19 +225,19 @@ const BottomTabNavigator = () => {
         },
       })}
       tabBarOptions={{
-        activeTintColor: '#F69896',
-        inactiveTintColor: 'gray',
+        activeTintColor: "#F69896",
+        inactiveTintColor: "gray",
         showLabel: false,
       }}
     >
       <Tab.Screen name="Home" component={HomeTabNavigator} />
-      <Tab.Screen name="Status" component={DealsScreen} />
+      <Tab.Screen name="Chat" component={DealsScreen} />
       <Tab.Screen name="Notification" component={DealsScreen} />
     </Tab.Navigator>
   );
 }
 
-export default function AppStack(props) {
+const AppStack = (props) => {
   return (
     <Drawer.Navigator
       style={{ flex: 1 }}
@@ -230,7 +259,7 @@ export default function AppStack(props) {
           // paddingVertical: 4,
           justifyContent: "center",
           alignContent: "center",
-          // alignItems: 'center',
+          // alignItems: "center",
           overflow: "hidden"
         },
         labelStyle: {
@@ -251,9 +280,11 @@ export default function AppStack(props) {
               family="GalioExtra"
               color={focused ? "white" : materialTheme.COLORS.MUTED}
             />
-          )
+          ),
         }}
       />
     </Drawer.Navigator>
   );
 }
+
+export default AppStack;

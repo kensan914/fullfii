@@ -5,7 +5,7 @@ import { Block, theme, Text } from 'galio-framework';
 import { ConsultantCard } from '../componentsEx/';
 
 const { width, height } = Dimensions.get('screen');
-import consultants from '../constantsEx/Consultants';
+import consultants from '../constantsEx/consultants';
 
 export default class Home extends React.Component {
   renderConsultants = () => {
@@ -20,7 +20,7 @@ export default class Home extends React.Component {
           const mr = ((index % numColumns) + 1 === numColumns) ? theme.SIZES.BASE / 2 : 0;
           const mt = (index < numColumns) ? theme.SIZES.BASE * 2 : 0;
           return (
-            <Block flex style={[styles.consultItem, { marginLeft: ml, marginRight: mr, marginTop: mt }]} key={item.key}>
+            <Block style={[styles.consultItem, { marginLeft: ml, marginRight: mr, marginTop: mt }]} key={item.key}>
               <ConsultantCard item={item} />
             </Block>
           );

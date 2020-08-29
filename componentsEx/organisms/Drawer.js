@@ -4,9 +4,10 @@ import { Block, Text, theme } from "galio-framework";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
+import { convertTitle } from "../../constantsEx/converters";
 
 
-class DrawerItem extends React.Component {
+export default class DrawerItem extends React.Component {
   renderIcon = () => {
     const { item, focused } = this.props;
 
@@ -17,7 +18,6 @@ class DrawerItem extends React.Component {
             size={15}
             name="circle-10"
             family="GalioExtra"
-            // color={focused ? "white" : materialTheme.COLORS.MUTED}
             color={materialTheme.COLORS.MUTED}
           />
         );
@@ -27,7 +27,6 @@ class DrawerItem extends React.Component {
             size={15}
             name="gears"
             family="font-awesome"
-            // color={focused ? "white" : materialTheme.COLORS.MUTED}
             color={materialTheme.COLORS.MUTED}
           />
         );
@@ -36,39 +35,26 @@ class DrawerItem extends React.Component {
     }
   };
 
-  convertTitle(prevTitle) {
-    switch (prevTitle) {
-      case "Profile":
-        return "プロフィール";
-      case "Settings":
-        return "設定";
-      default:
-        return prevTitle;
-    }
-  }
-
   render() {
-    const { item, focused, navigation } = this.props;
+    const { item, focused, navigation, profile } = this.props;
     return (
       <TouchableOpacity
         style={{ height: 55 }}
-        onPress={() => navigation.navigate(item)}
+        onPress={() => navigation.navigate(item, { item: profile })}
       >
         <Block
           flex
           row
           style={[
             styles.defaultStyle,
-            // focused ? [styles.activeStyle, styles.shadow] : null,
           ]}
         >
           <Block middle flex={0.1} style={{ marginRight: 28 }}>
             {this.renderIcon()}
           </Block>
           <Block flex={0.9}>
-            {/* <Text size={15} color={focused ? "white" : "black"}> */}
             <Text size={15} color={"black"}>
-              {this.convertTitle(item)}
+              {convertTitle(item)}
             </Text>
           </Block>
         </Block>
@@ -76,8 +62,6 @@ class DrawerItem extends React.Component {
     );
   }
 }
-
-export default DrawerItem;
 
 const styles = StyleSheet.create({
   defaultStyle: {

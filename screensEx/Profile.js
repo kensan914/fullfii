@@ -1,37 +1,26 @@
 import React, { useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView, Image, ImageBackground, Platform } from 'react-native';
-import { Block, Text, theme } from 'galio-framework';
+import { StyleSheet, Dimensions, ScrollView, Image, Platform } from 'react-native';
+import { Block, Text, theme, Button } from 'galio-framework';
 import { LinearGradient } from 'expo-linear-gradient';
+import { withNavigation } from '@react-navigation/compat';
 
-import { fullConsultants } from '../constantsEx/Consultants';
+import { fullConsultants } from '../constantsEx/consultants';
 import { HeaderHeight } from "../constantsEx/utils";
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon, Hr } from '../componentsEx';
+import { convertStatus, convertStatusColor } from '../constantsEx/converters';
+import { ProfileTabNavigator, ConsultantProfile, profileImageHeight, profileContentBR } from "../componentsEx/organisms/Profile";
+
 
 const { width, height } = Dimensions.get('screen');
-const thumbMeasure = (width - 48 - 32) / 3;
-const profileContentBR = 13;
-const profileImageHeight = 500;
 
 const Profile = (props) => {
+  const { navigation } = props;
   const { item } = props.route.params;
-  const titleSize = 28;
-  const contentSize = 14;
-  const statusInfo = { title: "", color: "" };
-  switch (item.status) {
-    case "accepting":
-      statusInfo.title = "相談可";
-      statusInfo.color = "dodgerblue";
-      break;
-    case "inConsultation":
-      statusInfo.title = "相談中";
-      statusInfo.color = "crimson";
-      break;
-    default:
-      break;
-  }
+  const statusInfo = convertStatus(item.status);
   const [profileTitleHeight, setProfileTitleHeight] = useState(0);
+  const user = item.all ? item : fullConsultants[item.id];
 
+  const paramsTitleSize = user.me ? 12 : 12;
 
   return (
     <Block flex style={styles.profile}>
@@ -39,7 +28,7 @@ const Profile = (props) => {
         <ScrollView vertical={true} showsVerticalScrollIndicator={false}>
 
           <Block flex style={styles.profileImageContainer}>
-            <Image source={{ uri: item.image }} style={styles.profileImage} />
+            <Image source={{ uri: user.image }} style={styles.profileImage} />
           </Block>
 
           <Block style={styles.scrollContent}>
@@ -49,65 +38,66 @@ const Profile = (props) => {
                 onLayout={(e) => {
                   setProfileTitleHeight(e.nativeEvent.layout.height);
                 }}>
-                <Text bold color="white" size={28} style={{ paddingBottom: 8 }}>{item.name}</Text>
-                <Block row style={{ marginBottom: 7 }} >
-                  <Text size={14} style={{ marginRight: 10 }} color="white" >{item.gender}性 {item.age}歳</Text>
-                  <Block middle style={[styles.status, { backgroundColor: statusInfo.color }]}>
-                    <Text size={16} color="white">{statusInfo.title}</Text>
+                <Text bold color="white" size={28} style={{ paddingBottom: 8 }}>{user.name}</Text>
+
+                <Block row style={{ justifyContent: "space-between" }}>
+                  <Block row style={{ marginBottom: 7 }} >
+                    <Text size={15} style={{ marginRight: 10 }} color="white" >{user.age}歳</Text>
+                    {/* <Block middle style={[styles.status, { backgroundColor: statusInfo.color }]}>
+                      <Text size={16} color="white">{statusInfo.title}</Text>
+                    </Block> */}
+                    <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
+                      <Block style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: convertStatusColor(user.status.key) }} />
+                    </Block>
+                    <Text size={16} color="white">{user.status.title}</Text>
                   </Block>
                 </Block>
+
                 <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']} style={[styles.gradient, { height: profileTitleHeight + 10 }]} />
               </Block>
 
               <Block style={styles.profileContent}>
-                <Block row space="around" style={{ padding: theme.SIZES.BASE, marginBottom: 8 }}>
-                  <Block middle>
-                    <Text bold size={16}>{item.numOfGoods}</Text>
-                    <Text muted size={12}>
-                      <Ionicons name="ios-heart" color="#F69896" />{" "}ありがとう
+                <Block flex row space="around" style={{ padding: theme.SIZES.BASE, marginBottom: 8 }}>
+                  <Block middle flex>
+                    <Text bold size={16} color="#333333">{user.numOfThunks}</Text>
+                    <Text muted size={paramsTitleSize}>
+                      <Icon name="heart" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}ありがとう
                     </Text>
                   </Block>
-                  <Block middle>
-                    <Text bold size={16}>{item.numOfComments}</Text>
-                    <Text muted size={12}>
-                      <Icon family="GalioExtra" name="chat-33" color="#F69896" />{" "}評価
-                    </Text>
-                  </Block>
+                  {user.me && (
+                    <Block middle flex>
+                      <Text bold size={16} color="#333333">{user.plan.title}</Text>
+                      <Text muted size={paramsTitleSize}>
+                        <Icon name="user" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}プラン
+                        </Text>
+                    </Block>
+                  )}
                 </Block>
 
-                <Hr h={1} mb={5} color="#e6e6e6" />
-
-                <Block style={{ paddingVertical: 16, alignItems: 'baseline' }}>
-                  <Text size={16} bold style={{ marginBottom: 10 }}>特徴</Text>
-                  <Block row style={{ flexWrap: "wrap" }}>
-                    {fullConsultants[item.id].features.map(feature => (
-                      <Block middle style={styles.feature} key={feature.id}>
-                        <Text size={16} color="white">{feature}</Text>
-                      </Block>
-                    ))}
-                  </Block>
-                </Block>
-
-                <Hr h={1} mb={5} color="#e6e6e6" />
-
-
-                <Block style={{ paddingVertical: 16, alignItems: 'baseline' }}>
-                  <Text size={16} bold style={{ marginBottom: 10 }}>自己紹介</Text>
-                  <Text size={14} style={{ lineHeight: 18 }}>{item.introduction}</Text>
-                </Block>
-
-                <Hr h={1} mb={5} color="#e6e6e6" />
-
+                {user.me
+                  ? <ProfileTabNavigator user={user} screen="Profile" navigation={navigation} />
+                  : <>
+                    <Hr h={15} color="whitesmoke" />
+                    <ConsultantProfile user={user} />
+                  </>
+                }
               </Block>
             </Block>
           </Block>
         </ScrollView>
       </Block>
+      {
+        user.me
+          ? <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate('ProfileEditor', { user: user })} >
+            <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
+          </Button>
+          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate('Chat', { user: user })}>相談を開始する</Button>
+        }
     </Block >
   );
 }
 
-export default Profile;
+export default withNavigation(Profile);
 
 
 const styles = StyleSheet.create({
@@ -126,7 +116,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   profileDetails: {
-    // paddingTop: theme.SIZES.BASE * 4,
     justifyContent: 'flex-end',
     position: 'relative',
   },
@@ -143,19 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     height: 19,
   },
-  feature: {
-    paddingHorizontal: 6,
-    marginRight: theme.SIZES.BASE / 2,
-    marginBottom: theme.SIZES.BASE / 2,
-    borderRadius: 12,
-    height: 24,
-    backgroundColor: "#F69896",
-  },
-  seller: {
-    marginRight: theme.SIZES.BASE / 2,
-  },
   profileContent: {
-    paddingHorizontal: theme.SIZES.BASE,
     paddingVertical: theme.SIZES.BASE,
     marginBottom: 0,
     borderTopLeftRadius: profileContentBR,
@@ -171,12 +148,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   scrollContent: {
-    height: height,
     zIndex: 2,
-
   },
   profileWrapper: {
     marginTop: profileImageHeight,
     position: "relative",
   },
+  bottomButton: {
+    shadowColor: "lightcoral",
+    position: "absolute",
+    alignSelf: "center",
+    bottom: theme.SIZES.BASE * 2,
+  }
 });

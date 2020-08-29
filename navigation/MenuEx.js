@@ -5,37 +5,22 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-  TouchableOpacity,
-  ListView
 } from "react-native";
 import { Block, Text, theme } from "galio-framework";
 import { useSafeArea } from "react-native-safe-area-context";
-
-// import { Icon } from "../components";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-
 import { Drawer as DrawerCustomItem, Hr } from "../componentsEx";
-import { Images, materialTheme } from "../constants";
 
-const { width } = Dimensions.get("screen");
 
-const profile = {
-  avatar: Images.Profile,
-  name: "とりうみけんと",
-  type: "Seller",
-  plan: "Pro",
-  rating: 4.8,
-};
-
-function CustomDrawerContent({
+const CustomDrawerContent = ({
   drawerPosition,
   navigation,
   profile,
   focused,
   state,
   ...rest
-}) {
+}) => {
   const insets = useSafeArea();
   const screens = [
     "Profile",
@@ -48,10 +33,10 @@ function CustomDrawerContent({
     >
       <Block flex={0.23} style={styles.header}>
         <TouchableWithoutFeedback
-          onPress={() => navigation.navigate("Profile")}
+          onPress={() => navigation.navigate("Profile", {item: profile})}
         >
           <Block style={styles.profile}>
-            <Image source={{ uri: profile.avatar }} style={styles.avatar} />
+            <Image source={{ uri: profile.image }} style={styles.avatar} />
             <Text h5 color={"dimgray"} bold>
               {profile.name}
             </Text>
@@ -62,7 +47,7 @@ function CustomDrawerContent({
         <Text size={16} color={"dimgray"}>
           {/* <Icon name="doubleright" family="Galio" size={14} /> */}
           <MaterialCommunityIcons name="coins" size={13} color="gold" />
-          {" "}{profile.coins}
+          {" "}{profile.point}
         </Text>
         {/* <Block row>
           <Block middle style={styles.pro}>
@@ -106,6 +91,7 @@ function CustomDrawerContent({
                 key={index}
                 navigation={navigation}
                 focused={state.index === index ? true : false}
+                profile={profile}
               />
             );
           })}

@@ -11,7 +11,9 @@ enableScreens();
 
 import Screens from './navigation/Screens';
 import ScreensEx from './navigation/ScreensEx';
-import { Images, materialTheme } from './constants/';
+
+import { materialTheme } from "./constants/";
+import { Images } from './constants/';
 
 const assetImages = [
   Images.Profile,
