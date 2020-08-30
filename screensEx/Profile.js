@@ -1,22 +1,21 @@
-import React, { useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView, Image, Platform } from 'react-native';
-import { Block, Text, theme, Button } from 'galio-framework';
-import { LinearGradient } from 'expo-linear-gradient';
-import { withNavigation } from '@react-navigation/compat';
+import React, { useState } from "react";
+import { StyleSheet, Dimensions, ScrollView, Image, Platform, Alert } from "react-native";
+import { Block, Text, theme, Button } from "galio-framework";
+import { LinearGradient } from "expo-linear-gradient";
+import { withNavigation } from "@react-navigation/compat";
 
-import { fullConsultants } from '../constantsEx/consultants';
+import { fullConsultants } from "../constantsEx/consultants";
 import { HeaderHeight } from "../constantsEx/utils";
-import { Icon, Hr } from '../componentsEx';
-import { convertStatus, convertStatusColor } from '../constantsEx/converters';
-import { ProfileTabNavigator, ConsultantProfile, profileImageHeight, profileContentBR } from "../componentsEx/organisms/Profile";
+import { Icon, Hr } from "../componentsEx";
+import { convertStatus, convertStatusColor } from "../constantsEx/converters";
+import { ProfileTabNavigator, ConsultantProfile, profileImageHeight, profileContentBR, sendChatRequest } from "../componentsEx/organisms/Profile";
 
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get("screen");
 
 const Profile = (props) => {
   const { navigation } = props;
   const { item } = props.route.params;
-  const statusInfo = convertStatus(item.status);
   const [profileTitleHeight, setProfileTitleHeight] = useState(0);
   const user = item.all ? item : fullConsultants[item.id];
 
@@ -43,9 +42,6 @@ const Profile = (props) => {
                 <Block row style={{ justifyContent: "space-between" }}>
                   <Block row style={{ marginBottom: 7 }} >
                     <Text size={15} style={{ marginRight: 10 }} color="white" >{user.age}歳</Text>
-                    {/* <Block middle style={[styles.status, { backgroundColor: statusInfo.color }]}>
-                      <Text size={16} color="white">{statusInfo.title}</Text>
-                    </Block> */}
                     <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
                       <Block style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: convertStatusColor(user.status.key) }} />
                     </Block>
@@ -53,13 +49,13 @@ const Profile = (props) => {
                   </Block>
                 </Block>
 
-                <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']} style={[styles.gradient, { height: profileTitleHeight + 10 }]} />
+                <LinearGradient colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]} style={[styles.gradient, { height: profileTitleHeight + 10 }]} />
               </Block>
 
               <Block style={styles.profileContent}>
                 <Block flex row space="around" style={{ padding: theme.SIZES.BASE, marginBottom: 8 }}>
                   <Block middle flex>
-                    <Text bold size={16} color="#333333">{user.numOfThunks}</Text>
+                    <Text bold size={user.me ? 16 : 18} color="#333333">{user.numOfThunks}</Text>
                     <Text muted size={paramsTitleSize}>
                       <Icon name="heart" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}ありがとう
                     </Text>
@@ -68,19 +64,21 @@ const Profile = (props) => {
                     <Block middle flex>
                       <Text bold size={16} color="#333333">{user.plan.title}</Text>
                       <Text muted size={paramsTitleSize}>
-                        <Icon name="user" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}プラン
+                        <Icon name="id-card-o" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}プラン
                         </Text>
                     </Block>
                   )}
                 </Block>
 
-                {user.me
+                {/* {user.me
                   ? <ProfileTabNavigator user={user} screen="Profile" navigation={navigation} />
                   : <>
                     <Hr h={15} color="whitesmoke" />
                     <ConsultantProfile user={user} />
                   </>
-                }
+                } */}
+                <Hr h={15} color="whitesmoke" />
+                <ConsultantProfile user={user} />
               </Block>
             </Block>
           </Block>
@@ -88,11 +86,11 @@ const Profile = (props) => {
       </Block>
       {
         user.me
-          ? <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate('ProfileEditor', { user: user })} >
+          ? <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor", { user: user })} >
             <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
           </Button>
-          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate('Chat', { user: user })}>相談を開始する</Button>
-        }
+          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => sendChatRequest(user, navigation)}>リクエストを送る</Button>
+      }
     </Block >
   );
 }
@@ -102,7 +100,7 @@ export default withNavigation(Profile);
 
 const styles = StyleSheet.create({
   profile: {
-    marginTop: Platform.OS === 'android' ? -HeaderHeight : 0,
+    marginTop: Platform.OS === "android" ? -HeaderHeight : 0,
     backgroundColor: "white",
   },
   profileImage: {
@@ -112,12 +110,12 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     width: 0,
     height: 0,
-    position: 'absolute',
+    position: "absolute",
     zIndex: 1,
   },
   profileDetails: {
-    justifyContent: 'flex-end',
-    position: 'relative',
+    justifyContent: "flex-end",
+    position: "relative",
   },
   profileTitle: {
     paddingHorizontal: theme.SIZES.BASE * 1.5,
@@ -145,7 +143,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: -10,
-    position: 'absolute',
+    position: "absolute",
   },
   scrollContent: {
     zIndex: 2,

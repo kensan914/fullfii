@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView } from "react-native";
+import { StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView, Alert } from "react-native";
 import { Appearance } from 'react-native-appearance';
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -302,6 +302,42 @@ export const Catalogue = (props) => {
           </Block>} />
         : <Block row style={{ flexWrap: "wrap" }}>{content}</Block>}
     </Block>
+  );
+}
+
+export const sendChatRequest = (user, navigation) => {
+  let alertTitle;
+  let alertText;
+  switch (user.status.key) {
+    case "online":
+      alertTitle = `${user.name}さんにリクエストを送ります。`;
+      alertText = "";
+      break;
+    case "offline":
+      alertTitle = `${user.name}さんは現在オフラインです。`;
+      alertText = "リクエストが承諾される可能性が低いです。";
+      break;
+    case "talking":
+      alertTitle = `${user.name}さんは現在誰かとトーク中です。`;
+      alertText = "リクエストが承諾される可能性が低いです。";
+      break;
+    default:
+      break;
+  }
+  Alert.alert(
+    alertTitle, alertText,
+    [
+      {
+        text: "キャンセル",
+        style: "cancel"
+      },
+      {
+        text: "送信する",
+        onPress: () => {
+          navigation.navigate("Home")
+        }
+      }
+    ]
   );
 }
 

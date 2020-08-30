@@ -231,12 +231,12 @@ export const profile = {
   id: 888,
   name: "けんさん",
   image: "https://otapick.com/media/member_images/2_18/600_600_102400.jpg",
-  status: { key: "talking", title: "オフライン" }, // or {key: "offline", title: "オフライン"} or {key: "talking", title: "会話中"}
+  status: { key: "online", title: "オンライン" }, // or {key: "offline", title: "オフライン"} or {key: "talking", title: "会話中"}
   // gender: "男",
   age: 21,
   numOfThunks: 0,
   // numOfComments: 0,
-  plan: { key: "free", title: "無料" }, // or {key: "pro", title: "PRO"}
+  plan: { key: "pro", title: "PRO" }, // or {key: "pro", title: "PRO"}
   introduction: "職場の人間関係の悩みなどをよく相談に乗っています。",
   features: {
     4: "黙って聞きます",

@@ -7,32 +7,19 @@ import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
 import { MenuModal } from "../molecules/Menu";
 import { EndConsultation, EndConsultationScreen } from "./Chat";
-import { useSafeArea } from "react-native-safe-area-context";
 
 const { height, width } = Dimensions.get("window");
 const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
 
-// const ChatButton = ({ isWhite, style, navigation }) => (
-//   <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Chat")}>
-//     <Icon
-//       family="GalioExtra"
-//       size={16}
-//       name="chat-33"
-//       color={theme.COLORS[isWhite ? "WHITE" : "ICON"]}
-//     />
-//     <Block middle style={styles.notify} />
-//   </TouchableOpacity>
-// );
-
-const BasketButton = ({ isWhite, style, navigation }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Cart")}>
+const ProPlanButton = ({ isWhite, style, navigation }) => (
+  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Plan")}>
     <Icon
-      family="GalioExtra"
+      family="font-awesome"
       size={16}
-      name="basket-simple"
+      name="id-card-o"
       color={theme.COLORS[isWhite ? "WHITE" : "ICON"]}
     />
-    <Block middle style={styles.notify} />
+    {/* <Block middle style={styles.notify} /> */}
   </TouchableOpacity>
 );
 
@@ -62,11 +49,12 @@ const Header = (props) => {
     );
     switch (title) {
       case "Home":
+      case "Talk":
       case "Notification":
       case "":
         return (
           // <ChatButton key="chat-search" navigation={navigation} isWhite={white} />,
-          <BasketButton key="basket-search" navigation={navigation} isWhite={white} />
+          <ProPlanButton key="basket-search" navigation={navigation} isWhite={white} />
         );
       default:
         break;
@@ -74,21 +62,11 @@ const Header = (props) => {
   }
 
   const renderLeft = () => {
-    switch (scene.route.name) {
-      case "Chat":
-        return (
-          <TouchableOpacity style={{ marginBottom: 5, height: 50, width: 40, justifyContent: "center", alignItems: "center" }}
-            onPress={() => EndConsultation(navigation, isOpenEndConsultation, setIsOpenEndConsultation)}>
-            <Icon family="font-awesome" size={16} name="close" color="gray" />
-          </TouchableOpacity>
-        );
-      default:
-        return (
-          <TouchableOpacity onPress={handleLeftPress}>
-            <Image source={{ uri: profile.image }} style={styles.avatar} />
-          </TouchableOpacity >
-        );
-    }
+    return (
+      <TouchableOpacity onPress={handleLeftPress}>
+        <Image source={{ uri: profile.image }} style={styles.avatar} />
+      </TouchableOpacity >
+    );
   }
 
   const handleLeftPress = () => {
@@ -111,6 +89,8 @@ const Header = (props) => {
     switch (prevTitle) {
       case "Home":
         return "ホーム";
+      case "Talk":
+        return "トーク";
       case "Notification":
         return "通知";
       case "ProfileEditor":
@@ -129,12 +109,16 @@ const Header = (props) => {
         return "共感できる悩み";
       case "InputPrivacyName":
         return "プライバシーネーム";
+      case "InputMailAdress":
+        return "メールアドレス";
+      case "InputPassword":
+        return "パスワード"
       default:
         return prevTitle;
     }
   }
 
-  const noShadow = ["Home", "Profile", "ProfileEditor"].includes(title);
+  const noShadow = ["Home", "Profile"].includes(title);
   const headerStyles = [
     !noShadow ? styles.shadow : null,
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,

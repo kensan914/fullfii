@@ -1,6 +1,6 @@
 import React from 'react';
 import { withNavigation } from '@react-navigation/compat';
-import { ProfileTabNavigator } from '../componentsEx/organisms/Profile';
+import { ProfileTabNavigator, ConsultantProfileEditor } from '../componentsEx/organisms/Profile';
 
 
 const ProfileEditor = (props) => {
@@ -8,7 +8,8 @@ const ProfileEditor = (props) => {
   const { navigation } = props;
 
   return (
-    <ProfileTabNavigator user={user} screen="ProfileEditor" navigation={navigation} />
+    // <ProfileTabNavigator user={user} screen="ProfileEditor" navigation={navigation} />
+    <ConsultantProfileEditor user={user} navigation={navigation} />
   );
 }
 

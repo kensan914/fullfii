@@ -13,7 +13,7 @@ export default class Chat extends React.Component {
   state = {
     messages: [{
       id: 0,
-      message: "聞き手に最初のメッセージを送りましょう。\n聞き手からの返信が返ってきたら相談が開始されます。",
+      message: "最初のメッセージを送りましょう。",
       common: true,
     }],
     height: 0,

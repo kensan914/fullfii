@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Easing, Dimensions } from "react-native";
+import { Dimensions } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Text } from "galio-framework";
+import { Text, Block } from "galio-framework";
 
 import { Icon, Header } from "../componentsEx";
 import { materialTheme } from "../constantsEx";
@@ -13,13 +13,17 @@ import { materialTheme } from "../constantsEx";
 import HomeScreen from "../screensEx/Home";
 import ProfileScreen from "../screensEx/Profile";
 import ChatScreen from "../screensEx/Chat";
-import CartScreen from "../screensEx/Cart";
+import PlanScreen from "../screensEx/Plan";
 import ProfileEditorScreen from "../screensEx/ProfileEditor";
 import ProfileInputScreen from "../screensEx/ProfileInput";
-import DealsScreen from "../screens/Deals";
+import TalkScreen from "../screensEx/Talk";
+import NotificationScreen from "../screensEx/Notification";
+import SettingsScreen from "../screensEx/Settings";
 
 import CustomDrawerContent from "./MenuEx";
 import { profile } from "../constantsEx/consultants";
+import { unreadCount } from "../constantsEx/talks";
+import { notificationsCount } from "../constantsEx/notifications";
 
 const { width } = Dimensions.get("screen");
 
@@ -34,10 +38,6 @@ const HomeStack = (props) => {
         name="Home"
         component={BottomTabNavigator}
         options={({ route, navigation }) => {
-          let drawer = navigation.dangerouslyGetParent();
-          drawer.setOptions({
-            gestureEnabled: true,
-          })
           return {
             header: ({ navigation, scene }) => {
               const title = route.state
@@ -108,34 +108,64 @@ const HomeStack = (props) => {
         name="Chat"
         component={ChatScreen}
         options={({ route, navigation }) => {
-          let drawer = navigation.dangerouslyGetParent();
-          drawer.setOptions({
-            gestureEnabled: false
-          })
           return {
             header: ({ navigation, scene }) => {
               const title = route.params.user.name;
               return (
                 <Header
                   title={title}
+                  back
                   navigation={navigation}
                   scene={scene}
                   profile={profile}
                 />
               );
             },
-            gestureEnabled: false,
           }
         }}
       />
       <Stack.Screen
-        name="Cart"
-        component={CartScreen}
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          header: ({ navigation, scene }) => {
+            const title = "設定";
+            return (
+              < Header
+                back
+                title={title}
+                navigation={navigation}
+                scene={scene}
+                profile={profile}
+              />);
+          }
+        }}
+      />
+      <Stack.Screen
+        name="SettingsInput"
+        component={SettingsScreen}
+        options={({ route }) => ({
+          header: ({ navigation, scene }) => {
+            const title = typeof route.params.screen === "undefined" ? "設定" : route.params.screen;
+            return (
+              < Header
+                back
+                title={title}
+                navigation={navigation}
+                scene={scene}
+                profile={profile}
+              />);
+          }
+        })}
+      />
+      <Stack.Screen
+        name="Plan"
+        component={PlanScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
               back
-              title="Shopping Cart"
+              title="PROプラン"
               navigation={navigation}
               scene={scene}
               profile={profile}
@@ -211,17 +241,26 @@ const BottomTabNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
+          let badgeCount;
           if (route.name === "Home") {
             iconName = focused ? "home" : "home";
-          } else if (route.name === "Chat") {
+          } else if (route.name === "Talk") {
             iconName = focused ? "comments" : "comments-o";
+            badgeCount = unreadCount > 99 ? "99" : unreadCount;
           } else if (route.name === "Notification") {
             iconName = focused ? "bell" : "bell-o";
+            badgeCount = notificationsCount > 99 ? "99" : notificationsCount;
           }
-
-          // You can return any component that you like here!
-          return <Icon family="font-awesome" name={iconName} size={size} color={color} />;
+          return (
+            <Block style={{ position: "relative", height: 40, width: 40, justifyContent: "center", alignItems: "center" }}>
+              <Icon family="font-awesome" name={iconName} size={size} color={color} />
+              {typeof badgeCount !== "undefined" &&
+                <Block style={{ position: "absolute", backgroundColor: "#F69896", right: 0, top: 0, height: 18, minWidth: 18, borderRadius: 9, borderColor: "white", borderWidth: 1, justifyContent: "center", alignItems: "center" }}>
+                  <Text size={13} color="white" style={{ paddingHorizontal: 3 }}>{badgeCount}</Text>
+                </Block>
+              }
+            </Block>
+          );
         },
       })}
       tabBarOptions={{
@@ -231,8 +270,8 @@ const BottomTabNavigator = () => {
       }}
     >
       <Tab.Screen name="Home" component={HomeTabNavigator} />
-      <Tab.Screen name="Chat" component={DealsScreen} />
-      <Tab.Screen name="Notification" component={DealsScreen} />
+      <Tab.Screen name="Talk" component={TalkScreen} />
+      <Tab.Screen name="Notification" component={NotificationScreen} />
     </Tab.Navigator>
   );
 }
@@ -258,7 +297,7 @@ const AppStack = (props) => {
           paddingHorizontal: 12,
           // paddingVertical: 4,
           justifyContent: "center",
-          alignContent: "center",
+          alignItems: "center",
           // alignItems: "center",
           overflow: "hidden"
         },

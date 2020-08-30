@@ -11,6 +11,8 @@ import { useSafeArea } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { Drawer as DrawerCustomItem, Hr } from "../componentsEx";
+import { convertStatusColor } from "../constantsEx/converters";
+import { LinearGradient } from "expo-linear-gradient";
 
 
 const CustomDrawerContent = ({
@@ -31,47 +33,36 @@ const CustomDrawerContent = ({
       style={styles.container}
       forceInset={{ top: "always", horizontal: "never" }}
     >
-      <Block flex={0.23} style={styles.header}>
-        <TouchableWithoutFeedback
-          onPress={() => navigation.navigate("Profile", {item: profile})}
-        >
+      <LinearGradient
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        colors={["#F69896", "lightcoral"]}
+        style={[styles.header, { flex: 0.23 }]}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", { item: profile })}>
           <Block style={styles.profile}>
-            <Image source={{ uri: profile.image }} style={styles.avatar} />
-            <Text h5 color={"dimgray"} bold>
+            <Block style={styles.avatarContainer} >
+              <Image source={{ uri: profile.image }} style={styles.avatar} />
+            </Block>
+            <Text h5 color={"white"} bold>
               {profile.name}
             </Text>
           </Block>
         </TouchableWithoutFeedback>
 
-
-        <Text size={16} color={"dimgray"}>
-          {/* <Icon name="doubleright" family="Galio" size={14} /> */}
-          <MaterialCommunityIcons name="coins" size={13} color="gold" />
-          {" "}{profile.point}
-        </Text>
-        {/* <Block row>
-          <Block middle style={styles.pro}>
-            <Text size={16} color="white">
-              {profile.plan}
+        <Block row style={{ alignItems: "center" }}>
+          <Block middle style={styles.plan}>
+            <Text size={16} color="#F69896">
+              {profile.plan.title}
             </Text>
           </Block>
-          <Text size={16} muted style={styles.seller}>
-            {profile.type}
-          </Text>
-          <Text size={16} color={materialTheme.COLORS.WARNING}>
-            {profile.rating}{" "}
-            <Icon name="shape-star" family="GalioExtra" size={14} />
-          </Text>
-        </Block> */}
-      </Block>
+          <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
+            <Block style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: convertStatusColor(profile.status.key) }} />
+          </Block>
+          <Text size={14} color="white">{profile.status.title}</Text>
+        </Block>
+      </LinearGradient>
 
-      {/* <Block
-        style={{
-          borderBottomColor: 'whitesmoke',
-          borderBottomWidth: 12,
-        }}
-      /> */}
-      <Hr h={20} color="whitesmoke" />
+      {/* <Hr h={20} color="white" /> */}
 
       <Block flex style={{ paddingLeft: 7, paddingRight: 14 }}>
         <ScrollView
@@ -106,7 +97,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    backgroundColor: "white",
+    backgroundColor: "#F69896",
     paddingHorizontal: 28,
     paddingBottom: theme.SIZES.BASE,
     paddingTop: theme.SIZES.BASE * 2,
@@ -119,22 +110,28 @@ const styles = StyleSheet.create({
   profile: {
     marginBottom: theme.SIZES.BASE / 2
   },
+  avatarContainer: {
+    position: "relative",
+    marginBottom: theme.SIZES.BASE,
+    backgroundColor: "white",
+    height: 64,
+    width: 64,
+    borderRadius: 32,
+  },
   avatar: {
+    position: "absolute",
+    top: 2,
+    left: 2,
     height: 60,
     width: 60,
     borderRadius: 30,
-    marginBottom: theme.SIZES.BASE
   },
-  pro: {
-    backgroundColor: "gold",
+  plan: {
+    backgroundColor: "white",
     paddingHorizontal: 6,
     marginRight: 8,
     borderRadius: 4,
     height: 19,
-    width: 38,
-  },
-  seller: {
-    marginRight: 16
   },
 });
 

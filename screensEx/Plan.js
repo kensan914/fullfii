@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, Dimensions, Image, FlatList, TouchableWithoutFeedback } from 'react-native';
 import { Button, Block, Text, theme } from 'galio-framework';
 
-import { Product, Select } from '../components/';
-import { materialTheme, products } from '../constants/';
+import { Product, Select } from '../components';
+import { materialTheme, products } from '../constants';
 import cartItems from '../constants/images/cart';
 
 const { width } = Dimensions.get('screen');

@@ -41,7 +41,7 @@ export const EndConsultation = (navigation, isOpenEndConsultation, setIsOpenEndC
 export const EndConsultationScreen = (props) => {
   const { isOpen, setIsOpen, navigation } = props;
   const [currentPage, setCurrentPage] = useState(1);
-  const maxPage = 3;
+  const maxPage = 1;
   const scrollView = useRef(null);
 
   const goNextPage = () => {
@@ -57,24 +57,26 @@ export const EndConsultationScreen = (props) => {
         pushed = true;
         animation.current.play();
         setTimeout(() => {
-          goNextPage();
+          // goNextPage();
+          navigation.navigate("Home");
         }, 800);
       }
     }
     const pushSkip = () => {
       if (!pushed) {
         pushed = true;
-        goNextPage();
+        // goNextPage();
+        navigation.navigate("Home");
       }
     }
 
     return (
       <Block style={styles.endConsultationContainer} >
         <Block style={styles.endConsultationHeader}>
-          <Text bold size={26} color="gray">悩みは解決しましたか？</Text>
+          <Text bold size={26} color="gray">相談を終了しました</Text>
         </Block>
         <Block style={styles.endConsultationContents}>
-          <Text style={{ width: "55%" }} size={20} color="gray">ハートをタップして、相談に乗ってくれた方にありがとうを伝えましょう</Text>
+          <Text style={{ width: "55%" }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
           <Block style={{ postion: "relative", width: width, height: width, justifyContent: "center", alignItems: "center" }}>
             <LottieView
               ref={animation}
@@ -158,8 +160,6 @@ export const EndConsultationScreen = (props) => {
       if (!pushed) {
         pushed = true;
         //
-        console.log("ああああ")
-        console.log(answer)
         navigation.navigate("Home");
       }
     }
@@ -244,11 +244,11 @@ export const EndConsultationScreen = (props) => {
       <ScrollView ref={scrollView} style={styles.endConsultationScrollView} horizontal scrollEnabled={false}>
         <Block flex row>
           {renderFirstPage()}
-          {renderSecondPage()}
-          {renderThirdPage()}
+          {/* {renderSecondPage()}
+          {renderThirdPage()} */}
         </Block>
       </ScrollView>
-      {renderScrollDots()}
+      {/* {renderScrollDots()} */}
     </Modal >
   );
 }
