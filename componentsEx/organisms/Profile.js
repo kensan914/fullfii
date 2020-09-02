@@ -6,7 +6,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
-import { getPermissionAsync, onLoad, pickImage } from '../tools/ImagePicker';
+import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
+import { alertModal } from "../tools/support";
 
 
 const { width } = Dimensions.get("screen");
@@ -141,7 +142,7 @@ export const ConsultantProfileEditor = (props) => {
     <ScrollView style={{ width: width, backgroundColor: "white" }}>
       <Block style={[styles.profileContentBottom]}>
         <Block style={styles.profileTextBlock}>
-          <Text size={16} bold style={{ marginBottom: 10 }}>名前</Text>
+          <Text size={16} bold style={{ marginBottom: 10 }}>ユーザネーム</Text>
           <EditorBlock onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.name, screen: "InputName" })} content={
             <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>{user.name}</Text>
           } />
@@ -324,21 +325,15 @@ export const sendChatRequest = (user, navigation) => {
     default:
       break;
   }
-  Alert.alert(
-    alertTitle, alertText,
-    [
-      {
-        text: "キャンセル",
-        style: "cancel"
-      },
-      {
-        text: "送信する",
-        onPress: () => {
-          navigation.navigate("Home")
-        }
-      }
-    ]
-  );
+  alertModal({
+    mainText: alertTitle,
+    subText: alertText,
+    cancelButton: "キャンセル",
+    okButton: "送信する",
+    onPress: () => {
+      navigation.navigate("Home");
+    },
+  });
 }
 
 const styles = StyleSheet.create({

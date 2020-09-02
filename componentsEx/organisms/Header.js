@@ -96,7 +96,7 @@ const Header = (props) => {
       case "ProfileEditor":
         return "プロフィール編集";
       case "InputName":
-        return "名前";
+        return "ユーザネーム";
       case "InputIntroduction":
         return "自己紹介";
       case "InputFeature":

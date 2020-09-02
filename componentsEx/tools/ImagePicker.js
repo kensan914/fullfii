@@ -3,6 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import { Linking } from "expo";
+import { alertModal } from "./support";
 
 
 const PHOTO = "@photo"
@@ -32,22 +33,15 @@ export const getPermissionAsync = async () => {
   if (Constants.platform.ios) {
     const { status } = await ImagePicker.requestCameraRollPermissionsAsync(Permissions.CAMERA_ROLL);
     if (status !== 'granted') {
-      Alert.alert(
-        "写真への許可が無効になっています",
-        "設定画面へ移動しますか？",
-        [
-          {
-            text: "キャンセル",
-            style: "cancel"
-          },
-          {
-            text: "設定する",
-            onPress: () => {
-              Linking.openURL("app-settings:");
-            }
-          }
-        ]
-      );
+      alertModal({
+        mainText: "写真への許可が無効になっています",
+        subText: "設定画面へ移動しますか？",
+        cancelButton: "キャンセル",
+        okButton: "設定する",
+        onPress: () => {
+          Linking.openURL("app-settings:");
+        },
+      });
       return false;
     } else return true;
   }

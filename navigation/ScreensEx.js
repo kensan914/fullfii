@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Dimensions } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -9,7 +9,6 @@ import { Text, Block } from "galio-framework";
 import { Icon, Header } from "../componentsEx";
 import { materialTheme } from "../constantsEx";
 
-// screens
 import HomeScreen from "../screensEx/Home";
 import ProfileScreen from "../screensEx/Profile";
 import ChatScreen from "../screensEx/Chat";
@@ -19,11 +18,14 @@ import ProfileInputScreen from "../screensEx/ProfileInput";
 import TalkScreen from "../screensEx/Talk";
 import NotificationScreen from "../screensEx/Notification";
 import SettingsScreen from "../screensEx/Settings";
+import SignUpScreen from "../screensEx/SignUp";
+import SignInScreen from "../screensEx/SignIn";
 
 import CustomDrawerContent from "./MenuEx";
 import { profile } from "../constantsEx/consultants";
 import { unreadCount } from "../constantsEx/talks";
 import { notificationsCount } from "../constantsEx/notifications";
+import { useAuthState } from "../componentsEx/tools/authentication";
 
 const { width } = Dimensions.get("screen");
 
@@ -277,53 +279,65 @@ const BottomTabNavigator = () => {
 }
 
 const AppStack = (props) => {
-  return (
-    <Drawer.Navigator
-      style={{ flex: 1 }}
-      drawerContent={props => (
-        <CustomDrawerContent {...props} profile={profile} />
-      )}
-      drawerStyle={{
-        backgroundColor: "white",
-        width: width * 0.8
-      }}
-      drawerContentOptions={{
-        activeTintColor: "white",
-        inactiveTintColor: "#000",
-        activeBackgroundColor: materialTheme.COLORS.ACTIVE,
-        inactiveBackgroundColor: "transparent",
-        itemStyle: {
-          width: width * 0.74,
-          paddingHorizontal: 12,
-          // paddingVertical: 4,
-          justifyContent: "center",
-          alignItems: "center",
-          // alignItems: "center",
-          overflow: "hidden"
-        },
-        labelStyle: {
-          fontSize: 18,
-          fontWeight: "normal"
-        }
-      }}
-      initialRouteName="Home"
-    >
-      <Drawer.Screen
-        name="Home"
-        component={HomeStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="shop"
-              family="GalioExtra"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          ),
+  const state = useAuthState();
+  if (state.status === "Loading") {
+    // return <Text>ローディング...</Text>;
+  } else if (state.status === "Authenticated") {
+    return (
+      <Drawer.Navigator
+        style={{ flex: 1 }}
+        drawerContent={props => (
+          <CustomDrawerContent {...props} profile={profile} />
+        )}
+        drawerStyle={{
+          backgroundColor: "white",
+          width: width * 0.8
         }}
-      />
-    </Drawer.Navigator>
-  );
+        drawerContentOptions={{
+          activeTintColor: "white",
+          inactiveTintColor: "#000",
+          activeBackgroundColor: materialTheme.COLORS.ACTIVE,
+          inactiveBackgroundColor: "transparent",
+          itemStyle: {
+            width: width * 0.74,
+            paddingHorizontal: 12,
+            // paddingVertical: 4,
+            justifyContent: "center",
+            alignItems: "center",
+            // alignItems: "center",
+            overflow: "hidden"
+          },
+          labelStyle: {
+            fontSize: 18,
+            fontWeight: "normal"
+          }
+        }}
+        initialRouteName="Home"
+      >
+        <Drawer.Screen
+          name="Home"
+          component={HomeStack}
+          options={{
+            drawerIcon: ({ focused }) => (
+              <Icon
+                size={16}
+                name="shop"
+                family="GalioExtra"
+                color={focused ? "white" : materialTheme.COLORS.MUTED}
+              />
+            ),
+          }}
+        />
+      </Drawer.Navigator>
+    );
+  } else {
+    return (
+      <Stack.Navigator mode="card" headerMode="" >
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="SignIn" component={SignInScreen} />
+      </Stack.Navigator>
+    );
+  }
 }
 
 export default AppStack;

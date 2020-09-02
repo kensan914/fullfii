@@ -5,8 +5,7 @@ import Modal from "react-native-modal";
 import LottieView from "lottie-react-native";
 import { TextInput } from "react-native-gesture-handler";
 import DropDown from "../atoms/Select";
-import { Select } from "../../components";
-import ModalDropdown from "react-native-modal-dropdown";
+import { alertModal } from "../tools/support";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -21,21 +20,15 @@ export const CommonMessage = (props) => {
 }
 
 export const EndConsultation = (navigation, isOpenEndConsultation, setIsOpenEndConsultation) => {
-  Alert.alert(
-    "相談を終了しますか？", "",
-    [
-      {
-        text: "キャンセル",
-        style: "cancel"
-      },
-      {
-        text: "終了する",
-        onPress: () => {
-          setIsOpenEndConsultation(true);
-        }
-      }
-    ]
-  );
+  alertModal({
+    mainText: "相談を終了しますか？",
+    subText: "",
+    cancelButton: "キャンセル",
+    okButton: "終了する",
+    onPress: () => {
+      setIsOpenEndConsultation(true);
+    },
+  });
 }
 
 export const EndConsultationScreen = (props) => {
@@ -175,7 +168,7 @@ export const EndConsultationScreen = (props) => {
       <Block flex={1 / 3} style={{ justifyContent: "center", alignItems: "center" }}>
         <Text size={16}>{title}</Text>
         <DropDown
-          style={{marginTop: 5}}
+          style={{ marginTop: 5 }}
           disabled={false}
           options={["良かった", "普通", "イマイチ"]}
           onSelect={(index, value) => {

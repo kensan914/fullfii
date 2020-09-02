@@ -10,12 +10,28 @@ import { CommonMessage } from "../componentsEx/organisms/Chat";
 const { width } = Dimensions.get("screen");
 
 export default class Chat extends React.Component {
+  user = this.props.route.params.user;
   state = {
-    messages: [{
-      id: 0,
-      message: "最初のメッセージを送りましょう。",
-      common: true,
-    }],
+    messages: [
+      {
+        id: 0,
+        message: "最初のメッセージを送りましょう。",
+        common: true,
+      }, {
+        id: 1,
+        message: "こんばんは。夫の悩みですか？",
+        time: "14:00",
+      }, {
+        id: 2,
+        message: "そうです！\nこういうのって本人に相談できないし、転勤で地方にいるので、周りに友達もいなくて...",
+        time: "14:01",
+        me: true,
+      }, {
+        id: 3,
+        message: "私もです！特に私の場合は地方には住んでいるんですけど、友達はみんな結婚していないので相談しづらくて。",
+        time: "14:03",
+      },
+    ],
     height: 0,
     inputHeight: 0,
   };
@@ -44,7 +60,7 @@ export default class Chat extends React.Component {
   componentDidMount() {
     // this.handleScroll();
   }
-  
+
   renderMessage = (msg) => {
     if (msg.common) {
       return (
@@ -55,10 +71,13 @@ export default class Chat extends React.Component {
     } else {
       return (
         <Block key={msg.id}>
-          <Block row space={!msg.avatar ? "between" : null}>
-            <Image source={{ uri: msg.avatar }} style={[styles.avatar, styles.shadow]} />
+          <Block row space={msg.me ? "between" : null}>
+            {!msg.me
+              ? <Image source={{ uri: this.user.image }} style={[styles.avatar, styles.shadow]} />
+              : <Image source={null} style={[styles.avatar, styles.shadow]} />
+            }
             <Block style={styles.messageCardWrapper}>
-              {msg.avatar ?
+              {!msg.me ?
                 <Block style={[styles.messageCard, styles.shadow]}>
                   <Text>{msg.message}</Text>
                 </Block> :
@@ -109,6 +128,7 @@ export default class Chat extends React.Component {
         id: messages.length + 1,
         message: message,
         time: date.toLocaleString("ja", { hour: "2-digit", minute: "numeric" }),
+        me: true,
       }]);
 
       this.setState({ messages: newMessages, message: "" });

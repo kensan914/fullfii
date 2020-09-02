@@ -12,8 +12,8 @@ export default class Home extends React.Component {
     const numColumns = 2;
     return (
       <FlatList
-        data={consultants.concat(consultants)}
-        // data={consultants}
+        // data={consultants.concat(consultants)}
+        data={consultants}
         style={styles.consultants}
         renderItem={({ item, index }) => {
           const ml = (index % numColumns === 0) ? theme.SIZES.BASE / 2 : 0;

@@ -2,23 +2,36 @@ import React, { useState } from 'react';
 import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { Block, theme, Text, Input, Button } from 'galio-framework';
 
-import { ConsultantCard, Hr, Icon } from '../componentsEx';
+import { Hr, Icon } from '../componentsEx';
+import { useAuthDispatch } from '../componentsEx/tools/authentication';
+import { alertModal } from '../componentsEx/tools/support';
+
 
 const { width, height } = Dimensions.get('screen');
-import { notifications } from '../constantsEx/notifications';
-import Theme from '../constantsEx/Theme';
 
 const Settings = (props) => {
   const { screen } = props.route.params;
   const { navigation } = props;
   const [value, setValue] = useState("");
+  const dispatch = useAuthDispatch();
+
   if (typeof screen === "undefined")
     return (
       <ScrollView>
         <SettingsTitle title="アカウント" />
         <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputMailAdress" })} />
         <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
-        <SettingsButton title="ログアウト" color="crimson" onPress={() => { }} />
+        <SettingsButton title="ログアウト" color="crimson" onPress={() => {
+          alertModal({
+            mainText: "ログアウトします。",
+            subText: "本当によろしいですか？",
+            cancelButton: "キャンセル",
+            okButton: "ログアウト",
+            onPress: () => {
+              dispatch({ type: 'COMPLETE_LOGOUT' });
+            },
+          });
+        }} />
         <SettingsButton title="アカウントを削除" color="silver" onPress={() => { }} />
 
         <SettingsTitle title="Fullfiiについて" />

@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     marginHorizontal: theme.SIZES.BASE / 2,
     marginTop: -16,
+    backgroundColor: "white"
   },
   horizontalImage: {
     height: 122,

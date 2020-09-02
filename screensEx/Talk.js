@@ -20,10 +20,10 @@ const Talk = (props) => {
             </Block>
             <Block flex={0.65}>
               <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.companion.name}</Text>
-              <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{item.messages[0].message}</Text>
+              <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{item.messages[item.messages.length - 1].message}</Text>
             </Block>
             <Block flex={0.15} style={{ height: 80 }}>
-              <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{item.messages[0].day}</Text>
+              <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{item.messages[item.messages.length - 1].day}</Text>
             </Block>
           </Block>
           <Hr h={1} color="whitesmoke" />
