@@ -6,6 +6,7 @@ import { ConsultantCard, Hr } from '../componentsEx';
 
 const { width, height } = Dimensions.get('screen');
 import { talks } from '../constantsEx/talks';
+import Avatar from '../componentsEx/atoms/Avatar';
 
 const Talk = (props) => {
   const { navigation } = props;
@@ -16,7 +17,7 @@ const Talk = (props) => {
         <TouchableOpacity key={index} onPress={() => navigation.navigate("Chat", { user: item.companion })}>
           <Block flex row style={styles.talkCard}>
             <Block flex={0.2}>
-              <Image source={{ uri: item.companion.image }} style={styles.avatar} />
+              <Avatar size={56} image={item.companion.image} style={{ alignSelf: "center" }} />
             </Block>
             <Block flex={0.65}>
               <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.companion.name}</Text>
@@ -43,10 +44,4 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center"
   },
-  avatar: {
-    height: 56,
-    width: 56,
-    borderRadius: 28,
-    alignSelf: "center",
-  }
 });

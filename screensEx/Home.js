@@ -1,53 +1,54 @@
-import React from 'react';
-import { StyleSheet, Dimensions, FlatList } from 'react-native';
-import { Block, theme, Text } from 'galio-framework';
+import React, { useState, useEffect } from "react";
+import HomeTemplate from "../componentsEx/templates/HomeTemplate";
+import { URLJoin, cvtKeyFromSnakeToCamel } from "../componentsEx/tools/support";
+import { BASE_URL } from "../constantsEx/env";
+import { useAuthState } from "../componentsEx/tools/authContext";
+import authAxios from "../componentsEx/tools/authAxios";
 
-import { ConsultantCard } from '../componentsEx/';
 
-const { width, height } = Dimensions.get('screen');
-import consultants from '../constantsEx/consultants';
+const Home = (props) => {
+  const genre = props.route.name.toLowerCase();
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [isFinished, setIsFinished] = useState(false);
+  const authState = useAuthState();
+  const paginateBy = 10;
 
-export default class Home extends React.Component {
-  renderConsultants = () => {
-    const numColumns = 2;
-    return (
-      <FlatList
-        // data={consultants.concat(consultants)}
-        data={consultants}
-        style={styles.consultants}
-        renderItem={({ item, index }) => {
-          const ml = (index % numColumns === 0) ? theme.SIZES.BASE / 2 : 0;
-          const mr = ((index % numColumns) + 1 === numColumns) ? theme.SIZES.BASE / 2 : 0;
-          const mt = (index < numColumns) ? theme.SIZES.BASE * 2 : 0;
-          return (
-            <Block style={[styles.consultItem, { marginLeft: ml, marginRight: mr, marginTop: mt }]} key={item.key}>
-              <ConsultantCard item={item} />
-            </Block>
-          );
-        }}
-        numColumns={numColumns}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    )
+  let isLoading;
+  const setIsLoading = (bool) => isLoading = bool;
+
+  const appendUsers = (newUsers) => {
+    setUsers(users.concat(
+      newUsers.map((user) => cvtKeyFromSnakeToCamel(user))
+    ));
+    setPage(page + 1);
+    if (newUsers.length < paginateBy) setIsFinished(true);
+    setIsLoading(false);
+    isLoading = false;
   }
 
-  render() {
-    return (
-      <Block flex center style={styles.home}>
-        {this.renderConsultants()}
-      </Block>
-    );
-  }
+  useEffect(() => {
+    requestGetUsers(authState.token, appendUsers, page, genre);
+  }, []);
+
+  return (
+    <HomeTemplate data={users} appendUsers={appendUsers} requestGetUsers={requestGetUsers} token={authState.token} page={page}
+      isLoading={isLoading} setIsLoading={setIsLoading} isFinished={isFinished} genre={genre} />
+  );
 }
 
-const styles = StyleSheet.create({
-  home: {
-    width: width,
-  },
-  consultants: {
-    width: width,
-  },
-  consultItem: {
-    flex: 0.5,
-  }
-});
+export default Home;
+
+
+export const requestGetUsers = (token, appendUsers, page, genre) => {
+  const url = URLJoin(BASE_URL, "users/", `?page=${page > 0 ? page : 1}`, `?genre=${genre}`);
+  console.log(url);
+
+  authAxios(token)
+    .get(url)
+    .then(res => {
+      appendUsers(res.data);
+    })
+    .catch(err => {
+    });
+}

@@ -10,9 +10,9 @@ import { Block, Text, theme } from "galio-framework";
 import { useSafeArea } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { Drawer as DrawerCustomItem, Hr } from "../componentsEx";
-import { convertStatusColor } from "../constantsEx/converters";
+import { Drawer as DrawerCustomItem, Hr, Icon } from "../componentsEx";
 import { LinearGradient } from "expo-linear-gradient";
+import Avatar from "../componentsEx/atoms/Avatar";
 
 
 const CustomDrawerContent = ({
@@ -28,6 +28,7 @@ const CustomDrawerContent = ({
     "Profile",
     "Settings",
   ];
+
   return (
     <Block
       style={styles.container}
@@ -36,12 +37,15 @@ const CustomDrawerContent = ({
       <LinearGradient
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
-        colors={["#F69896", "lightcoral"]}
+        colors={["#ffcccc", "lightcoral"]}
         style={[styles.header, { flex: 0.23 }]}>
         <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", { item: profile })}>
           <Block style={styles.profile}>
             <Block style={styles.avatarContainer} >
-              <Image source={{ uri: profile.image }} style={styles.avatar} />
+              {profile.image
+                ? <Avatar image={profile.image} size={60} style={styles.avatar} />
+                : <Avatar nonAvatar size={60} style={styles.avatar} />
+              }
             </Block>
             <Text h5 color={"white"} bold>
               {profile.name}
@@ -50,15 +54,22 @@ const CustomDrawerContent = ({
         </TouchableWithoutFeedback>
 
         <Block row style={{ alignItems: "center" }}>
-          <Block middle style={styles.plan}>
-            <Text size={16} color="#F69896">
-              {profile.plan.title}
-            </Text>
-          </Block>
-          <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
-            <Block style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: convertStatusColor(profile.status.key) }} />
-          </Block>
-          <Text size={14} color="white">{profile.status.title}</Text>
+          {profile.plan ?
+            <Block middle style={styles.plan}>
+              <Text size={16} color="#F69896" bold>
+                {profile.plan.label}
+              </Text>
+            </Block>
+            : <></>
+          }
+          {profile.status &&
+            <>
+              <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
+                <Block style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: profile.status.color }} />
+              </Block>
+              <Text size={14} color="white">{profile.status.label}</Text>
+            </>
+          }
         </Block>
       </LinearGradient>
 
@@ -117,14 +128,12 @@ const styles = StyleSheet.create({
     height: 64,
     width: 64,
     borderRadius: 32,
+    padding: 0,
   },
   avatar: {
     position: "absolute",
     top: 2,
     left: 2,
-    height: 60,
-    width: 60,
-    borderRadius: 30,
   },
   plan: {
     backgroundColor: "white",

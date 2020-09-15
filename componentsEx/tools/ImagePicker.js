@@ -1,7 +1,7 @@
 import { AsyncStorage, Alert } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import Constants from 'expo-constants';
-import * as Permissions from 'expo-permissions';
+import * as ImagePicker from "expo-image-picker";
+import Constants from "expo-constants";
+import * as Permissions from "expo-permissions";
 import { Linking } from "expo";
 import { alertModal } from "./support";
 
@@ -32,7 +32,7 @@ export const onSave = async (photo) => {
 export const getPermissionAsync = async () => {
   if (Constants.platform.ios) {
     const { status } = await ImagePicker.requestCameraRollPermissionsAsync(Permissions.CAMERA_ROLL);
-    if (status !== 'granted') {
+    if (status !== "granted") {
       alertModal({
         mainText: "写真への許可が無効になっています",
         subText: "設定画面へ移動しますか？",

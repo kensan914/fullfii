@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
 import { Block, Button, Input, Text, theme } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderHeight } from "../../constantsEx/utils";
 import BirthdayPicker from "../atoms/BirthdayPicker";
-import { useAuthDispatch } from "../tools/authentication";
+import { useAuthDispatch } from "../tools/authContext";
+import { useProfileDispatch } from "../tools/profileContext";
+import { useNotificationDispatch } from "../tools/notificationContext";
 
 const { height, width } = Dimensions.get("window");
 
@@ -30,6 +32,7 @@ const SignInUp = (props) => {
   const [errorMessages, setErrorMessages] = useState(errorMessagesInit);
   const [isOpenBirthdayPicker, setIsOpenBirthdayPicker] = useState(false);
   const toggleIsOpenBirthdayPicker = (value) => {
+    Keyboard.dismiss();
     setActive({ username: false, email: false, password: false, });
     setIsOpenBirthdayPicker(value);
   }
@@ -40,7 +43,9 @@ const SignInUp = (props) => {
     setActive(newActive);
   }
 
-  const dispatch = useAuthDispatch();
+  const authDispatch = useAuthDispatch();
+  const profileDispatch = useProfileDispatch();
+  const notificationDispatch = useNotificationDispatch();
 
   const { navigation, signup, signin, requestSignUp, requestSignIn } = props;
   let buttonColor;
@@ -51,9 +56,9 @@ const SignInUp = (props) => {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
     if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, dispatch, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignUp(username, email, password, birthday, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading);
     } else if (signin) {
-      submit = () => requestSignIn(email, password, dispatch, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignIn(email, password, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading);
     }
     disabled = false;
   } else {
@@ -129,6 +134,7 @@ const SignInUp = (props) => {
                 onBlur={() => toggleActive("password", false)}
                 onFocus={() => toggleActive("password", true)}
                 maxLength={30}
+                textContentType={'oneTimeCode'}
               />
               {(active.password && !Array.isArray(errorMessages.password)) && <BottomMessage message="8文字以上" />}
               {Array.isArray(errorMessages.password) &&

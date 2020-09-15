@@ -14,8 +14,10 @@ import ScreensEx from "./navigation/ScreensEx";
 
 import { materialTheme } from "./constants/";
 import { Images } from "./constants/";
-import { AuthProvider } from "./componentsEx/tools/authentication";
-import { asyncGetItem } from "./componentsEx/tools/support";
+import { AuthProvider } from "./componentsEx/tools/authContext";
+import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./componentsEx/tools/support";
+import { ProfileProvider } from "./componentsEx/tools/profileContext";
+import { NotificationProvider } from "./componentsEx/tools/notificationContext";
 
 const assetImages = [
   Images.Profile,
@@ -78,31 +80,45 @@ export default class App extends React.Component {
 
 const RootNavigator = () => {
   const [token, setToken] = useState();
+  const [profile, setProfile] = useState();
+  const [notifications, setNotifications] = useState();
+
   useEffect(() => {
+    console.log("remove プロフィール")
+    asyncRemoveItem("profile"); // TODO
+    // asyncRemoveItem("notifications"); // TODO
+
     const fetchData = async () => {
       const _token = await asyncGetItem("token");
-      if (_token) {
-        setToken(_token);
-      } else {
-        setToken(null);
-      }
+      console.log(_token);
+      setToken(_token ? _token : null);
+      const _profile = await asyncGetJson("profile");
+      setProfile(_profile ? _profile : null);
+      const _notifications = await asyncGetJson("notifications");
+      console.log("_notifications_notifications");
+      console.log(_notifications);
+      setNotifications(_notifications ? _notifications : null);
     }
     fetchData();
   }, []);
 
-  if (typeof token === "undefined") {
+  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined") {
     return <></>; // AppLording
   } else {
     return (
       <NavigationContainer>
         <AuthProvider token={token}>
-          <GalioProvider theme={materialTheme}>
-            <Block flex>
-              {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-              {/* <Screens /> */}
-              <ScreensEx />
-            </Block>
-          </GalioProvider>
+          <ProfileProvider profile={profile} >
+            <NotificationProvider notifications={notifications} >
+              <GalioProvider theme={materialTheme}>
+                <Block flex>
+                  {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                  {/* <Screens /> */}
+                  <ScreensEx />
+                </Block>
+              </GalioProvider>
+            </NotificationProvider>
+          </ProfileProvider>
         </AuthProvider>
       </NavigationContainer>
     );

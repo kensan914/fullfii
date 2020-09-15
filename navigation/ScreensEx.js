@@ -1,10 +1,10 @@
 import React from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, TouchableWithoutFeedback, TouchableOpacity, TouchableNativeFeedback } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Text, Block } from "galio-framework";
+import { Text, Block, Button } from "galio-framework";
 
 import { Icon, Header } from "../componentsEx";
 import { materialTheme } from "../constantsEx";
@@ -22,10 +22,12 @@ import SignUpScreen from "../screensEx/SignUp";
 import SignInScreen from "../screensEx/SignIn";
 
 import CustomDrawerContent from "./MenuEx";
-import { profile } from "../constantsEx/consultants";
+// import { profile } from "../constantsEx/consultants";
 import { unreadCount } from "../constantsEx/talks";
-import { notificationsCount } from "../constantsEx/notifications";
-import { useAuthState } from "../componentsEx/tools/authentication";
+import { useAuthState } from "../componentsEx/tools/authContext";
+import { useProfileState } from "../componentsEx/tools/profileContext";
+import { useNotificationState, useNotificationDispatch } from "../componentsEx/tools/notificationContext";
+import { cvtBadgeCount } from "../componentsEx/tools/support";
 
 const { width } = Dimensions.get("screen");
 
@@ -34,6 +36,8 @@ const Drawer = createDrawerNavigator();
 
 
 const HomeStack = (props) => {
+  const profileState = useProfileState();
+
   return (
     <Stack.Navigator mode="card" headerMode="screen" >
       <Stack.Screen
@@ -50,7 +54,7 @@ const HomeStack = (props) => {
                   title={title}
                   navigation={navigation}
                   scene={scene}
-                  profile={profile}
+                  profile={profileState.profile}
                 />);
             }
           }
@@ -68,7 +72,7 @@ const HomeStack = (props) => {
               transparent
               navigation={navigation}
               scene={scene}
-              profile={profile}
+              profile={profileState.profile}
             />
           ),
           headerTransparent: true
@@ -84,7 +88,7 @@ const HomeStack = (props) => {
               title="ProfileEditor"
               navigation={navigation}
               scene={scene}
-              profile={profile}
+              profile={profileState.profile}
             />
           )
         }}
@@ -101,7 +105,7 @@ const HomeStack = (props) => {
                 title={title}
                 navigation={navigation}
                 scene={scene}
-                profile={profile}
+                profile={profileState.profile}
               />);
           }
         })}
@@ -119,7 +123,7 @@ const HomeStack = (props) => {
                   back
                   navigation={navigation}
                   scene={scene}
-                  profile={profile}
+                  profile={profileState.profile}
                 />
               );
             },
@@ -138,7 +142,7 @@ const HomeStack = (props) => {
                 title={title}
                 navigation={navigation}
                 scene={scene}
-                profile={profile}
+                profile={profileState.profile}
               />);
           }
         }}
@@ -155,7 +159,7 @@ const HomeStack = (props) => {
                 title={title}
                 navigation={navigation}
                 scene={scene}
-                profile={profile}
+                profile={profileState.profile}
               />);
           }
         })}
@@ -170,7 +174,7 @@ const HomeStack = (props) => {
               title="PROプラン"
               navigation={navigation}
               scene={scene}
-              profile={profile}
+              profile={profileState.profile}
             />
           )
         }}
@@ -238,6 +242,10 @@ const HomeTabNavigator = () => {
 
 const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
+  const notificationState = useNotificationState();
+  const notificationDispatch = useNotificationDispatch();
+  const authState = useAuthState();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -248,15 +256,15 @@ const BottomTabNavigator = () => {
             iconName = focused ? "home" : "home";
           } else if (route.name === "Talk") {
             iconName = focused ? "comments" : "comments-o";
-            badgeCount = unreadCount > 99 ? "99" : unreadCount;
+            badgeCount = cvtBadgeCount(unreadCount);
           } else if (route.name === "Notification") {
             iconName = focused ? "bell" : "bell-o";
-            badgeCount = notificationsCount > 99 ? "99" : notificationsCount;
+            badgeCount = cvtBadgeCount(notificationState.unreadNum);
           }
           return (
             <Block style={{ position: "relative", height: 40, width: 40, justifyContent: "center", alignItems: "center" }}>
               <Icon family="font-awesome" name={iconName} size={size} color={color} />
-              {typeof badgeCount !== "undefined" &&
+              {(typeof badgeCount !== "undefined" && badgeCount !== null) &&
                 <Block style={{ position: "absolute", backgroundColor: "#F69896", right: 0, top: 0, height: 18, minWidth: 18, borderRadius: 9, borderColor: "white", borderWidth: 1, justifyContent: "center", alignItems: "center" }}>
                   <Text size={13} color="white" style={{ paddingHorizontal: 3 }}>{badgeCount}</Text>
                 </Block>
@@ -273,71 +281,81 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeTabNavigator} />
       <Tab.Screen name="Talk" component={TalkScreen} />
-      <Tab.Screen name="Notification" component={NotificationScreen} />
+      <Tab.Screen name="Notification" options={{
+        tabBarButton: (props) => <TouchableOpacity activeOpacity={1} {...props} onPress={() => {
+          notificationDispatch({ type: "PUT_READ", token: authState.token });
+          props.onPress();
+        }} />
+      }} >
+        {() => <NotificationScreen notificationState={notificationState} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }
 
 const AppStack = (props) => {
-  const state = useAuthState();
-  if (state.status === "Loading") {
-    // return <Text>ローディング...</Text>;
-  } else if (state.status === "Authenticated") {
-    return (
-      <Drawer.Navigator
-        style={{ flex: 1 }}
-        drawerContent={props => (
-          <CustomDrawerContent {...props} profile={profile} />
-        )}
-        drawerStyle={{
-          backgroundColor: "white",
-          width: width * 0.8
-        }}
-        drawerContentOptions={{
-          activeTintColor: "white",
-          inactiveTintColor: "#000",
-          activeBackgroundColor: materialTheme.COLORS.ACTIVE,
-          inactiveBackgroundColor: "transparent",
-          itemStyle: {
-            width: width * 0.74,
-            paddingHorizontal: 12,
-            // paddingVertical: 4,
-            justifyContent: "center",
-            alignItems: "center",
-            // alignItems: "center",
-            overflow: "hidden"
-          },
-          labelStyle: {
-            fontSize: 18,
-            fontWeight: "normal"
-          }
-        }}
-        initialRouteName="Home"
-      >
-        <Drawer.Screen
-          name="Home"
-          component={HomeStack}
-          options={{
-            drawerIcon: ({ focused }) => (
-              <Icon
-                size={16}
-                name="shop"
-                family="GalioExtra"
-                color={focused ? "white" : materialTheme.COLORS.MUTED}
+  const authState = useAuthState();
+  const profileState = useProfileState();
+
+  return (
+    <Stack.Navigator mode="card" headerMode="" >
+      {authState.status === "Authenticated" ?
+        <Stack.Screen name="Authenticated" >
+          {() => (
+            <Drawer.Navigator
+              style={{ flex: 1 }}
+              drawerContent={props => (
+                <CustomDrawerContent {...props} profile={profileState.profile} />
+              )}
+              drawerStyle={{
+                backgroundColor: "white",
+                width: width * 0.8
+              }}
+              drawerContentOptions={{
+                activeTintColor: "white",
+                inactiveTintColor: "#000",
+                activeBackgroundColor: materialTheme.COLORS.ACTIVE,
+                inactiveBackgroundColor: "transparent",
+                itemStyle: {
+                  width: width * 0.74,
+                  paddingHorizontal: 12,
+                  // paddingVertical: 4,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  // alignItems: "center",
+                  overflow: "hidden"
+                },
+                labelStyle: {
+                  fontSize: 18,
+                  fontWeight: "normal"
+                }
+              }}
+              initialRouteName="Home"
+            >
+              <Drawer.Screen
+                name="Home"
+                component={HomeStack}
+                options={{
+                  drawerIcon: ({ focused }) => (
+                    <Icon
+                      size={16}
+                      name="shop"
+                      family="GalioExtra"
+                      color={focused ? "white" : materialTheme.COLORS.MUTED}
+                    />
+                  ),
+                }}
               />
-            ),
-          }}
-        />
-      </Drawer.Navigator>
-    );
-  } else {
-    return (
-      <Stack.Navigator mode="card" headerMode="" >
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="SignIn" component={SignInScreen} />
-      </Stack.Navigator>
-    );
-  }
+            </Drawer.Navigator>
+          )}
+        </Stack.Screen> :
+        <>
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        </>
+      }
+    </Stack.Navigator>
+  );
 }
 
 export default AppStack;

@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-nati
 import { Block, theme, Text, Input, Button } from 'galio-framework';
 
 import { Hr, Icon } from '../componentsEx';
-import { useAuthDispatch } from '../componentsEx/tools/authentication';
+import { useAuthDispatch } from '../componentsEx/tools/authContext';
 import { alertModal } from '../componentsEx/tools/support';
 
 
@@ -13,7 +13,7 @@ const Settings = (props) => {
   const { screen } = props.route.params;
   const { navigation } = props;
   const [value, setValue] = useState("");
-  const dispatch = useAuthDispatch();
+  const authDispatch = useAuthDispatch();
 
   if (typeof screen === "undefined")
     return (
@@ -28,7 +28,7 @@ const Settings = (props) => {
             cancelButton: "キャンセル",
             okButton: "ログアウト",
             onPress: () => {
-              dispatch({ type: 'COMPLETE_LOGOUT' });
+              authDispatch({ type: 'COMPLETE_LOGOUT' });
             },
           });
         }} />

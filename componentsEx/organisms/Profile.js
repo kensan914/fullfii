@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import { StyleSheet, Image, TouchableOpacity, Dimensions, ScrollView, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { Appearance } from 'react-native-appearance';
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
 import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
-import { alertModal } from "../tools/support";
+import { alertModal, URLJoin } from "../tools/support";
+import Avatar from "../atoms/Avatar";
+import { useProfileState, useProfileDispatch } from "../tools/profileContext";
+import BirthdayPicker from "../atoms/BirthdayPicker";
+import { requestPatchProfile } from "../../screensEx/ProfileInput";
+import { useAuthState } from "../tools/authContext";
+import { BASE_URL_WS } from "../../constantsEx/env";
 
 
 const { width } = Dimensions.get("screen");
@@ -115,9 +120,7 @@ export const ClientProfile = (props) => {
         <Text size={16} bold style={{ marginBottom: 10 }}>プライバシー画像</Text>
         {user.privacyImage
           ? <Block flex style={{ alignItems: "center", width: "100%" }}>
-            <Block style={styles.avatarContainer}>
-              <Image source={{ uri: user.privacyImage }} style={styles.avatar} />
-            </Block>
+            <Avatar border size={150} image={user.privacyImage} style={styles.avatar} />
           </Block>
           : <Text size={14} color="darkgray" style={{ lineHeight: 18 }} >プライバシー画像は設定されていません。相談の際には、聞き手側にプロフィール画像が表示されます。</Text>
         }
@@ -130,13 +133,38 @@ export const ClientProfile = (props) => {
 const editButtonRate = { content: 9, button: 1 };
 
 export const ConsultantProfileEditor = (props) => {
-  const { user, navigation } = props;
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const { navigation, requestPostProfileImage } = props;
+  const profileState = useProfileState();
+  const authState = useAuthState();
+  const profileDispatch = useProfileDispatch();
+  const user = profileState.profile;
+
+  const [isOpenBirthdayPicker, setIsOpenBirthdayPicker] = useState(false);
+  const [birthday, setBirthday] = useState(user.birthday ? new Date(user.birthday.year, user.birthday.month - 1, user.birthday.day) : undefined);
   const colorScheme = Appearance.getColorScheme();
-  const handleConfirm = (date) => {
-    console.log("私の誕生日は: ", date);
-    setDatePickerVisibility(false);
+
+  const [canSubmit, setCanSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+
+  const submit = () => {
+    setIsLoading(true);
+    requestPatchProfile(authState.token, { "birthday": `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}` }, profileDispatch, () => {
+      setIsOpenBirthdayPicker(false);
+      setIsLoading(false);
+    }, (err) => {
+      setIsLoading(false);
+    });
   };
+
+  useEffect(() => {
+    // set canSubmit
+    const prevBirthday = user.birthday;
+    if (prevBirthday.year !== birthday.getFullYear() || prevBirthday.month - 1 !== birthday.getMonth() || prevBirthday.day !== birthday.getDate()) {
+      setCanSubmit(true);
+    }
+    else setCanSubmit(false);
+  }, [birthday]);
 
   return (
     <ScrollView style={{ width: width, backgroundColor: "white" }}>
@@ -156,40 +184,31 @@ export const ConsultantProfileEditor = (props) => {
             if (result) {
               onLoad();
               pickImage().then((image) => {
-                console.log(image);
+                if (image) {
+                  setIsLoadingImage(true);
+                  requestPostProfileImage(authState.token, image, profileDispatch, () => {
+                    setIsLoadingImage(false);
+                  }, (err) => {
+                    setIsLoadingImage(false);
+                  });
+                }
               });
             }
           }} content={
             <Block flex style={{ alignItems: "center", width: "100%", flex: editButtonRate.content }}>
-              <Block style={styles.avatarContainer}>
-                <Image source={{ uri: user.image }} style={styles.avatar} />
-              </Block>
+              <Avatar border size={150} image={user.image} style={styles.avatar} />
             </Block>
-          } isImage />
+          } isImage isLoadingImage={isLoadingImage} />
         </Block>
         <ProfileHr />
 
         <Block style={styles.profileTextBlock}>
           <Text size={16} bold style={{ marginBottom: 10 }}>生年月日</Text>
-          <EditorBlock onPress={() => setDatePickerVisibility(true)} content={
+          <EditorBlock onPress={() => setIsOpenBirthdayPicker(true)} content={
             <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>{user.birthday.text}</Text>
           } />
-          <DateTimePickerModal
-            isVisible={isDatePickerVisible}
-            date={(user.birthday.year && user.birthday.month && user.birthday.day) ? new Date(user.birthday.year, user.birthday.month - 1, user.birthday.day) : new Date()}
-            mode="date"
-            maximumDate={new Date()}
-            minimumDate={new Date(1900, 0, 1)}
-            headerTextIOS="生年月日"
-            cancelTextIOS="キャンセル"
-            confirmTextIOS="OK"
-            onConfirm={handleConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            pickerContainerStyleIOS={{
-              backgroundColor: colorScheme === "dark" ? "#222" : "white"
-            }}
-            locale="ja"
-          />
+          <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={setIsOpenBirthdayPicker} colorScheme={colorScheme}
+            submit={submit} canSubmit={canSubmit} isLoading={isLoading} />
         </Block>
         <ProfileHr />
 
@@ -248,9 +267,7 @@ export const ClientProfileEditor = (props) => {
           {user.privacyImage
             ? <EditorBlock onPress={pickPrivacyImage} content={
               <Block flex style={{ alignItems: "center", width: "100%", flex: editButtonRate.content }}>
-                <Block style={styles.avatarContainer}>
-                  <Image source={{ uri: user.privacyImage }} style={styles.avatar} />
-                </Block>
+                <Avatar border size={150} image={user.privacyImage} style={styles.avatar} />
               </Block>
             } isImage />
             : <EditorBlock onPress={pickPrivacyImage} content={
@@ -264,13 +281,16 @@ export const ClientProfileEditor = (props) => {
 }
 
 const EditorBlock = (props) => {
-  const { onPress, content, isImage } = props;
+  const { onPress, content, isImage, isLoadingImage } = props;
   return (
     isImage
       ? <TouchableOpacity onPress={onPress} style={{ flex: 1, width: "100%" }}>
         {content}
         <Block style={{ position: "absolute", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
-          <Icon name="camera" family="font-awesome" color="white" size={40} />
+          {isLoadingImage
+            ? <ActivityIndicator size="large" color="white" />
+            : <Icon name="camera" family="font-awesome" color="white" size={40} />
+          }
         </Block>
       </TouchableOpacity>
       : <TouchableOpacity onPress={onPress} style={{ flex: 1, flexDirection: "row" }}>
@@ -284,11 +304,11 @@ const EditorBlock = (props) => {
 
 export const Catalogue = (props) => {
   const { title, items, isEditor, onPress } = props;
-  const contentlist = Object.values(items);
-  const content = contentlist.length > 0
-    ? contentlist.map((item, index) => (
-      <Block middle style={styles.catalogueItem} key={index}>
-        <Text size={16} color="white">{item}</Text>
+  // const contentlist = Object.values(items);
+  const content = items.length > 0
+    ? items.map((item, index) => (
+      <Block middle style={styles.catalogueItem} key={item.key}>
+        <Text size={16} color="white">{item.label}</Text>
       </Block>
     ))
     : <Text size={14} >-</Text>
@@ -306,7 +326,7 @@ export const Catalogue = (props) => {
   );
 }
 
-export const sendChatRequest = (user, navigation) => {
+export const sendChatRequest = (user, navigation, token) => {
   let alertTitle;
   let alertText;
   switch (user.status.key) {
@@ -331,6 +351,32 @@ export const sendChatRequest = (user, navigation) => {
     cancelButton: "キャンセル",
     okButton: "送信する",
     onPress: () => {
+      const url = URLJoin(BASE_URL_WS, "chat-request/", user.id);
+      console.log(url)
+
+      let ws = new WebSocket(url);
+      ws.onopen = (e) => {
+        alert("websocket接続が完了しました(chat-request)");
+        ws.send(JSON.stringify({ type: "auth", token: token }));
+      };
+      ws.onmessage = (e) => {
+        const receivedMsgData = JSON.parse(e.data);
+        if (receivedMsgData.type === "auth") {
+          console.log("websocket認証OK(chat-request)");
+        } else if (receivedMsgData.type === "") {
+          alert(receivedMsgData.message);
+        }
+        console.log(receivedMsgData);
+      };
+      ws.onclose = (e) => {
+        alert("切断されました(chat-request)");
+        if (e.wasClean) {
+        } else {
+          // e.g. サーバのプロセスが停止、あるいはネットワークダウン
+          // この場合、event.code は通常 1006 になります
+        }
+      };
+      
       navigation.navigate("Home");
     },
   });
@@ -360,24 +406,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: "baseline",
   },
-  avatarContainer: {
-    height: 160,
-    width: 160,
-    borderRadius: 80,
-    backgroundColor: "white",
-    shadowColor: "gray",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.3,
-    elevation: 2
-  },
   avatar: {
-    height: 150,
-    width: 150,
-    borderRadius: 75,
-    marginLeft: 5,
-    marginTop: 5,
+    // marginLeft: 5,
+    // marginTop: 5,
   },
 });

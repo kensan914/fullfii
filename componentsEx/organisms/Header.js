@@ -1,4 +1,4 @@
-import React, { useState, createContext } from "react";
+import React, { useState, createContext, useReducer } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { TouchableOpacity, StyleSheet, Platform, Dimensions, Keyboard, Image } from "react-native";
 import { Button, Block, NavBar, Input, Text, theme, Toast } from "galio-framework";
@@ -7,6 +7,7 @@ import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
 import { MenuModal } from "../molecules/Menu";
 import { EndConsultation, EndConsultationScreen } from "./Chat";
+import Avatar from "../atoms/Avatar";
 
 const { height, width } = Dimensions.get("window");
 const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
@@ -64,7 +65,7 @@ const Header = (props) => {
   const renderLeft = () => {
     return (
       <TouchableOpacity onPress={handleLeftPress}>
-        <Image source={{ uri: profile.image }} style={styles.avatar} />
+        <Avatar size={34} image={profile.image} />
       </TouchableOpacity >
     );
   }
@@ -197,10 +198,5 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderWidth: 1,
     borderRadius: 3,
-  },
-  avatar: {
-    height: 34,
-    width: 34,
-    borderRadius: 17,
   },
 });

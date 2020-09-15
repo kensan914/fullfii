@@ -3,31 +3,8 @@ import axios from "axios";
 
 import { BASE_URL } from "../constantsEx/env";
 import { URLJoin } from "../componentsEx/tools/support";
-import SignInUp from "../componentsEx/templates/SignInUp";
+import SignInUp from "../componentsEx/templates/SignInUpTemplate";
 import { requestSignIn } from "./SignIn";
-
-
-const requestSignUp = (username, email, password, birthday, dispatch, setErrorMessages, errorMessagesInit, setIsLoading) => {
-  setIsLoading(true);
-  const url = URLJoin(BASE_URL, "api/signup/");
-  axios
-    .post(url, {
-      username: username,
-      email: email,
-      password: password,
-      birthday: `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}`, // YYYY-MM-DD
-    })
-    .then(res => {
-      requestSignIn(email, password, dispatch, setErrorMessages, errorMessagesInit, setIsLoading);
-    })
-    .catch(err => {
-      if (err.response.status === 400) {
-        const newErrorMessages = Object.assign(errorMessagesInit, err.response.data);
-        setErrorMessages(Object.assign({}, newErrorMessages));
-      }
-      setIsLoading(false);
-    });
-}
 
 
 const SignUp = (props) => {
@@ -38,3 +15,27 @@ const SignUp = (props) => {
 
 export default SignUp;
 
+
+const requestSignUp = (username, email, password, birthday, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading) => {
+  setIsLoading(true);
+  const url = URLJoin(BASE_URL, "signup/");
+  console.log("リクエストサインアップ")
+  axios
+    .post(url, {
+      username: username,
+      email: email,
+      password: password,
+      birthday: `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}`, // YYYY-MM-DD
+    })
+    .then(res => {
+      requestSignIn(email, password, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading);
+    })
+    .catch(err => {
+      console.log(err.response);
+      if (err.response.status === 400) {
+        const newErrorMessages = Object.assign(errorMessagesInit, err.response.data);
+        setErrorMessages(Object.assign({}, newErrorMessages));
+      }
+      setIsLoading(false);
+    });
+}

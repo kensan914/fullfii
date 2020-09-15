@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetItem, asyncRemoveItem } from "./support";
+import { asyncSetItem, asyncRemoveAll } from "./support";
 
 
 const authReducer = (prevState, action) => {
@@ -17,7 +17,7 @@ const authReducer = (prevState, action) => {
         token: action.token,
       };
     case "COMPLETE_LOGOUT":
-      asyncRemoveItem("token");
+      asyncRemoveAll();
       return {
         ...prevState,
         status: "Unauthenticated",
@@ -44,13 +44,13 @@ export const useAuthDispatch = () => {
 };
 
 export const AuthProvider = ({ children, token }) => {
-  const [state, dispatch] = useReducer(authReducer, {
+  const [authState, authDispatch] = useReducer(authReducer, {
     status: token ? "Authenticated" : "Unauthenticated",
     token: token ? token : undefined,
   });
   return (
-    <AuthStateContext.Provider value={state}>
-      <AuthDispatchContext.Provider value={dispatch}>
+    <AuthStateContext.Provider value={authState}>
+      <AuthDispatchContext.Provider value={authDispatch}>
         {children}
       </AuthDispatchContext.Provider>
     </AuthStateContext.Provider>

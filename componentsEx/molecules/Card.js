@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Icon from '../atoms/Icon';
 import Hr from '../atoms/Hr';
-import { convertStatus, convertStatusColor } from '../../constantsEx/converters';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 const { width } = Dimensions.get('screen');
@@ -22,12 +22,22 @@ const Card = (props) => {
     <Block row={horizontal} card flex style={[styles.card, styles.shadow, style]}>
       <TouchableWithoutFeedback onPress={navigateProfile}>
         <Block style={[styles.statusContainer]}>
-          <Block style={[styles.statusIcon, { backgroundColor: convertStatusColor(item.status.key) }]} />
+          <Block style={[styles.statusIcon, { backgroundColor: item.status.color }]} />
         </Block>
       </TouchableWithoutFeedback>
       <TouchableWithoutFeedback onPress={navigateProfile}>
         <Block flex style={[styles.imageContainer, styles.shadow]}>
-          <Image source={{ uri: item.image }} style={imageStyles} />
+          {item.image
+            ? <Image source={{ uri: item.image }} style={imageStyles} />
+            :
+            <LinearGradient
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={["#F69896", "lavenderblush"]}
+              style={[imageStyles, { alignItems: "center", justifyContent: "center" }]}>
+              <Icon family="font-awesome" size={56} name="user-circle-o" color="white" />
+            </LinearGradient>
+          }
         </Block>
       </TouchableWithoutFeedback>
       <TouchableWithoutFeedback onPress={navigateProfile}>
@@ -65,6 +75,7 @@ const ConsultantCard = (props) => {
 }
 
 export default withNavigation(ConsultantCard);
+
 
 const styles = StyleSheet.create({
   card: {

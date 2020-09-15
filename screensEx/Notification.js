@@ -1,48 +1,74 @@
 import React from 'react';
-import { StyleSheet, Dimensions, FlatList, Image, TouchableNativeFeedback, TouchableHighlight, TouchableOpacity } from 'react-native';
-import { Block, theme, Text } from 'galio-framework';
 
-import { ConsultantCard, Hr } from '../componentsEx';
+import NotificationTemplate from '../componentsEx/templates/NotificationTemplate';
+import { BASE_URL_WS } from "../constantsEx/env";
+import { URLJoin } from "../componentsEx/tools/support";
 
-const { width, height } = Dimensions.get('screen');
-import { notifications } from '../constantsEx/notifications';
 
 const Notification = (props) => {
-  const { navigation } = props;
+  const { notificationState } = props;
+
   return (
-    <FlatList
-      data={notifications}
-      renderItem={({ item, index }) => (
-        <TouchableOpacity key={index} onPress={() => { }}>
-          <Block flex row style={styles.notificationCard}>
-            <Block flex={0.85} style={{paddingLeft: 10}}>
-              <Text size={14} style={{lineHeight: 20}}>{item.message}</Text>
-            </Block>
-            <Block flex={0.15} style={{ height: 80 }}>
-              <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{item.day}</Text>
-            </Block>
-          </Block>
-          <Hr h={1} color="whitesmoke" />
-        </TouchableOpacity>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-    />
+    <NotificationTemplate {...props} notifications={notificationState.notifications} />
   );
 }
 
 export default Notification;
 
-const styles = StyleSheet.create({
-  notificationCard: {
-    height: 80,
-    width: width,
-    backgroundColor: "white",
-    alignItems: "center"
-  },
-  avatar: {
-    height: 56,
-    width: 56,
-    borderRadius: 28,
-    alignSelf: "center",
-  }
-});
+
+export const conectWsNotification = (token, notificationDispatch) => {
+  const url = URLJoin(BASE_URL_WS, "notification/");
+  let newestPage = 1;
+  const paginateBy = 10;
+
+  let ws = new WebSocket(url);
+  ws.onopen = (e) => {
+    alert("websocket接続が完了しました(notification)");
+    ws.send(JSON.stringify({ type: "auth", token: token }));
+  };
+
+  ws.onmessage = (e) => {
+    const receivedMsgData = JSON.parse(e.data);
+
+    if (receivedMsgData.type === "auth") {
+      console.log("websocket認証OK(notification)");
+      // get newest notifications
+      ws.send(JSON.stringify({ type: "get", page: newestPage, token: token }));
+    } 
+    
+    else if (receivedMsgData.type === "get") {
+      // merge newest notifications
+      console.log(receivedMsgData);
+      const newestNotifications = receivedMsgData.notifications;
+      notificationDispatch({
+        type: "MERGE", notifications: newestNotifications, notDuplicateFunc: () => {
+          if (newestNotifications.length >= paginateBy) {
+            // paginateBy分の長さかつ重複がなければ次ページのnotificationsをget
+            newestPage += 1;
+            ws.send(JSON.stringify({ type: "get", page: newestPage, token: token }));
+          }
+        }
+      });
+    } 
+    
+    else if (receivedMsgData.type === "notice") {
+      alert(receivedMsgData.notification.message + receivedMsgData.notification.url);
+      notificationDispatch({ type: "APPEND", notification: receivedMsgData.notification });
+    } 
+
+    else if (receivedMsgData.type === "read") {
+      notificationDispatch({ type: "COMPLETE_READ" });
+    }
+  };
+
+  ws.onclose = (e) => {
+    alert("切断されました(notification)");
+    if (e.wasClean) {
+    } else {
+      // e.g. サーバのプロセスが停止、あるいはネットワークダウン
+      // この場合、event.code は通常 1006 になります
+    }
+  };
+
+  notificationDispatch({ type: "SET_WS", ws: ws });
+}
