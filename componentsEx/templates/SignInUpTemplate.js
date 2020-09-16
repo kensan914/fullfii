@@ -177,29 +177,33 @@ const SignInUp = (props) => {
 
             </Block>
 
-            <Block/>
+            {signup &&
+              <>
+                <Block/>
+                <Block style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                    <Checkbox
+                      color="#F69896"
+                      style={{ marginVertical: 8, marginHorizontal: 8, }}
+                      labelStyle={{ fontSize: 16 }}
+                      initialValue={active.userpolicy}
+                      onChange={(value) => {
+                        value ? setUserpolicy(true) : setUserpolicy(false);
+                      }}
+                      />
+                        <Text
+                          style={{color: '#0066c0'}}
+                          onPress={this._handleOpenWithWebBrowser}
+                          >利用規約
+                        </Text>
+                        <Text
+                          style={{color: '#F69896'}}
+                          onPress={this._handleOpenWithWebBrowser}
+                          >に同意する
+                        </Text>
+                </Block>
+              </>
+            }
 
-            <Block style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                <Checkbox
-                  color="#F69896"
-                  style={{ marginVertical: 8, marginHorizontal: 8, }}
-                  labelStyle={{ fontSize: 16 }}
-                  initialValue={active.userpolicy}
-                  onChange={(value) => {
-                    value ? setUserpolicy(true) : setUserpolicy(false);
-                  }}
-                  />
-                    <Text
-                      style={{color: '#0066c0'}}
-                      onPress={this._handleOpenWithWebBrowser}
-                      >利用規約
-                    </Text>
-                    <Text
-                      style={{color: '#F69896'}}
-                      onPress={this._handleOpenWithWebBrowser}
-                      >に同意する
-                    </Text>
-            </Block>
             <Block flex top style={{ marginTop: 20 }}>
               {Array.isArray(errorMessages.error) &&
                 errorMessages.error.map((message, index) => <BottomMessage style={{ marginBottom: 10, }} textcenter message={message} error key={index} />)

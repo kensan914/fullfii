@@ -22,6 +22,13 @@ const Settings = (props) => {
 
   _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync("https://www.fullfii.com/pages/privacy");
+<<<<<<< HEAD
+=======
+  };
+
+  _handleOpenWithWebBrowserContactUsForm = () => {
+    WebBrowser.openBrowserAsync("https://docs.google.com/forms/d/e/1FAIpQLScaGHQYXpvYtPPSIKqVgPdSgM5QY_dzOQeTG6j8Jz16bJWV3A/viewform?usp=sf_link");
+>>>>>>> 0122012d298012621185ab3107804672278e67fc
   };
 
   if (typeof screen === "undefined")
@@ -48,7 +55,7 @@ const Settings = (props) => {
         <SettingsCard title="利用規約" onPress={this._handleOpenWithWebBrowser} />
         <SettingsCard title="プライバシーポリシー" onPress={this._handleOpenWithWebBrowser} />
         <SettingsCard title="特定商取引法に基づく表示" onPress={this._handleOpenWithWebBrowser} />
-        <SettingsCard title="お問い合わせ" onPress={() => { }} />
+        <SettingsCard title="お問い合わせ" onPress={this._handleOpenWithWebBrowserContactUsForm} />
       </ScrollView>
     );
   else if (screen === "InputMailAdress")
