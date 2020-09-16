@@ -5,7 +5,7 @@ import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
-import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
+import { getPermissionAsync, onLoad, pickImage } from '../tools/ImagePicker';
 import { alertModal, URLJoin } from "../tools/support";
 import Avatar from "../atoms/Avatar";
 import { useProfileState, useProfileDispatch } from "../tools/profileContext";

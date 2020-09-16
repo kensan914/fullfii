@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
-import { Block, Button, Input, Text, theme } from "galio-framework";
+import { Block, Button, Input, Text, theme, Checkbox } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
+import * as WebBrowser from 'expo-web-browser';
 
 import { HeaderHeight } from "../../constantsEx/utils";
 import BirthdayPicker from "../atoms/BirthdayPicker";
@@ -16,10 +17,12 @@ const SignInUp = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [birthday, setBirthday] = useState();
+  const [userpolicy, setUserpolicy] = useState();
   const [active, setActive] = useState({
     username: false,
     email: false,
     password: false,
+    userpolicy: false
   });
   const errorMessagesInit = {
     username: "",
@@ -52,7 +55,7 @@ const SignInUp = (props) => {
   let buttonTextColor;
   let submit;
   let disabled = true;
-  if ((signup && username && email && password && birthday) || (signin && email && password)) {
+  if ((signup && username && email && password && birthday && userpolicy) || (signin && email && password)) {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
     if (signup) {
@@ -65,6 +68,10 @@ const SignInUp = (props) => {
     buttonColor = "gainsboro";
     buttonTextColor = "silver";
   }
+
+  _handleOpenWithWebBrowser = () => {
+    WebBrowser.openBrowserAsync('https://www.fullfii.com/pages/privacy');
+  };
 
   return (
     <LinearGradient
@@ -164,6 +171,30 @@ const SignInUp = (props) => {
                 </>
               }
 
+            </Block>
+
+            <Block/>
+
+            <Block style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                <Checkbox
+                  color="#F69896"
+                  style={{ marginVertical: 8, marginHorizontal: 8, }}
+                  labelStyle={{ fontSize: 16 }}
+                  initialValue={active.userpolicy}
+                  onChange={(value) => {
+                    value ? setUserpolicy(true) : setUserpolicy(false);
+                  }}
+                  />
+                    <Text
+                      style={{color: '#0066c0'}}
+                      onPress={this._handleOpenWithWebBrowser}
+                      >利用規約
+                    </Text>
+                    <Text
+                      style={{color: '#F69896'}}
+                      onPress={this._handleOpenWithWebBrowser}
+                      >に同意する
+                    </Text>
             </Block>
             <Block flex top style={{ marginTop: 20 }}>
               {Array.isArray(errorMessages.error) &&
