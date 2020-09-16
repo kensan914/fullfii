@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
-import { Block, theme, Text, Input, Button } from 'galio-framework';
+import React, { useState } from "react";
+import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import { Block, theme, Text, Input, Button } from "galio-framework";
 
-import { Hr, Icon } from '../componentsEx';
-import { useAuthDispatch } from '../componentsEx/tools/authContext';
-import { alertModal } from '../componentsEx/tools/support';
+import { Hr, Icon } from "../componentsEx";
+import { useAuthDispatch } from "../componentsEx/tools/authContext";
+import { alertModal } from "../componentsEx/tools/support";
+import { useNotificationDispatch } from "../componentsEx/tools/notificationContext";
 
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get("screen");
 
 const Settings = (props) => {
   const { screen } = props.route.params;
   const { navigation } = props;
   const [value, setValue] = useState("");
   const authDispatch = useAuthDispatch();
+  const notificationDispatch = useNotificationDispatch();
 
   if (typeof screen === "undefined")
     return (
@@ -28,7 +30,7 @@ const Settings = (props) => {
             cancelButton: "キャンセル",
             okButton: "ログアウト",
             onPress: () => {
-              authDispatch({ type: 'COMPLETE_LOGOUT' });
+              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch });
             },
           });
         }} />

@@ -18,6 +18,8 @@ import { AuthProvider } from "./componentsEx/tools/authContext";
 import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./componentsEx/tools/support";
 import { ProfileProvider } from "./componentsEx/tools/profileContext";
 import { NotificationProvider } from "./componentsEx/tools/notificationContext";
+import { ChatProvider } from "./componentsEx/tools/chatContext";
+import Manager from "./screensEx/Manager";
 
 const assetImages = [
   Images.Profile,
@@ -110,13 +112,15 @@ const RootNavigator = () => {
         <AuthProvider token={token}>
           <ProfileProvider profile={profile} >
             <NotificationProvider notifications={notifications} >
-              <GalioProvider theme={materialTheme}>
-                <Block flex>
-                  {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                  {/* <Screens /> */}
-                  <ScreensEx />
-                </Block>
-              </GalioProvider>
+              <ChatProvider >
+                <GalioProvider theme={materialTheme}>
+                  <Manager>
+                    {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                    {/* <Screens /> */}
+                    <ScreensEx />
+                  </Manager>
+                </GalioProvider>
+              </ChatProvider>
             </NotificationProvider>
           </ProfileProvider>
         </AuthProvider>

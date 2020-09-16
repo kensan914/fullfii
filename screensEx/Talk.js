@@ -1,47 +1,95 @@
 import React from 'react';
-import { StyleSheet, Dimensions, FlatList, Image, TouchableNativeFeedback, TouchableHighlight, TouchableOpacity } from 'react-native';
-import { Block, theme, Text } from 'galio-framework';
 
-import { ConsultantCard, Hr } from '../componentsEx';
-
-const { width, height } = Dimensions.get('screen');
-import { talks } from '../constantsEx/talks';
-import Avatar from '../componentsEx/atoms/Avatar';
+import TalkTemplate from '../componentsEx/templates/TalkTemplate';
+import { BASE_URL_WS } from '../constantsEx/env';
+import { URLJoin } from '../componentsEx/tools/support';
+import { useChatState } from '../componentsEx/tools/chatContext';
 
 const Talk = (props) => {
-  const { navigation } = props;
+  const chatState = useChatState();
+
   return (
-    <FlatList
-      data={talks}
-      renderItem={({ item, index }) => (
-        <TouchableOpacity key={index} onPress={() => navigation.navigate("Chat", { user: item.companion })}>
-          <Block flex row style={styles.talkCard}>
-            <Block flex={0.2}>
-              <Avatar size={56} image={item.companion.image} style={{ alignSelf: "center" }} />
-            </Block>
-            <Block flex={0.65}>
-              <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.companion.name}</Text>
-              <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{item.messages[item.messages.length - 1].message}</Text>
-            </Block>
-            <Block flex={0.15} style={{ height: 80 }}>
-              <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{item.messages[item.messages.length - 1].day}</Text>
-            </Block>
-          </Block>
-          <Hr h={1} color="whitesmoke" />
-        </TouchableOpacity>
-      )}
-      keyExtractor={(item, index) => index.toString()}
-    />
+    <TalkTemplate {...props} sendCollection={chatState.sendCollection} inCollection={chatState.inCollection} talkCollection={chatState.talkCollection} connectWsChat={connectWsChat} />
   );
 }
 
 export default Talk;
 
-const styles = StyleSheet.create({
-  talkCard: {
-    height: 80,
-    width: width,
-    backgroundColor: "white",
-    alignItems: "center"
-  },
-});
+
+/** 
+ * request chat. */
+export const connectWsChatRequest = (user, token, chatState, chatDispatch) => {
+  const url = URLJoin(BASE_URL_WS, "chat-request/", user.id);
+
+  let ws = new WebSocket(url);
+  ws.onopen = (e) => {
+    alert("websocket接続が完了しました(chat-request)");
+    ws.send(JSON.stringify({ type: "auth", token: token }));
+  };
+  ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === "auth") {
+      console.log("websocket認証OK(chat-request)");
+      chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: data.room_id, user: data.target_user, date: new Date(Date.now()) });
+    } else if (data.type === "notice_response") {
+      chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+    }
+    handleChatMessage(data, chatState, chatDispatch);
+  };
+  ws.onclose = (e) => {
+    alert("切断されました(chat-request)");
+    if (e.wasClean) {
+    } else {
+      // e.g. サーバのプロセスが停止、あるいはネットワークダウン
+      // この場合、event.code は通常 1006 になります
+    }
+  };
+}
+
+/** 
+ * response chat request. */
+export const connectWsChat = (roomID, token, chatState, chatDispatch) => {
+  const url = URLJoin(BASE_URL_WS, "chat/", roomID);
+
+  let ws = new WebSocket(url);
+  ws.onopen = (e) => {
+    alert("websocket接続が完了しました(chat-request)");
+    ws.send(JSON.stringify({ type: "auth", token: token }));
+  };
+  ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.type === "auth") {
+      console.log("websocket認証OK(chat-request)");
+      chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+    }
+    handleChatMessage(data, chatState, chatDispatch);
+  };
+  ws.onclose = (e) => {
+    alert("切断されました(chat-request)");
+    if (e.wasClean) {
+    } else {
+      // e.g. サーバのプロセスが停止、あるいはネットワークダウン
+      // この場合、event.code は通常 1006 になります
+    }
+  };
+}
+
+const handleChatMessage = (data, chatState, chatDispatch) => {
+  if (data.type === "chat_message") {
+    const roomID = data.room_id;
+    const talkObj = chatState.talkCollection[roomID];
+    const offlineMessages = talkObj.offlineMessages;
+
+    if (data.me) {
+      // appendMessage → offlineMessagesの該当messageを削除
+      const offlineMsgIDs = offlineMessages.map(offlineMessage => offlineMessage.id)
+      if (offlineMsgIDs.indexOf(data.message_id) >= 0) {
+        chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: data.message_id, message: data.message, me: data.me, time: data.time });
+        chatDispatch({ type: "DELETE_OFFLINE_MESSAGE", roomID: roomID, messageID: data.message_id });
+      } else {
+      }
+    } else {
+      chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: data.message_id, message: data.message, me: data.me, time: data.time });
+    }
+  }
+}

@@ -8,6 +8,7 @@ import BirthdayPicker from "../atoms/BirthdayPicker";
 import { useAuthDispatch } from "../tools/authContext";
 import { useProfileDispatch } from "../tools/profileContext";
 import { useNotificationDispatch } from "../tools/notificationContext";
+import { useChatDispatch } from "../tools/chatContext";
 
 const { height, width } = Dimensions.get("window");
 
@@ -43,9 +44,12 @@ const SignInUp = (props) => {
     setActive(newActive);
   }
 
-  const authDispatch = useAuthDispatch();
-  const profileDispatch = useProfileDispatch();
-  const notificationDispatch = useNotificationDispatch();
+  const dispatches = {
+    authDispatch: useAuthDispatch(),
+    profileDispatch: useProfileDispatch(),
+    notificationDispatch: useNotificationDispatch(),
+    chatDispatch: useChatDispatch(),
+  }
 
   const { navigation, signup, signin, requestSignUp, requestSignIn } = props;
   let buttonColor;
@@ -56,9 +60,9 @@ const SignInUp = (props) => {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
     if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignUp(username, email, password, birthday, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
     } else if (signin) {
-      submit = () => requestSignIn(email, password, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignIn(email, password, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
     }
     disabled = false;
   } else {

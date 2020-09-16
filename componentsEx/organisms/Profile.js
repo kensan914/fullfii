@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator } from "react-native";
 import { Appearance } from 'react-native-appearance';
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
 import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
-import { alertModal, URLJoin } from "../tools/support";
+import { alertModal } from "../tools/support";
 import Avatar from "../atoms/Avatar";
 import { useProfileState, useProfileDispatch } from "../tools/profileContext";
 import BirthdayPicker from "../atoms/BirthdayPicker";
 import { requestPatchProfile } from "../../screensEx/ProfileInput";
 import { useAuthState } from "../tools/authContext";
-import { BASE_URL_WS } from "../../constantsEx/env";
+import { connectWsChatRequest } from "../../screensEx/Talk";
 
 
 const { width } = Dimensions.get("screen");
@@ -326,7 +326,7 @@ export const Catalogue = (props) => {
   );
 }
 
-export const sendChatRequest = (user, navigation, token) => {
+export const sendChatRequest = (user, navigation, token, chatState, chatDispatch) => {
   let alertTitle;
   let alertText;
   switch (user.status.key) {
@@ -351,32 +351,7 @@ export const sendChatRequest = (user, navigation, token) => {
     cancelButton: "キャンセル",
     okButton: "送信する",
     onPress: () => {
-      const url = URLJoin(BASE_URL_WS, "chat-request/", user.id);
-      console.log(url)
-
-      let ws = new WebSocket(url);
-      ws.onopen = (e) => {
-        alert("websocket接続が完了しました(chat-request)");
-        ws.send(JSON.stringify({ type: "auth", token: token }));
-      };
-      ws.onmessage = (e) => {
-        const receivedMsgData = JSON.parse(e.data);
-        if (receivedMsgData.type === "auth") {
-          console.log("websocket認証OK(chat-request)");
-        } else if (receivedMsgData.type === "") {
-          alert(receivedMsgData.message);
-        }
-        console.log(receivedMsgData);
-      };
-      ws.onclose = (e) => {
-        alert("切断されました(chat-request)");
-        if (e.wasClean) {
-        } else {
-          // e.g. サーバのプロセスが停止、あるいはネットワークダウン
-          // この場合、event.code は通常 1006 になります
-        }
-      };
-      
+      connectWsChatRequest(user, token, chatState, chatDispatch);
       navigation.navigate("Home");
     },
   });

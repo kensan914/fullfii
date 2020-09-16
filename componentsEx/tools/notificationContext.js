@@ -1,15 +1,14 @@
-import React, { createContext, useReducer, useContext, useEffect, useState } from "react";
+import React, { createContext, useReducer, useContext } from "react";
 import { asyncSetJson } from "./support";
-import { useAuthState } from "./authContext";
-import { conectWsNotification } from "../../screensEx/Notification";
 
 
 const NotificationReducer = (prevState, action) => {
   const notifications = prevState.notifications.concat();
   switch (action.type) {
-    case "APPEND":
-      // 1つのnotificationを追加
-      // [type, notification]
+    case "ADD":
+      /** 1つのnotificationを追加
+       * @param {Object} action [type, notification] */
+
       let unreadNumAdd = 0;
       if (!notifications[action.notification.id]) {
         notifications.unshift(action.notification);
@@ -22,8 +21,9 @@ const NotificationReducer = (prevState, action) => {
         unreadNum: prevState.unreadNum + unreadNumAdd,
       };
     case "MERGE":
-      // 受け取ったnotificationsを統合 重複を考慮し、重複が発見されなければaction.notDuplicateFunc()を実行
-      // [type, notifications, notDuplicateFunc]
+      /** 受け取ったnotificationsを統合 重複・順序を考慮し、重複が発見されなければaction.notDuplicateFunc()を実行
+       * @param {Object} action [type, notifications, notDuplicateFunc] */
+
       let isDuplicate = false;
       let unreadNum = 0;
       const notificationsIDObj = [...notifications, ...action.notifications]
@@ -53,8 +53,9 @@ const NotificationReducer = (prevState, action) => {
         unreadNum: unreadNum,
       };
     case "PUT_READ":
-      // 未読のnotificationのIDリストをPUT 事前にSET_WSを実行し、wsをsetする必要がある
-      // [type, token]
+      /** 未読のnotificationのIDリストをPUT 事前にSET_WSを実行し、wsをsetする必要がある
+       * @param {Object} action [type, token] */
+
       let tempNotifications = [];
       if (prevState.unreadNum > 0) {
         let unreadIDList = [];
@@ -65,7 +66,6 @@ const NotificationReducer = (prevState, action) => {
           }
         }
         if (unreadIDList.length > 0) {
-          console.log(prevState.ws);
           prevState.ws.send(JSON.stringify({ type: "read", notification_ids: unreadIDList, token: action.token }));
           tempNotifications = notifications;
         }
@@ -75,26 +75,33 @@ const NotificationReducer = (prevState, action) => {
         tempNotifications: tempNotifications,
       };
     case "COMPLETE_READ":
-      // 既読処理 全てのnotificationを既読に 事前にPUT_READを実行し、tempNotificationsを作成する必要がある
-      // [type]
-      asyncSetJson("notifications", prevState.tempNotifications);
-      return {
-        ...prevState,
-        notification: prevState.tempNotifications,
-        tempNotifications: [],
-        unreadNum: 0,
-      };
+      /** 既読処理 全てのnotificationを既読に 事前にPUT_READを実行し、tempNotificationsを作成する必要がある
+       * @param {Object} action [type] */
+
+      if (prevState.tempNotifications) {
+        asyncSetJson("notifications", prevState.tempNotifications);
+        return {
+          ...prevState,
+          notification: prevState.tempNotifications,
+          tempNotifications: [],
+          unreadNum: 0,
+        };
+      } else {
+        return { ...prevState };
+      }
     case "RESET":
-      // リセット
-      // [type]
+      /** リセット
+       * @param {Object} action [type] */
+
       return {
         ...prevState,
         notifications: [],
         unreadNum: 0,
       };
     case "SET_WS":
-      // リセット
-      // [type, ws]
+      /** set ws
+       * @param {Object} action [type, ws] */
+      
       return {
         ...prevState,
         ws: action.ws,
@@ -123,17 +130,12 @@ export const useNotificationDispatch = () => {
 };
 
 export const NotificationProvider = ({ children, notifications }) => {
-  const token = useAuthState().token;
   const [notificationState, notificationDispatch] = useReducer(NotificationReducer, {
     notifications: notifications ? notifications : [],
     unreadNum: getUnreadNum(notifications ? notifications : []),
     tempNotifications: [],
     ws: null,
   });
-
-  useEffect(() => {
-    conectWsNotification(token, notificationDispatch);
-  }, []);
 
   return (
     <NotificationStateContext.Provider value={notificationState}>

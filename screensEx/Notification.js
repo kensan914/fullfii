@@ -16,7 +16,7 @@ const Notification = (props) => {
 export default Notification;
 
 
-export const conectWsNotification = (token, notificationDispatch) => {
+export const conectWsNotification = (token, notificationDispatch, chatDispatch) => {
   const url = URLJoin(BASE_URL_WS, "notification/");
   let newestPage = 1;
   const paginateBy = 10;
@@ -28,18 +28,18 @@ export const conectWsNotification = (token, notificationDispatch) => {
   };
 
   ws.onmessage = (e) => {
-    const receivedMsgData = JSON.parse(e.data);
+    const data = JSON.parse(e.data);
+    console.log(data);
 
-    if (receivedMsgData.type === "auth") {
+    if (data.type === "auth") {
       console.log("websocket認証OK(notification)");
       // get newest notifications
       ws.send(JSON.stringify({ type: "get", page: newestPage, token: token }));
-    } 
-    
-    else if (receivedMsgData.type === "get") {
+    }
+
+    else if (data.type === "get") {
       // merge newest notifications
-      console.log(receivedMsgData);
-      const newestNotifications = receivedMsgData.notifications;
+      const newestNotifications = data.notifications;
       notificationDispatch({
         type: "MERGE", notifications: newestNotifications, notDuplicateFunc: () => {
           if (newestNotifications.length >= paginateBy) {
@@ -49,14 +49,21 @@ export const conectWsNotification = (token, notificationDispatch) => {
           }
         }
       });
-    } 
-    
-    else if (receivedMsgData.type === "notice") {
-      alert(receivedMsgData.notification.message + receivedMsgData.notification.url);
-      notificationDispatch({ type: "APPEND", notification: receivedMsgData.notification });
-    } 
+    }
 
-    else if (receivedMsgData.type === "read") {
+    else if (data.type === "notice") {
+      if (data.notification.type === "chat_request") {
+        // チャットリクエストの通知
+        alert(data.notification.message + data.room_id);
+        notificationDispatch({ type: "ADD", notification: data.notification });
+        chatDispatch({type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date});
+      } else {
+        // 通常の通知
+        notificationDispatch({ type: "ADD", notification: data.notification });
+      }
+    }
+
+    else if (data.type === "read") {
       notificationDispatch({ type: "COMPLETE_READ" });
     }
   };
