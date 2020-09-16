@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { Block, theme, Text, Input, Button } from 'galio-framework';
+import * as WebBrowser from 'expo-web-browser';
 
 import { Hr, Icon } from '../componentsEx';
 import { useAuthDispatch } from '../componentsEx/tools/authContext';
@@ -14,6 +15,10 @@ const Settings = (props) => {
   const { navigation } = props;
   const [value, setValue] = useState("");
   const authDispatch = useAuthDispatch();
+
+  _handleOpenWithWebBrowser = () => {
+    WebBrowser.openBrowserAsync('https://www.fullfii.com/pages/privacy');
+  };
 
   if (typeof screen === "undefined")
     return (
@@ -36,8 +41,9 @@ const Settings = (props) => {
 
         <SettingsTitle title="Fullfiiについて" />
         <SettingsLabel title="バージョン" content="1.0.0" />
-        <SettingsCard title="利用規約" onPress={() => { }} />
-        <SettingsCard title="プライバシーポリシー" onPress={() => { }} />
+        <SettingsCard title="利用規約" onPress={this._handleOpenWithWebBrowser} />
+        <SettingsCard title="プライバシーポリシー" onPress={this._handleOpenWithWebBrowser} />
+        <SettingsCard title="特定商取引法に基づく表示" onPress={this._handleOpenWithWebBrowser} />
         <SettingsCard title="お問い合わせ" onPress={() => { }} />
       </ScrollView>
     );
