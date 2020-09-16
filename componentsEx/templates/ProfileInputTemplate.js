@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { Block, theme, Text } from "galio-framework";
 import { ScrollView } from "react-native-gesture-handler";
-import { useAuthState } from "../tools/authContext";
+import { useAuthState } from "../contexts/AuthContext";
 import { InputBlock, SubmitProfileButton } from "../organisms/ProfileInput";
-import { useProfileDispatch, useProfileState } from "../tools/profileContext";
+import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 
 
 const ProfileInputTemplate = (props) => {

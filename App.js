@@ -14,11 +14,11 @@ import ScreensEx from "./navigation/ScreensEx";
 
 import { materialTheme } from "./constants/";
 import { Images } from "./constants/";
-import { AuthProvider } from "./componentsEx/tools/authContext";
+import { AuthProvider } from "./componentsEx/contexts/AuthContext";
 import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./componentsEx/tools/support";
-import { ProfileProvider } from "./componentsEx/tools/profileContext";
-import { NotificationProvider } from "./componentsEx/tools/notificationContext";
-import { ChatProvider } from "./componentsEx/tools/chatContext";
+import { ProfileProvider } from "./componentsEx/contexts/ProfileContext";
+import { NotificationProvider } from "./componentsEx/contexts/NotificationContext";
+import { ChatProvider } from "./componentsEx/contexts/ChatContext";
 import Manager from "./screensEx/Manager";
 
 const assetImages = [

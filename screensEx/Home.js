@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import HomeTemplate from "../componentsEx/templates/HomeTemplate";
 import { URLJoin, cvtKeyFromSnakeToCamel } from "../componentsEx/tools/support";
 import { BASE_URL } from "../constantsEx/env";
-import { useAuthState } from "../componentsEx/tools/authContext";
+import { useAuthState } from "../componentsEx/contexts/AuthContext";
 import authAxios from "../componentsEx/tools/authAxios";
 
 

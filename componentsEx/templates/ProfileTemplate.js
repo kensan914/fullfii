@@ -7,9 +7,9 @@ import { withNavigation } from "@react-navigation/compat";
 import { HeaderHeight } from "../../constantsEx/utils";
 import { Icon, Hr } from "../../componentsEx";
 import { ConsultantProfile, profileImageHeight, profileContentBR, sendChatRequest } from "../organisms/Profile";
-import { useProfileState } from "../tools/profileContext";
-import { useAuthState } from "../tools/authContext";
-import { useChatDispatch, useChatState } from "../tools/chatContext";
+import { useProfileState } from "../contexts/ProfileContext";
+import { useAuthState } from "../contexts/AuthContext";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 
 
 const { width, height } = Dimensions.get("screen");

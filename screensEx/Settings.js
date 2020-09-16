@@ -3,9 +3,9 @@ import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-nati
 import { Block, theme, Text, Input, Button } from "galio-framework";
 
 import { Hr, Icon } from "../componentsEx";
-import { useAuthDispatch } from "../componentsEx/tools/authContext";
+import { useAuthDispatch } from "../componentsEx/contexts/AuthContext";
 import { alertModal } from "../componentsEx/tools/support";
-import { useNotificationDispatch } from "../componentsEx/tools/notificationContext";
+import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 
 
 const { width, height } = Dimensions.get("screen");

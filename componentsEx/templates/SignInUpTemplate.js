@@ -5,10 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderHeight } from "../../constantsEx/utils";
 import BirthdayPicker from "../atoms/BirthdayPicker";
-import { useAuthDispatch } from "../tools/authContext";
-import { useProfileDispatch } from "../tools/profileContext";
-import { useNotificationDispatch } from "../tools/notificationContext";
-import { useChatDispatch } from "../tools/chatContext";
+import { useAuthDispatch } from "../contexts/AuthContext";
+import { useProfileDispatch } from "../contexts/ProfileContext";
+import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useChatDispatch } from "../contexts/ChatContext";
 
 const { height, width } = Dimensions.get("window");
 

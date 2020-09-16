@@ -8,10 +8,10 @@ import Icon from "../atoms/Icon";
 import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
 import { alertModal } from "../tools/support";
 import Avatar from "../atoms/Avatar";
-import { useProfileState, useProfileDispatch } from "../tools/profileContext";
+import { useProfileState, useProfileDispatch } from "../contexts/ProfileContext";
 import BirthdayPicker from "../atoms/BirthdayPicker";
 import { requestPatchProfile } from "../../screensEx/ProfileInput";
-import { useAuthState } from "../tools/authContext";
+import { useAuthState } from "../contexts/AuthContext";
 import { connectWsChatRequest } from "../../screensEx/Talk";
 
 

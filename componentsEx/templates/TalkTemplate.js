@@ -5,8 +5,8 @@ import { Block, Text } from 'galio-framework';
 import { Hr } from '../../componentsEx';
 import Avatar from '../../componentsEx/atoms/Avatar';
 import { cvtListDate } from '../tools/support';
-import { useAuthState } from '../tools/authContext';
-import { useChatDispatch, useChatState } from '../tools/chatContext';
+import { useAuthState } from '../contexts/AuthContext';
+import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 
 
 const { width, height } = Dimensions.get('screen');
@@ -70,6 +70,7 @@ const TalkCollection = (props) => {
             <Block flex={0.65}>
               <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.user.name}</Text>
               <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{newestMessage.message}</Text>
+              <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{item.unreadNum}</Text>
             </Block>
             <Block flex={0.15} style={{ height: 80 }}>
               <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{newestMessage.time}</Text>

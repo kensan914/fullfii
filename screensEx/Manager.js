@@ -3,10 +3,10 @@ import { Block } from "galio-framework";
 
 import { requestGetProfile, requestGetProfileParams } from "./Profile";
 import { conectWsNotification } from "./Notification";
-import { useAuthState, useAuthDispatch } from "../componentsEx/tools/authContext";
-import { useProfileDispatch } from "../componentsEx/tools/profileContext";
-import { useNotificationDispatch } from "../componentsEx/tools/notificationContext";
-import { useChatDispatch } from "../componentsEx/tools/chatContext";
+import { useAuthState, useAuthDispatch } from "../componentsEx/contexts/AuthContext";
+import { useProfileDispatch } from "../componentsEx/contexts/ProfileContext";
+import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
+import { useChatDispatch } from "../componentsEx/contexts/ChatContext";
 
 const Manager = (props) => {
   const { children } = props;

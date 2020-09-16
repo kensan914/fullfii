@@ -22,11 +22,11 @@ import SignUpScreen from "../screensEx/SignUp";
 import SignInScreen from "../screensEx/SignIn";
 
 import CustomDrawerContent from "./MenuEx";
-import { useAuthState } from "../componentsEx/tools/authContext";
-import { useProfileState } from "../componentsEx/tools/profileContext";
-import { useNotificationState, useNotificationDispatch } from "../componentsEx/tools/notificationContext";
+import { useAuthState } from "../componentsEx/contexts/AuthContext";
+import { useProfileState } from "../componentsEx/contexts/ProfileContext";
+import { useNotificationState, useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 import { cvtBadgeCount } from "../componentsEx/tools/support";
-import { useChatState } from "../componentsEx/tools/chatContext";
+import { useChatState } from "../componentsEx/contexts/ChatContext";
 
 const { width } = Dimensions.get("screen");
 

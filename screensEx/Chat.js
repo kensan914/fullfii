@@ -1,7 +1,7 @@
 import React from "react";
 import ChatTemplate from "../componentsEx/templates/ChatTemplate";
-import { useAuthState } from "../componentsEx/tools/authContext";
-import { useChatState, useChatDispatch } from "../componentsEx/tools/chatContext";
+import { useAuthState } from "../componentsEx/contexts/AuthContext";
+import { useChatState, useChatDispatch } from "../componentsEx/contexts/ChatContext";
 
 
 const Chat = (props) => {

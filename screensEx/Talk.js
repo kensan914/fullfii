@@ -3,7 +3,7 @@ import React from 'react';
 import TalkTemplate from '../componentsEx/templates/TalkTemplate';
 import { BASE_URL_WS } from '../constantsEx/env';
 import { URLJoin } from '../componentsEx/tools/support';
-import { useChatState } from '../componentsEx/tools/chatContext';
+import { useChatState } from '../componentsEx/contexts/ChatContext';
 
 const Talk = (props) => {
   const chatState = useChatState();

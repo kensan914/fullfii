@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetItem, asyncRemoveAll, isString, cvtKeyFromSnakeToCamel } from "./support";
+import { asyncSetItem, asyncRemoveAll, isString, cvtKeyFromSnakeToCamel } from "../tools/support";
 import { talks } from "../../constantsEx/talks";
 
 
@@ -53,6 +53,7 @@ const chatReducer = (prevState, action) => {
           messages: [{ id: 0, message: "最初のメッセージを送りましょう。", common: true, time: new Date(Date.now()) }],
           offlineMessages: [],
           ws: action.ws,
+          unreadNum: 0,
         }
       });
       const _sendCollection = prevState.sendCollection;
@@ -68,24 +69,29 @@ const chatReducer = (prevState, action) => {
       };
 
     case "APPEND_MESSAGE":
-      /** messageを作成し、追加
+      /** messageを作成し、追加 未読値をインクリメント
        * @param {Object} action [type, roomID, messageID, message, me, time(str or Date)] */
 
       const message = {
         id: action.messageID,
         message: action.message,
         me: action.me,
-        time: isString(action.time) ? new Date(new Date(action.time).toLocaleString({ timeZone: 'Asia/Tokyo' })) : action.time,
-        // time: isString(action.time) ? new Date(action.time) : action.time,
+        // time: isString(action.time) ? new Date(new Date(action.time).toLocaleString({ timeZone: 'Asia/Tokyo' })) : action.time,
+        time: isString(action.time) ? new Date(action.time) : action.time,
       };
 
       messages = prevState.talkCollection[action.roomID].messages.concat([message]);
+      const prevUnreadNum = prevState.talkCollection[action.roomID].unreadNum;
+      const incrementNum = action.me ? 0 : 1;
+
       talkCollection = prevState.talkCollection;
       talkCollection[action.roomID].messages = messages;
+      talkCollection[action.roomID].unreadNum = prevUnreadNum + incrementNum;
 
       return {
         ...prevState,
         talkCollection: talkCollection,
+        totalUnreadNum: prevState.totalUnreadNum + incrementNum,
       };
 
     case "APPEND_OFFLINE_MESSAGE":
@@ -110,14 +116,29 @@ const chatReducer = (prevState, action) => {
       /** 受け取ったmessageIDに該当するofflineMessageを削除
        * @param {Object} action [type, roomID, messageID] */
 
-      offlineMessages = prevState.talkCollection[action.roomID].offlineMessages;
-      const newOfflineMessages = offlineMessages.filter(elm => elm.id !== action.messageID);
+      const prevOfflineMessages = prevState.talkCollection[action.roomID].offlineMessages;
+      offlineMessages = prevOfflineMessages.filter(elm => elm.id !== action.messageID);
       talkCollection = prevState.talkCollection;
-      talkCollection[action.roomID].offlineMessages = newOfflineMessages;
+      talkCollection[action.roomID].offlineMessages = offlineMessages;
 
       return {
         ...prevState,
         talkCollection: talkCollection,
+      };
+
+    case "READ_BY_ROOM":
+      /** チャットルームごとの既読処理 該当のチャットルームの全てのmessageを既読に チャットルームを開いたときに実行
+       * @param {Object} action [type, roomID] */
+
+      const unreadNum = prevState.talkCollection[action.roomID].unreadNum;
+      const totalUnreadNum = prevState.totalUnreadNum - unreadNum;
+      talkCollection = prevState.talkCollection;
+      talkCollection[action.roomID].unreadNum = 0;
+
+      return {
+        ...prevState,
+        talkCollection: talkCollection,
+        totalUnreadNum: totalUnreadNum,
       };
 
     default:
@@ -151,7 +172,8 @@ const initInCollection = {};
  *  user: {Obj},
  *  messages: {Array},
  *  offlineMessages: {Array},
- *  ws: {Obj}
+ *  ws: {Obj},
+ *  unreadNum: {Num},
  * },} */
 const initTalkCollection = {};
 
@@ -159,6 +181,7 @@ const ChatStateContext = createContext({
   sendCollection: initSendCollection,
   inCollection: initInCollection,
   talkCollection: initTalkCollection,
+  totalUnreadNum: 0,
 });
 const ChatDispatchContext = createContext(undefined);
 
@@ -176,6 +199,7 @@ export const ChatProvider = ({ children, token }) => {
     sendCollection: initSendCollection,
     inCollection: initInCollection,
     talkCollection: initTalkCollection,
+    totalUnreadNum: 0,
   });
   return (
     <ChatStateContext.Provider value={chatState}>
