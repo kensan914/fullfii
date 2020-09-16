@@ -1,6 +1,7 @@
 export const talks = [
   {
-    companion: {
+    roomID: "aaaaa",
+    user: {
       id: 123,
       name: "__rie__",
       image: "https://www.pakutaso.com/shared/img/thumb/fukugyo206140040_TP_V.jpg",

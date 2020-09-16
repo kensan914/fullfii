@@ -4,8 +4,7 @@ import axios from "axios";
 import { BASE_URL } from "../constantsEx/env";
 import { URLJoin } from "../componentsEx/tools/support";
 import SignInUp from "../componentsEx/templates/SignInUpTemplate";
-import { requestGetProfile } from "./Profile";
-import { conectWsNotification } from "./Notification";
+import { startUpLogind } from "./Manager";
 
 
 const SignIn = (props) => {
@@ -17,7 +16,7 @@ const SignIn = (props) => {
 export default SignIn;
 
 
-export const requestSignIn = (email, password, authDispatch, profileDispatch, notificationDispatch, setErrorMessages, errorMessagesInit, setIsLoading) => {
+export const requestSignIn = (email, password, dispatches, setErrorMessages, errorMessagesInit, setIsLoading) => {
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "login/");
   console.log("リクエストサインイン");
@@ -27,21 +26,15 @@ export const requestSignIn = (email, password, authDispatch, profileDispatch, no
       password: password,
     })
     .then(res => {
-      initToSignIn(authDispatch, profileDispatch, notificationDispatch, res.data["token"])
+      dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches) });
     })
     .catch(err => {
       if (err.response.status === 400) {
         const newErrorMessages = Object.assign(errorMessagesInit, err.response.data);
         setErrorMessages(Object.assign({}, newErrorMessages));
       }
+    })
+    .finally(() => {
       setIsLoading(false);
     });
-}
-
-// state関連の初期化 signin成功時に実行
-const initToSignIn = (authDispatch, profileDispatch, notificationDispatch, token) => {
-  authDispatch({ type: "COMPLETE_LOGIN", token: token });
-  requestGetProfile(token, profileDispatch);
-  notificationDispatch({ type: "RESET" });
-  conectWsNotification(token, notificationDispatch);
 }

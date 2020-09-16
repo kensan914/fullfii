@@ -11,9 +11,9 @@ const authAxios = (token) => {
   });
 
   _authAxios.interceptors.request.use(request => {
-    console.log('リクエストは: ', request)
-    return request
-  })
+    console.log("リクエストは: ", request);
+    return request;
+  });
 
   return _authAxios;
 }

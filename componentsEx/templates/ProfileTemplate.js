@@ -9,6 +9,7 @@ import { Icon, Hr } from "../../componentsEx";
 import { ConsultantProfile, profileImageHeight, profileContentBR, sendChatRequest } from "../organisms/Profile";
 import { useProfileState } from "../tools/profileContext";
 import { useAuthState } from "../tools/authContext";
+import { useChatDispatch, useChatState } from "../tools/chatContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -21,6 +22,8 @@ const ProfileTemplate = (props) => {
   const profileState = useProfileState();
   const user = item.me ? profileState.profile : item;
   const authState = useAuthState();
+  const chatState = useChatState();
+  const chatDispatch = useChatDispatch();
 
   const paramsTitleSize = user.me ? 12 : 12;
 
@@ -99,7 +102,7 @@ const ProfileTemplate = (props) => {
           ? <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
             <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
           </Button>
-          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => sendChatRequest(user, navigation, authState.token)}>リクエストを送る</Button>
+          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => sendChatRequest(user, navigation, authState.token, chatState, chatDispatch)}>リクエストを送る</Button>
       }
     </Block >
   );

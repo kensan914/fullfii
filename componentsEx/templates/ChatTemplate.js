@@ -6,15 +6,14 @@ import Icon from "../atoms/Icon";
 import materialTheme from "../../constantsEx/Theme";
 import { CommonMessage } from "../organisms/Chat";
 import Avatar from "../atoms/Avatar";
-import { generateUuid4 } from "../tools/support";
+import { generateUuid4, fmtfromDateToStr } from "../tools/support";
 
 
 const { width } = Dimensions.get("screen");
 
 
 const ChatTemplate = (props) => {
-  const user = props.route.params.user;
-  const { messages, pushOfflineMessage, ws, sendWsMesssage, token } = props;
+  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token } = props;
 
   const messagesScroll = useRef(null);
   const [message, setMessage] = useState("");
@@ -35,36 +34,38 @@ const ChatTemplate = (props) => {
     setHeight(height);
   }
 
-  const renderMessage = (msg) => {
-    if (msg.common) {
+  const renderMessage = (message, index) => {
+    if (message.common) {
       return (
         <Block style={{ marginBottom: 10 }}>
-          <CommonMessage message={msg.message} />
+          <CommonMessage message={message.message} />
         </Block>
       );
     } else {
       return (
-        <Block key={msg.id}>
-          <Block row space={msg.me ? "between" : null}>
-            {!msg.me
+        <Block key={index}>
+          <Block row space={message.me ? "between" : null}>
+            {!message.me
               ? <Avatar size={40} image={user.image} style={[styles.avatar, styles.shadow]} />
               : <Image source={null} style={[styles.avatar, styles.shadow]} />
             }
             <Block style={styles.messageCardWrapper}>
-              {!msg.me ?
+              {!message.me ?
                 <Block style={[styles.messageCard, styles.shadow]}>
-                  <Text>{msg.message}</Text>
+                  <Text>{message.message}</Text>
                 </Block> :
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   colors={["#F69896", "#F69896"]}
                   style={[styles.messageCard, styles.shadow]}>
-                  <Text color={theme.COLORS.WHITE}>{msg.message}</Text>
+                  <Text color={theme.COLORS.WHITE}>{message.message}</Text>
                 </LinearGradient>
               }
               <Block right>
-                <Text style={styles.time}>{msg.time}</Text>
+                {message.time &&
+                  <Text style={styles.time}>{fmtfromDateToStr(message.time, "hh:mm")}</Text>
+                }
               </Block>
             </Block>
           </Block>
@@ -83,8 +84,9 @@ const ChatTemplate = (props) => {
         showsVerticalScrollIndicator={false}
         getItemLayout={itemLayout}
         contentContainerStyle={[styles.messagesWrapper]}
-        renderItem={({ item }) => renderMessage(item)}
+        renderItem={({ item, index }) => renderMessage(item, index)}
         onContentSizeChange={onContentSizeChange}
+        keyExtractor={(item, index) => index.toString()}
       />
     )
   }
@@ -95,11 +97,11 @@ const ChatTemplate = (props) => {
 
   const handleMessage = () => {
     if (typeof message !== "undefined" && message.length > 0) {
-      const id = generateUuid4();
-      pushOfflineMessage(id, message);
+      const messageID = generateUuid4();
+      appendOfflineMessage(messageID, message);
       setMessage("");
       handleScroll();
-      sendWsMesssage(ws, id, message, token);
+      sendWsMesssage(ws, messageID, message, token);
     }
   }
 

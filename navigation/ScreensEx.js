@@ -1,10 +1,10 @@
 import React from "react";
-import { Dimensions, TouchableWithoutFeedback, TouchableOpacity, TouchableNativeFeedback } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Text, Block, Button } from "galio-framework";
+import { Text, Block } from "galio-framework";
 
 import { Icon, Header } from "../componentsEx";
 import { materialTheme } from "../constantsEx";
@@ -22,12 +22,11 @@ import SignUpScreen from "../screensEx/SignUp";
 import SignInScreen from "../screensEx/SignIn";
 
 import CustomDrawerContent from "./MenuEx";
-// import { profile } from "../constantsEx/consultants";
-import { unreadCount } from "../constantsEx/talks";
 import { useAuthState } from "../componentsEx/tools/authContext";
 import { useProfileState } from "../componentsEx/tools/profileContext";
 import { useNotificationState, useNotificationDispatch } from "../componentsEx/tools/notificationContext";
 import { cvtBadgeCount } from "../componentsEx/tools/support";
+import { useChatState } from "../componentsEx/tools/chatContext";
 
 const { width } = Dimensions.get("screen");
 
@@ -37,6 +36,7 @@ const Drawer = createDrawerNavigator();
 
 const HomeStack = (props) => {
   const profileState = useProfileState();
+  const chatState = useChatState();
 
   return (
     <Stack.Navigator mode="card" headerMode="screen" >
@@ -116,7 +116,8 @@ const HomeStack = (props) => {
         options={({ route, navigation }) => {
           return {
             header: ({ navigation, scene }) => {
-              const title = route.params.user.name;
+              const roomID = route.params.roomID;
+              const title = chatState.talkCollection[roomID].user.name;
               return (
                 <Header
                   title={title}
@@ -256,7 +257,7 @@ const BottomTabNavigator = () => {
             iconName = focused ? "home" : "home";
           } else if (route.name === "Talk") {
             iconName = focused ? "comments" : "comments-o";
-            badgeCount = cvtBadgeCount(unreadCount);
+            badgeCount = cvtBadgeCount(0);
           } else if (route.name === "Notification") {
             iconName = focused ? "bell" : "bell-o";
             badgeCount = cvtBadgeCount(notificationState.unreadNum);

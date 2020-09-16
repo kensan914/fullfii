@@ -37,8 +37,10 @@ export const cvtListDate = (date) => {
   if (today.getFullYear() === date.getFullYear()) {
     if (today.getMonth() === date.getMonth()) {
       if (today.getDate() === date.getDate()) {
-        // 1日以上前
+        // 当日
         return fmtfromDateToStr(date, "hh:mm");
+      } else if (today.getDate() - 1 === date.getDate()) {
+        // 1日前
       } else {
         // 1日以上前
         return fmtfromDateToStr(date, "MM/DD");
@@ -141,7 +143,6 @@ export const asyncRemoveItem = async (key) => {
 
 export const asyncRemoveAll = async () => {
   try {
-    console.log(AsyncStorage.getAllKeys());
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys);
   } catch (error) {
@@ -164,3 +165,7 @@ export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress 
     ]
   );
 }
+
+export const isString = (obj) => {
+  return typeof (obj) == "string" || obj instanceof String;
+};

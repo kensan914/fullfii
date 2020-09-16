@@ -4,26 +4,38 @@ import { asyncSetItem, asyncRemoveAll } from "./support";
 
 const authReducer = (prevState, action) => {
   switch (action.type) {
-    case "START_LOGIN":
+    case "START_SIGNIN":
+      /** signin開始
+       * @param {Object} action [type] */
+
       return {
         ...prevState,
         status: "Loading",
       };
-    case "COMPLETE_LOGIN":
+    case "COMPLETE_SIGNIN":
+      /** state関連の初期化 signin時に実行
+       * @param {Object} action [type, token, startUpLogind] */
+
       asyncSetItem("token", action.token);
+      action.startUpLogind();
       return {
         ...prevState,
         status: "Authenticated",
         token: action.token,
       };
     case "COMPLETE_LOGOUT":
+      /** state関連の削除処理 logout時に実行
+       * @param {Object} action [type, notificationDispatch] */
+
       asyncRemoveAll();
+      action.notificationDispatch({ type: "RESET" });
       return {
         ...prevState,
         status: "Unauthenticated",
         token: undefined,
       };
     default:
+      console.warn(`Not found "${action.type}" action.type.`);
       return;
   }
 };
@@ -48,6 +60,7 @@ export const AuthProvider = ({ children, token }) => {
     status: token ? "Authenticated" : "Unauthenticated",
     token: token ? token : undefined,
   });
+
   return (
     <AuthStateContext.Provider value={authState}>
       <AuthDispatchContext.Provider value={authDispatch}>
