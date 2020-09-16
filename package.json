@@ -45,7 +45,8 @@
     "react-native-screens": "~2.2.0",
     "react-native-tab-view": "^2.15.1",
     "react-native-vector-icons": "^7.0.0",
-    "react-navigation-tabs": "^2.9.0"
+    "react-navigation-tabs": "^2.9.0",
+    "expo-web-browser": "~8.2.1"
   },
   "devDependencies": {
     "babel-preset-expo": "^8.2.1",

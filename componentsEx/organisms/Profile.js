@@ -6,7 +6,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
 import { getPermissionAsync, onLoad, pickImage } from '../tools/imagePicker';
-import { alertModal } from "../tools/support";
+import { alertModal, URLJoin } from "../tools/support";
 import Avatar from "../atoms/Avatar";
 import { useProfileState, useProfileDispatch } from "../contexts/ProfileContext";
 import BirthdayPicker from "../atoms/BirthdayPicker";
