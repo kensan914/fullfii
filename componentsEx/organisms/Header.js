@@ -1,13 +1,17 @@
-import React, { useState, createContext, useReducer } from "react";
+import React, { useState, createContext, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
-import { TouchableOpacity, StyleSheet, Platform, Dimensions, Keyboard, Image } from "react-native";
-import { Button, Block, NavBar, Input, Text, theme, Toast } from "galio-framework";
+import { TouchableOpacity, StyleSheet, Platform, Dimensions } from "react-native";
+import { Block, NavBar, theme } from "galio-framework";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
 import { MenuModal } from "../molecules/Menu";
 import { EndConsultation, EndConsultationScreen } from "./Chat";
 import Avatar from "../atoms/Avatar";
+import { useChatDispatch } from "../contexts/ChatContext";
+import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useAuthState } from "../contexts/AuthContext";
+
 
 const { height, width } = Dimensions.get("window");
 const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
@@ -39,20 +43,22 @@ const MenuButton = ({ navigation }) => {
   );
 };
 
-export const HeaderContext = createContext();
 
 const Header = (props) => {
-  const { back, title, white, transparent, navigation, scene, profile } = props;
+  const { back, title, name, white, transparent, navigation, scene, profile } = props;
+  const authState = useAuthState();
+  const notificationDispatch = useNotificationDispatch();
+  const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
     if (scene.route.name === "Chat") return (
       <MenuButton key="basket-search" navigation={navigation} />
     );
-    switch (title) {
+    switch (name) {
       case "Home":
       case "Talk":
       case "Notification":
-      case "":
+      case "Profile":
         return (
           // <ChatButton key="chat-search" navigation={navigation} isWhite={white} />,
           <ProPlanButton key="basket-search" navigation={navigation} isWhite={white} />
@@ -86,14 +92,27 @@ const Header = (props) => {
     }
   }
 
-  const convertTitle = (prevTitle) => {
-    switch (prevTitle) {
+  const [currentScreenName, setCurrentScreenName] = useState(name);
+  if (currentScreenName !== name) setCurrentScreenName(name);
+  // 画面遷移するたびに呼ばれる
+  useEffect(() => {
+    if (currentScreenName === "Chat") {
+      chatDispatch({ type: "READ_BY_ROOM", roomID: scene.route.params.roomID });
+    } else if (currentScreenName === "Notification") {
+      notificationDispatch({ type: "PUT_READ", token: authState.token });
+    }
+  }, [currentScreenName]);
+
+  const convertNameToTitle = (name) => {
+    switch (name) {
       case "Home":
         return "ホーム";
       case "Talk":
         return "トーク";
       case "Notification":
         return "通知";
+      case "Profile":
+        return "";
       case "ProfileEditor":
         return "プロフィール編集";
       case "InputName":
@@ -113,40 +132,45 @@ const Header = (props) => {
       case "InputMailAdress":
         return "メールアドレス";
       case "InputPassword":
-        return "パスワード"
+        return "パスワード";
+      case "Chat":
+        return title;
+      case "Plan":
+        return "プラン";
+      case "Settings":
+      case "SettingsInput":
+        return "設定";
       default:
-        return prevTitle;
+        return name;
     }
   }
 
-  const noShadow = ["Home", "Profile"].includes(title);
+  const noShadow = ["Home", "Profile"].includes(name);
   const headerStyles = [
     !noShadow ? styles.shadow : null,
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,
   ];
 
   return (
-    <HeaderContext.Provider value={{}}>
-      <Block style={headerStyles}>
-        <NavBar
-          back={back}
-          style={styles.navbar}
-          transparent={transparent}
-          title={convertTitle(title)}
-          titleStyle={[
-            styles.title,
-            { color: theme.COLORS[white ? "WHITE" : "ICON"], },
-          ]}
-          right={renderRight()}
-          rightStyle={{ alignItems: "flex-end" }}
-          left={renderLeft()}
-          leftStyle={{ paddingTop: 3, flex: 0.3 }}
-          leftIconColor={white ? theme.COLORS.WHITE : theme.COLORS.ICON}
-          onLeftPress={handleLeftPress}
-        />
-        {renderOthers()}
-      </Block>
-    </HeaderContext.Provider>
+    <Block style={headerStyles}>
+      <NavBar
+        back={back}
+        style={styles.navbar}
+        transparent={transparent}
+        title={convertNameToTitle(name)}
+        titleStyle={[
+          styles.title,
+          { color: theme.COLORS[white ? "WHITE" : "ICON"], },
+        ]}
+        right={renderRight()}
+        rightStyle={{ alignItems: "flex-end" }}
+        left={renderLeft()}
+        leftStyle={{ paddingTop: 3, flex: 0.3 }}
+        leftIconColor={white ? theme.COLORS.WHITE : theme.COLORS.ICON}
+        onLeftPress={handleLeftPress}
+      />
+      {renderOthers()}
+    </Block>
   );
 }
 

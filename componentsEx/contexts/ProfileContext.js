@@ -33,14 +33,16 @@ const ProfileReducer = (prevState, action) => {
         ...prevState,
         profile: profile,
       };
+
     case "SET_PARAMS":
       /** profileParamsをset
        * @param {Object} action [type, profileParams] */
-      
+
       return {
         ...prevState,
         profileParams: cvtKeyFromSnakeToCamel(action.profileParams),
       };
+
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;
@@ -49,6 +51,7 @@ const ProfileReducer = (prevState, action) => {
 
 const ProfileStateContext = createContext({
   profile: initProfile,
+  profileParams: null,
 });
 const ProfileDispatchContext = createContext(undefined);
 

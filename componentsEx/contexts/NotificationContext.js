@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetJson } from "../tools/support";
+import { asyncSetJson, asyncRemoveItem } from "../tools/support";
 
 
 const NotificationReducer = (prevState, action) => {
@@ -9,17 +9,18 @@ const NotificationReducer = (prevState, action) => {
       /** 1つのnotificationを追加
        * @param {Object} action [type, notification] */
 
-      let unreadNumAdd = 0;
+      let incrementNum = 0;
       if (!notifications[action.notification.id]) {
         notifications.unshift(action.notification);
-        unreadNumAdd = 1;
+        incrementNum = 1;
         asyncSetJson("notifications", notifications);
       }
       return {
         ...prevState,
         notifications: notifications,
-        unreadNum: prevState.unreadNum + unreadNumAdd,
+        unreadNum: prevState.unreadNum + incrementNum,
       };
+
     case "MERGE":
       /** 受け取ったnotificationsを統合 重複・順序を考慮し、重複が発見されなければaction.notDuplicateFunc()を実行
        * @param {Object} action [type, notifications, notDuplicateFunc] */
@@ -52,6 +53,7 @@ const NotificationReducer = (prevState, action) => {
         notifications: mergedNotifications,
         unreadNum: unreadNum,
       };
+
     case "PUT_READ":
       /** 未読のnotificationのIDリストをPUT 事前にSET_WSを実行し、wsをsetする必要がある
        * @param {Object} action [type, token] */
@@ -74,6 +76,7 @@ const NotificationReducer = (prevState, action) => {
         ...prevState,
         tempNotifications: tempNotifications,
       };
+
     case "COMPLETE_READ":
       /** 既読処理 全てのnotificationを既読に 事前にPUT_READを実行し、tempNotificationsを作成する必要がある
        * @param {Object} action [type] */
@@ -89,23 +92,30 @@ const NotificationReducer = (prevState, action) => {
       } else {
         return { ...prevState };
       }
-    case "RESET":
-      /** リセット
-       * @param {Object} action [type] */
 
-      return {
-        ...prevState,
-        notifications: [],
-        unreadNum: 0,
-      };
     case "SET_WS":
       /** set ws
        * @param {Object} action [type, ws] */
-      
+
       return {
         ...prevState,
         ws: action.ws,
       };
+
+    case "RESET":
+      /** リセット wsの切断
+       * @param {Object} action [type] */
+
+      if (prevState.ws) prevState.ws.close();
+      asyncRemoveItem("notifications");
+      return {
+        ...prevState,
+        notifications: [],
+        unreadNum: 0,
+        tempNotifications: [],
+        ws: null,
+      };
+
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;

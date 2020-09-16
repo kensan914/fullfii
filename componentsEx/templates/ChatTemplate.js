@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { View, Image, Dimensions, StyleSheet, FlatList, KeyboardAvoidingView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Input, Block, Text, Button, theme } from "galio-framework";
@@ -7,18 +7,26 @@ import materialTheme from "../../constantsEx/Theme";
 import { CommonMessage } from "../organisms/Chat";
 import Avatar from "../atoms/Avatar";
 import { generateUuid4, fmtfromDateToStr } from "../tools/support";
+import { useChatDispatch } from "../contexts/ChatContext";
 
 
 const { width } = Dimensions.get("screen");
 
 
 const ChatTemplate = (props) => {
-  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token } = props;
+  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token, roomID } = props;
 
   const messagesScroll = useRef(null);
   const [message, setMessage] = useState("");
   const [height, setHeight] = useState(0);
   const [inputHeight, setInputHeight] = useState(0);
+
+  const chatDispatch = useChatDispatch();
+
+  useEffect(() => {
+    handleScroll();
+    chatDispatch({ type: "READ_BY_ROOM", roomID: roomID });
+  }, [messages.length]);
 
   const itemLayout = (data, index) => (
     { length: (messages.length - 1), offset: 32 * index, index }
@@ -100,7 +108,7 @@ const ChatTemplate = (props) => {
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
-      handleScroll();
+      // handleScroll();
       sendWsMesssage(ws, messageID, message, token);
     }
   }

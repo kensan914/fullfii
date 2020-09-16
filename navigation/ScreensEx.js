@@ -46,12 +46,12 @@ const HomeStack = (props) => {
         options={({ route, navigation }) => {
           return {
             header: ({ navigation, scene }) => {
-              const title = route.state
+              const name = route.state
                 ? route.state.routes[route.state.index].name
                 : "Home";
               return (
                 < Header
-                  title={title}
+                  name={name}
                   navigation={navigation}
                   scene={scene}
                   profile={profileState.profile}
@@ -67,7 +67,7 @@ const HomeStack = (props) => {
           header: ({ navigation, scene }) => (
             <Header
               back
-              title=""
+              name="Profile"
               white
               transparent
               navigation={navigation}
@@ -85,7 +85,7 @@ const HomeStack = (props) => {
           header: ({ navigation, scene }) => (
             <Header
               back
-              title="ProfileEditor"
+              name="ProfileEditor"
               navigation={navigation}
               scene={scene}
               profile={profileState.profile}
@@ -98,11 +98,11 @@ const HomeStack = (props) => {
         component={ProfileInputScreen}
         options={({ route }) => ({
           header: ({ navigation, scene }) => {
-            const title = route.params.screen;
+            const name = route.params.screen;
             return (
-              < Header
+              <Header
                 back
-                title={title}
+                name={name}
                 navigation={navigation}
                 scene={scene}
                 profile={profileState.profile}
@@ -121,6 +121,7 @@ const HomeStack = (props) => {
               return (
                 <Header
                   title={title}
+                  name={"Chat"}
                   back
                   navigation={navigation}
                   scene={scene}
@@ -136,11 +137,10 @@ const HomeStack = (props) => {
         component={SettingsScreen}
         options={{
           header: ({ navigation, scene }) => {
-            const title = "設定";
             return (
               < Header
                 back
-                title={title}
+                name={"Settings"}
                 navigation={navigation}
                 scene={scene}
                 profile={profileState.profile}
@@ -153,11 +153,11 @@ const HomeStack = (props) => {
         component={SettingsScreen}
         options={({ route }) => ({
           header: ({ navigation, scene }) => {
-            const title = typeof route.params.screen === "undefined" ? "設定" : route.params.screen;
+            const name = typeof route.params.screen === "undefined" ? "SettingsInput" : route.params.screen;
             return (
               < Header
                 back
-                title={title}
+                name={name}
                 navigation={navigation}
                 scene={scene}
                 profile={profileState.profile}
@@ -172,7 +172,7 @@ const HomeStack = (props) => {
           header: ({ navigation, scene }) => (
             <Header
               back
-              title="PROプラン"
+              name="Plan"
               navigation={navigation}
               scene={scene}
               profile={profileState.profile}
@@ -244,8 +244,7 @@ const HomeTabNavigator = () => {
 const BottomTabNavigator = () => {
   const Tab = createBottomTabNavigator();
   const notificationState = useNotificationState();
-  const notificationDispatch = useNotificationDispatch();
-  const authState = useAuthState();
+  const chatState = useChatState();
 
   return (
     <Tab.Navigator
@@ -257,7 +256,7 @@ const BottomTabNavigator = () => {
             iconName = focused ? "home" : "home";
           } else if (route.name === "Talk") {
             iconName = focused ? "comments" : "comments-o";
-            badgeCount = cvtBadgeCount(0);
+            badgeCount = cvtBadgeCount(chatState.totalUnreadNum);
           } else if (route.name === "Notification") {
             iconName = focused ? "bell" : "bell-o";
             badgeCount = cvtBadgeCount(notificationState.unreadNum);
@@ -284,7 +283,7 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="Talk" component={TalkScreen} />
       <Tab.Screen name="Notification" options={{
         tabBarButton: (props) => <TouchableOpacity activeOpacity={1} {...props} onPress={() => {
-          notificationDispatch({ type: "PUT_READ", token: authState.token });
+          // additional processing
           props.onPress();
         }} />
       }} >

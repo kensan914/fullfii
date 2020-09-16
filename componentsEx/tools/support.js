@@ -1,4 +1,5 @@
 import { AsyncStorage, Alert } from "react-native";
+import { useRef, useEffect } from "react";
 
 
 // ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo" 
@@ -168,4 +169,4 @@ export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress 
 
 export const isString = (obj) => {
   return typeof (obj) == "string" || obj instanceof String;
-};
+}

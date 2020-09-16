@@ -25,10 +25,11 @@ const authReducer = (prevState, action) => {
       };
     case "COMPLETE_LOGOUT":
       /** state関連の削除処理 logout時に実行
-       * @param {Object} action [type, notificationDispatch] */
+       * @param {Object} action [type, notificationDispatch, chatDispatch] */
 
       asyncRemoveAll();
       action.notificationDispatch({ type: "RESET" });
+      action.chatDispatch({ type: "RESET" });
       return {
         ...prevState,
         status: "Unauthenticated",

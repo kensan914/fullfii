@@ -42,7 +42,6 @@ export default Home;
 
 export const requestGetUsers = (token, appendUsers, page, genre) => {
   const url = URLJoin(BASE_URL, "users/", `?page=${page > 0 ? page : 1}`, `?genre=${genre}`);
-  console.log(url);
 
   authAxios(token)
     .get(url)

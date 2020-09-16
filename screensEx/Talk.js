@@ -4,6 +4,7 @@ import TalkTemplate from '../componentsEx/templates/TalkTemplate';
 import { BASE_URL_WS } from '../constantsEx/env';
 import { URLJoin } from '../componentsEx/tools/support';
 import { useChatState } from '../componentsEx/contexts/ChatContext';
+import authAxios from '../componentsEx/tools/authAxios';
 
 const Talk = (props) => {
   const chatState = useChatState();
@@ -15,6 +16,20 @@ const Talk = (props) => {
 
 export default Talk;
 
+
+/** 
+ * request chat. */
+export const requestChat = (user, token, chatState, chatDispatch) => {
+  const url = URLJoin(BASE_URL, "chat-request/", user.id);
+
+  authAxios(token)
+    .get(url)
+    .then(res => {
+      chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
+    })
+    .catch(err => {
+    });
+}
 
 /** 
  * request chat. */

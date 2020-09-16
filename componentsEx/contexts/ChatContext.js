@@ -141,6 +141,22 @@ const chatReducer = (prevState, action) => {
         totalUnreadNum: totalUnreadNum,
       };
 
+    case "RESET":
+      /** リセット wsの切断
+       * @param {Object} action [type] */
+
+      Object.values(prevState.talkCollection).forEach((talkObj) => {
+        if (talkObj.ws) talkObj.ws.close();
+      })
+      // asyncRemoveItem("notifications");
+      return {
+        ...prevState,
+        sendCollection: {},
+        inCollection: {},
+        talkCollection: {},
+        totalUnreadNum: 0,
+      };
+
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;

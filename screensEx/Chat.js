@@ -21,7 +21,7 @@ const Chat = (props) => {
 
   return (
     <ChatTemplate user={user} messages={messages.concat(offlineMessages)} ws={ws} appendOfflineMessage={appendOfflineMessage}
-      sendWsMesssage={sendWsMesssage} token={authState.token} />
+      sendWsMesssage={sendWsMesssage} token={authState.token} roomID={roomID} />
   );
 }
 

@@ -4,7 +4,7 @@ import { Block, Text } from 'galio-framework';
 
 import { Hr } from '../../componentsEx';
 import Avatar from '../../componentsEx/atoms/Avatar';
-import { cvtListDate } from '../tools/support';
+import { cvtListDate, cvtBadgeCount } from '../tools/support';
 import { useAuthState } from '../contexts/AuthContext';
 import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 
@@ -61,6 +61,8 @@ const TalkCollection = (props) => {
   return (
     talkList.map((item, index) => {
       const newestMessage = getNewestMessage(item);
+      const badgeCount = cvtBadgeCount(item.unreadNum);
+
       return (
         <TouchableOpacity key={index} onPress={() => navigation.navigate("Chat", { roomID: item.roomID })}>
           <Block flex row style={styles.talkCard}>
@@ -70,10 +72,18 @@ const TalkCollection = (props) => {
             <Block flex={0.65}>
               <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.user.name}</Text>
               <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{newestMessage.message}</Text>
-              <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{item.unreadNum}</Text>
             </Block>
-            <Block flex={0.15} style={{ height: 80 }}>
-              <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{newestMessage.time}</Text>
+            <Block flex={0.15} style={{ height: 80, alignItems: "center" }}>
+              <Block flex={0.4} style={{ justifyContent: "center" }}>
+                <Text size={11} color="silver">{newestMessage.time}</Text>
+              </Block>
+              {badgeCount &&
+                <Block flex={0.6}>
+                  <Block style={{ backgroundColor: "#F69896", height: 30, minWidth: 30, borderRadius: 15, borderColor: "white", borderWidth: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text size={16} color="white" style={{ paddingHorizontal: 3 }}>{badgeCount}</Text>
+                  </Block>
+                </Block>
+              }
             </Block>
           </Block>
           <Hr h={1} color="whitesmoke" />

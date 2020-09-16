@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
-import { Block, theme, Text, Input, Button } from 'galio-framework';
-import * as WebBrowser from 'expo-web-browser';
+import React, { useState } from "react";
+import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import { Block, theme, Text, Input, Button } from "galio-framework";
+import * as WebBrowser from "expo-web-browser";
 
 import { Hr, Icon } from "../componentsEx";
 import { useAuthDispatch } from "../componentsEx/contexts/AuthContext";
 import { alertModal } from "../componentsEx/tools/support";
 import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
+import { useChatDispatch } from "../componentsEx/contexts/ChatContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -17,9 +18,10 @@ const Settings = (props) => {
   const [value, setValue] = useState("");
   const authDispatch = useAuthDispatch();
   const notificationDispatch = useNotificationDispatch();
+  const chatDispatch = useChatDispatch();
 
   _handleOpenWithWebBrowser = () => {
-    WebBrowser.openBrowserAsync('https://www.fullfii.com/pages/privacy');
+    WebBrowser.openBrowserAsync("https://www.fullfii.com/pages/privacy");
   };
 
   if (typeof screen === "undefined")
@@ -35,7 +37,7 @@ const Settings = (props) => {
             cancelButton: "キャンセル",
             okButton: "ログアウト",
             onPress: () => {
-              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch });
+              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch });
             },
           });
         }} />
