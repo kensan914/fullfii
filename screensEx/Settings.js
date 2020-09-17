@@ -8,6 +8,8 @@ import { useAuthDispatch } from "../componentsEx/contexts/AuthContext";
 import { alertModal } from "../componentsEx/tools/support";
 import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 import { useChatDispatch } from "../componentsEx/contexts/ChatContext";
+import { USER_POLICY_URL } from "../constantsEx/env"
+import { GOOGLE_FORM_URL } from "../constantsEx/env"
 
 
 const { width, height } = Dimensions.get("screen");
@@ -21,14 +23,11 @@ const Settings = (props) => {
   const chatDispatch = useChatDispatch();
 
   _handleOpenWithWebBrowser = () => {
-    WebBrowser.openBrowserAsync("https://www.fullfii.com/pages/privacy");
-<<<<<<< HEAD
-=======
+    WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
   _handleOpenWithWebBrowserContactUsForm = () => {
-    WebBrowser.openBrowserAsync("https://docs.google.com/forms/d/e/1FAIpQLScaGHQYXpvYtPPSIKqVgPdSgM5QY_dzOQeTG6j8Jz16bJWV3A/viewform?usp=sf_link");
->>>>>>> 0122012d298012621185ab3107804672278e67fc
+    WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
   if (typeof screen === "undefined")

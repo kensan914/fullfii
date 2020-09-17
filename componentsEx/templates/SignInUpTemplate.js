@@ -10,6 +10,7 @@ import { useAuthDispatch } from "../contexts/AuthContext";
 import { useProfileDispatch } from "../contexts/ProfileContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
 import { useChatDispatch } from "../contexts/ChatContext";
+import { USER_POLICY_URL } from "../../constantsEx/env"
 
 const { height, width } = Dimensions.get("window");
 
@@ -74,7 +75,7 @@ const SignInUp = (props) => {
   }
 
   _handleOpenWithWebBrowser = () => {
-    WebBrowser.openBrowserAsync('https://www.fullfii.com/pages/privacy');
+    WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
   return (
