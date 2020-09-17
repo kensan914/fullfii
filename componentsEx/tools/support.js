@@ -98,7 +98,7 @@ export const cvtBadgeCount = (badgeCount) => {
   }
 }
 
-export const asyncSetItem = async (key, value) => {
+export const asyncStoreItem = async (key, value) => {
   try {
     await AsyncStorage.setItem(key, value);
   } catch (error) {
@@ -114,13 +114,22 @@ export const asyncGetItem = async (key) => {
   }
 }
 
-export const asyncSetJson = async (key, value) => {
+export const asyncStoreJson = async (key, value) => {
   try {
-    console.log("asyncSetJson実行");
+    console.log("asyncStoreJson実行");
     await AsyncStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.log(error);
   }
+}
+
+export const asyncStoreTalkCollection = async (talkCollection) => {
+  const _talkCollection = deepCopy(talkCollection, ["ws"]); // deep copy
+  Object.keys(_talkCollection).forEach(roomID => {
+    _talkCollection[roomID].ws = null;
+  });
+  console.log(_talkCollection);
+  asyncStoreJson("talkCollection", _talkCollection);
 }
 
 export const asyncGetJson = async (key) => {
@@ -151,6 +160,19 @@ export const asyncRemoveAll = async () => {
   }
 }
 
+
+/**
+ *  @example
+    alertModal({
+      mainText: alertTitle,
+      subText: alertText,
+      cancelButton: "キャンセル",
+      okButton: "送信する",
+      onPress: () => {
+        navigation.navigate("Home");
+      },
+    });
+ */
 export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress }) => {
   Alert.alert(
     mainText ? mainText : "", subText ? subText : "",
@@ -169,4 +191,25 @@ export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress 
 
 export const isString = (obj) => {
   return typeof (obj) == "string" || obj instanceof String;
+}
+
+export const deepCopy = (obj, passKeys=[]) => {
+  let r = {};
+  for (const name in obj) {
+    if (passKeys.includes(name)) { // ["ws"] そのままcopy
+      r[name] = obj[name];
+      console.log("lalala");
+    } else if (isObject(obj[name])) {
+      r[name] = deepCopy(obj[name], passKeys);
+    } else {
+      r[name] = obj[name];
+    }
+  }
+  console.log("rrrrrrr");
+  console.log(r);
+  return r;
+}
+
+export const isObject = (val) => {
+  return val !== null && typeof (val) === "object" && val.constructor === Object;
 }

@@ -9,7 +9,7 @@ import BirthdayPicker from "../atoms/BirthdayPicker";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { useProfileDispatch } from "../contexts/ProfileContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
-import { useChatDispatch } from "../contexts/ChatContext";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 
 const { height, width } = Dimensions.get("window");
 
@@ -47,6 +47,7 @@ const SignInUp = (props) => {
     setActive(newActive);
   }
 
+  const chatState = useChatState();
   const dispatches = {
     authDispatch: useAuthDispatch(),
     profileDispatch: useProfileDispatch(),
@@ -63,9 +64,9 @@ const SignInUp = (props) => {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
     if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignUp(username, email, password, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     } else if (signin) {
-      submit = () => requestSignIn(email, password, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     }
     disabled = false;
   } else {

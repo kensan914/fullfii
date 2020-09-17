@@ -1,8 +1,8 @@
 import React from 'react';
 
 import TalkTemplate from '../componentsEx/templates/TalkTemplate';
-import { BASE_URL_WS } from '../constantsEx/env';
-import { URLJoin } from '../componentsEx/tools/support';
+import { BASE_URL_WS, BASE_URL } from '../constantsEx/env';
+import { URLJoin, asyncGetJson } from '../componentsEx/tools/support';
 import { useChatState } from '../componentsEx/contexts/ChatContext';
 import authAxios from '../componentsEx/tools/authAxios';
 
@@ -10,7 +10,8 @@ const Talk = (props) => {
   const chatState = useChatState();
 
   return (
-    <TalkTemplate {...props} sendCollection={chatState.sendCollection} inCollection={chatState.inCollection} talkCollection={chatState.talkCollection} connectWsChat={connectWsChat} />
+    <TalkTemplate {...props} sendCollection={chatState.sendCollection} inCollection={chatState.inCollection} talkCollection={chatState.talkCollection}
+      initConnectWsChat={initConnectWsChat} cancelTalkRequest={cancelTalkRequest} />
   );
 }
 
@@ -18,12 +19,12 @@ export default Talk;
 
 
 /** 
- * request chat. */
-export const requestChat = (user, token, chatState, chatDispatch) => {
-  const url = URLJoin(BASE_URL, "chat-request/", user.id);
+ * request talk. */
+export const requestTalk = (user, token, chatDispatch) => {
+  const url = URLJoin(BASE_URL, "users/", user.id, "talk-request/");
 
   authAxios(token)
-    .get(url)
+    .post(url)
     .then(res => {
       chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
     })
@@ -32,55 +33,32 @@ export const requestChat = (user, token, chatState, chatDispatch) => {
 }
 
 /** 
- * request chat. */
-export const connectWsChatRequest = (user, token, chatState, chatDispatch) => {
-  const url = URLJoin(BASE_URL_WS, "chat-request/", user.id);
-
-  let ws = new WebSocket(url);
-  ws.onopen = (e) => {
-    alert("websocket接続が完了しました(chat-request)");
-    ws.send(JSON.stringify({ type: "auth", token: token }));
-  };
-  ws.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if (data.type === "auth") {
-      console.log("websocket認証OK(chat-request)");
-      chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: data.room_id, user: data.target_user, date: new Date(Date.now()) });
-    } else if (data.type === "notice_response") {
-      chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
-    }
-    handleChatMessage(data, chatState, chatDispatch);
-  };
-  ws.onclose = (e) => {
-    alert("切断されました(chat-request)");
-    if (e.wasClean) {
-    } else {
-      // e.g. サーバのプロセスが停止、あるいはネットワークダウン
-      // この場合、event.code は通常 1006 になります
-    }
-  };
-}
-
-/** 
- * response chat request. */
-export const connectWsChat = (roomID, token, chatState, chatDispatch) => {
+ * response talk request. 
+ * If you are a request user and you are starting a talk, init is true. */
+const _connectWsChat = (roomID, token, chatState, chatDispatch, init, callbackSuccess) => {
   const url = URLJoin(BASE_URL_WS, "chat/", roomID);
 
   let ws = new WebSocket(url);
   ws.onopen = (e) => {
-    alert("websocket接続が完了しました(chat-request)");
-    ws.send(JSON.stringify({ type: "auth", token: token }));
+    alert("websocket接続が完了しました(talk-request)");
+    ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
   };
   ws.onmessage = (e) => {
     const data = JSON.parse(e.data);
     if (data.type === "auth") {
-      console.log("websocket認証OK(chat-request)");
-      chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+      console.log("websocket認証OK(talk-request)");
+      callbackSuccess(data, ws);
     }
-    handleChatMessage(data, chatState, chatDispatch);
+
+    else if (data.type === "error") {
+      console.log(data);
+      if (data.message) alert(data.message);
+      ws.close();
+    }
+    handleChatMessage(data, chatState, chatDispatch, token);
   };
   ws.onclose = (e) => {
-    alert("切断されました(chat-request)");
+    // alert("切断されました(talk-request)");
     if (e.wasClean) {
     } else {
       // e.g. サーバのプロセスが停止、あるいはネットワークダウン
@@ -89,22 +67,69 @@ export const connectWsChat = (roomID, token, chatState, chatDispatch) => {
   };
 }
 
-const handleChatMessage = (data, chatState, chatDispatch) => {
+export const initConnectWsChat = (roomID, token, chatState, chatDispatch) => {
+  _connectWsChat(roomID, token, chatState, chatDispatch, true, callbackSuccess = (data, ws) => {
+    chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+  });
+}
+
+const _reConnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
+  _connectWsChat(roomID, token, chatState, chatDispatch, false, callbackSuccess = (data, ws) => {
+    chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
+  });
+}
+
+
+const handleChatMessage = (data, chatState, chatDispatch, token) => {
   if (data.type === "chat_message") {
     const roomID = data.room_id;
+    const messageID = data.message.message_id;
+    const message = data.message.message;
+    const isMe = data.message.is_me;
+    const time = data.message.time;
+
     const talkObj = chatState.talkCollection[roomID];
     const offlineMessages = talkObj.offlineMessages;
 
-    if (data.me) {
+    if (isMe) {
       // appendMessage → offlineMessagesの該当messageを削除
       const offlineMsgIDs = offlineMessages.map(offlineMessage => offlineMessage.id)
-      if (offlineMsgIDs.indexOf(data.message_id) >= 0) {
-        chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: data.message_id, message: data.message, me: data.me, time: data.time });
-        chatDispatch({ type: "DELETE_OFFLINE_MESSAGE", roomID: roomID, messageID: data.message_id });
+      if (offlineMsgIDs.indexOf(messageID) >= 0) {
+        chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: messageID, message: message, isMe: isMe, time: time, token: token });
+        chatDispatch({ type: "DELETE_OFFLINE_MESSAGE", roomID: roomID, messageID: messageID });
       } else {
       }
     } else {
-      chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: data.message_id, message: data.message, me: data.me, time: data.time });
+      chatDispatch({ type: "APPEND_MESSAGE", roomID: roomID, messageID: messageID, message: message, isMe: isMe, time: time, token: token });
     }
+  }
+
+  else if (data.type === "multi_chat_messages") {
+    const roomID = data.room_id;
+    const messages = data.messages;
+    chatDispatch({ type: "MERGE_MESSAGES", roomID: roomID, messages: messages, token: token });
+  }
+}
+
+
+/** 
+ *  cansel talk request. */
+export const cancelTalkRequest = (roomID, token, chatDispatch) => {
+  const url = URLJoin(BASE_URL, "rooms/", roomID, "cancel/");
+
+  authAxios(token)
+    .post(url)
+    .then(res => {
+      chatDispatch({ type: "DELETE_SEND_OBJ", roomID: roomID });
+    })
+    .catch(err => {
+    });
+}
+
+export const reConnectWsChat = async (token, chatState, chatDispatch) => {
+  const talkCollection = await asyncGetJson("talkCollection");
+  if (talkCollection) {
+    const roomIDs = Object.keys(talkCollection);
+    roomIDs.forEach(roomID => _reConnectWsChat(roomID, token, chatState, chatDispatch, talkCollection));
   }
 }

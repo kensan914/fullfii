@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetJson, asyncRemoveItem } from "../tools/support";
+import { asyncStoreJson, asyncRemoveItem } from "../tools/support";
 
 
 const NotificationReducer = (prevState, action) => {
@@ -13,7 +13,7 @@ const NotificationReducer = (prevState, action) => {
       if (!notifications[action.notification.id]) {
         notifications.unshift(action.notification);
         incrementNum = 1;
-        asyncSetJson("notifications", notifications);
+        asyncStoreJson("notifications", notifications);
       }
       return {
         ...prevState,
@@ -47,7 +47,7 @@ const NotificationReducer = (prevState, action) => {
       });
       if (!isDuplicate && action.notDuplicateFunc) action.notDuplicateFunc();
 
-      asyncSetJson("notifications", mergedNotifications);
+      asyncStoreJson("notifications", mergedNotifications);
       return {
         ...prevState,
         notifications: mergedNotifications,
@@ -82,7 +82,7 @@ const NotificationReducer = (prevState, action) => {
        * @param {Object} action [type] */
 
       if (prevState.tempNotifications) {
-        asyncSetJson("notifications", prevState.tempNotifications);
+        asyncStoreJson("notifications", prevState.tempNotifications);
         return {
           ...prevState,
           notification: prevState.tempNotifications,

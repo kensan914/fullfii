@@ -6,7 +6,7 @@ import { withNavigation } from "@react-navigation/compat";
 
 import { HeaderHeight } from "../../constantsEx/utils";
 import { Icon, Hr } from "../../componentsEx";
-import { ConsultantProfile, profileImageHeight, profileContentBR, sendChatRequest } from "../organisms/Profile";
+import { ConsultantProfile, profileImageHeight, profileContentBR, sendTalkRequest } from "../organisms/Profile";
 import { useProfileState } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
@@ -22,11 +22,10 @@ const ProfileTemplate = (props) => {
   const profileState = useProfileState();
   const user = item.me ? profileState.profile : item;
   const authState = useAuthState();
-  const chatState = useChatState();
   const chatDispatch = useChatDispatch();
+  const chatState = useChatState();
 
   const paramsTitleSize = user.me ? 12 : 12;
-
   return (
     <Block flex style={styles.profile}>
       <Block flex style={styles.profileDetails}>
@@ -98,11 +97,12 @@ const ProfileTemplate = (props) => {
         </ScrollView>
       </Block >
       {
-        user.me
-          ? <Button round color="lightcoral" style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
+        user.me ?
+          <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
             <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
-          </Button>
-          : <Button round color="lightcoral" style={styles.bottomButton} onPress={() => sendChatRequest(user, navigation, authState.token, chatState, chatDispatch)}>リクエストを送る</Button>
+          </Button> :
+          (!chatState.includedUserIDs.includes(user.id) &&
+            <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => sendTalkRequest(user, navigation, authState.token, chatDispatch)}>リクエストを送る</Button>)
       }
     </Block >
   );

@@ -52,13 +52,13 @@ const ChatTemplate = (props) => {
     } else {
       return (
         <Block key={index}>
-          <Block row space={message.me ? "between" : null}>
-            {!message.me
+          <Block row space={message.isMe ? "between" : null}>
+            {!message.isMe
               ? <Avatar size={40} image={user.image} style={[styles.avatar, styles.shadow]} />
               : <Image source={null} style={[styles.avatar, styles.shadow]} />
             }
             <Block style={styles.messageCardWrapper}>
-              {!message.me ?
+              {!message.isMe ?
                 <Block style={[styles.messageCard, styles.shadow]}>
                   <Text>{message.message}</Text>
                 </Block> :

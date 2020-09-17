@@ -1,20 +1,20 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetItem, asyncRemoveAll, isString, cvtKeyFromSnakeToCamel } from "../tools/support";
-import { talks } from "../../constantsEx/talks";
+import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection } from "../tools/support";
 
 
 const chatReducer = (prevState, action) => {
-  let sendCollection;
-  let inCollection;
-  let talkCollection;
-  let messages;
-  let offlineMessages;
+  let _sendCollection;
+  let _inCollection;
+  let _talkCollection;
+  let _messages;
+  let _offlineMessages;
+  let _includedUserIDs;
   switch (action.type) {
     case "APPEND_SENDCOLLECTION":
       /** 1つのsendObjを作成し、sendCollectionに追加
        * @param {Object} action [type, roomID, user, date(str or Date)] */
 
-      sendCollection = Object.assign(prevState.sendCollection, {
+      _sendCollection = Object.assign(prevState.sendCollection, {
         [action.roomID]: {
           roomID: action.roomID,
           user: cvtKeyFromSnakeToCamel(action.user),
@@ -23,14 +23,15 @@ const chatReducer = (prevState, action) => {
       });
       return {
         ...prevState,
-        sendCollection: sendCollection,
+        sendCollection: _sendCollection,
+        includedUserIDs: prevState.includedUserIDs.concat([action.user.id]),
       };
 
     case "APPEND_INCOLLECTION":
       /** 1つのinObjを作成し、inCollectionに追加
        * @param {Object} action [type, roomID, user, date(str or Date)] */
 
-      inCollection = Object.assign(prevState.inCollection, {
+      _inCollection = Object.assign(prevState.inCollection, {
         [action.roomID]: {
           roomID: action.roomID,
           user: cvtKeyFromSnakeToCamel(action.user),
@@ -39,14 +40,15 @@ const chatReducer = (prevState, action) => {
       });
       return {
         ...prevState,
-        inCollection: inCollection,
+        inCollection: _inCollection,
+        includedUserIDs: prevState.includedUserIDs.concat([action.user.id]),
       };
 
     case "START_TALK":
-      /** トーク開始時に実行 1つのtalkObjを作成し、talkCollectionに追加 sendCollection・inCollectionからobjを削除
+      /** トーク開始時(init)に実行 1つのtalkObjを作成し、talkCollectionに追加 sendCollection・inCollectionからobjを削除
        * @param {Object} action [type, roomID, user, ws] */
 
-      talkCollection = Object.assign(prevState.talkCollection, {
+      _talkCollection = Object.assign(prevState.talkCollection, {
         [action.roomID]: {
           roomID: action.roomID,
           user: cvtKeyFromSnakeToCamel(action.user),
@@ -56,42 +58,91 @@ const chatReducer = (prevState, action) => {
           unreadNum: 0,
         }
       });
-      const _sendCollection = prevState.sendCollection;
-      const _inCollection = prevState.inCollection;
+      _sendCollection = prevState.sendCollection;
+      _inCollection = prevState.inCollection;
       delete _sendCollection[action.roomID];
       delete _inCollection[action.roomID];
 
+      asyncStoreTalkCollection(_talkCollection);
       return {
         ...prevState,
         sendCollection: _sendCollection,
         inCollection: _inCollection,
-        talkCollection: talkCollection,
+        talkCollection: _talkCollection,
+      };
+
+    case "RESTART_TALK":
+      /** トーク開始時に実行 受け取ったtalkObjを修正し、talkCollectionに追加
+       * @param {Object} action [type, roomID, user, ws, talkCollection] */
+
+      const _talkObj = action.talkCollection[action.roomID];
+      _talkObj.user = action.user;
+      _talkObj.ws = action.ws;
+      _talkObj.messages.forEach((message, index) => _talkObj.messages[index].time = new Date(message.time));
+
+      _talkCollection = Object.assign(prevState.talkCollection, {[action.roomID]: _talkObj});
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
       };
 
     case "APPEND_MESSAGE":
-      /** messageを作成し、追加 未読値をインクリメント
-       * @param {Object} action [type, roomID, messageID, message, me, time(str or Date)] */
+      /** messageを作成し, 追加. 未読値をインクリメント ストア通知
+       * @param {Object} action [type, roomID, messageID, message, isMe, time(str or Date), token] */
 
       const message = {
         id: action.messageID,
         message: action.message,
-        me: action.me,
-        // time: isString(action.time) ? new Date(new Date(action.time).toLocaleString({ timeZone: 'Asia/Tokyo' })) : action.time,
+        isMe: action.isMe,
         time: isString(action.time) ? new Date(action.time) : action.time,
       };
 
-      messages = prevState.talkCollection[action.roomID].messages.concat([message]);
-      const prevUnreadNum = prevState.talkCollection[action.roomID].unreadNum;
-      const incrementNum = action.me ? 0 : 1;
+      _messages = prevState.talkCollection[action.roomID].messages.concat([message]);
+      const prevUnreadNum_AM = prevState.talkCollection[action.roomID].unreadNum;
+      const incrementNum_AM = action.isMe ? 0 : 1;
 
-      talkCollection = prevState.talkCollection;
-      talkCollection[action.roomID].messages = messages;
-      talkCollection[action.roomID].unreadNum = prevUnreadNum + incrementNum;
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].messages = _messages;
+      _talkCollection[action.roomID].unreadNum = prevUnreadNum_AM + incrementNum_AM;
+
+      // store message data. and report that it was stored safely to the server.
+      asyncStoreTalkCollection(_talkCollection);
+      prevState.talkCollection[action.roomID].ws.send(JSON.stringify({ type: "store", message_id: action.messageID, token: action.token }))
 
       return {
         ...prevState,
-        talkCollection: talkCollection,
-        totalUnreadNum: prevState.totalUnreadNum + incrementNum,
+        talkCollection: _talkCollection,
+        totalUnreadNum: prevState.totalUnreadNum + incrementNum_AM,
+      };
+
+    case "MERGE_MESSAGES":
+      /** 受け取ったmessagesを統合 未読値をインクリメント ストア通知 (messagesの中身は全てスネークケース)
+       * @param {Object} action [type, roomID, messages, token] */
+
+      let incrementNum_MM = 0;
+      const messages = action.messages.map((elm) => {
+        if (!elm.is_me) incrementNum_MM += 1;
+        return {
+          id: elm.message_id,
+          message: elm.message,
+          isMe: elm.is_me,
+          time: isString(elm.time) ? new Date(elm.time) : elm.time,
+        }
+      });
+      _messages = prevState.talkCollection[action.roomID].messages.concat(messages);
+      const prevUnreadNum_MM = prevState.talkCollection[action.roomID].unreadNum;
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].messages = _messages;
+      _talkCollection[action.roomID].unreadNum = prevUnreadNum_MM + incrementNum_MM;
+
+      // store message data. and report that it was stored safely to the server.
+      asyncStoreTalkCollection(_talkCollection);
+      prevState.talkCollection[action.roomID].ws.send(JSON.stringify({ type: "store_by_room", token: action.token }))
+
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
+        totalUnreadNum: prevState.totalUnreadNum + incrementNum_MM,
       };
 
     case "APPEND_OFFLINE_MESSAGE":
@@ -101,15 +152,15 @@ const chatReducer = (prevState, action) => {
       const offlineMessage = {
         id: action.messageID,
         message: action.message,
-        me: true,
+        isMe: true,
       };
-      offlineMessages = prevState.talkCollection[action.roomID].offlineMessages.concat([offlineMessage]);
-      talkCollection = prevState.talkCollection;
-      talkCollection[action.roomID].offlineMessages = offlineMessages;
+      _offlineMessages = prevState.talkCollection[action.roomID].offlineMessages.concat([offlineMessage]);
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].offlineMessages = _offlineMessages;
 
       return {
         ...prevState,
-        talkCollection: talkCollection,
+        talkCollection: _talkCollection,
       };
 
     case "DELETE_OFFLINE_MESSAGE":
@@ -117,13 +168,13 @@ const chatReducer = (prevState, action) => {
        * @param {Object} action [type, roomID, messageID] */
 
       const prevOfflineMessages = prevState.talkCollection[action.roomID].offlineMessages;
-      offlineMessages = prevOfflineMessages.filter(elm => elm.id !== action.messageID);
-      talkCollection = prevState.talkCollection;
-      talkCollection[action.roomID].offlineMessages = offlineMessages;
+      _offlineMessages = prevOfflineMessages.filter(elm => elm.id !== action.messageID);
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].offlineMessages = _offlineMessages;
 
       return {
         ...prevState,
-        talkCollection: talkCollection,
+        talkCollection: _talkCollection,
       };
 
     case "READ_BY_ROOM":
@@ -132,13 +183,44 @@ const chatReducer = (prevState, action) => {
 
       const unreadNum = prevState.talkCollection[action.roomID].unreadNum;
       const totalUnreadNum = prevState.totalUnreadNum - unreadNum;
-      talkCollection = prevState.talkCollection;
-      talkCollection[action.roomID].unreadNum = 0;
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].unreadNum = 0;
 
+      asyncStoreTalkCollection(_talkCollection);
       return {
         ...prevState,
-        talkCollection: talkCollection,
+        talkCollection: _talkCollection,
         totalUnreadNum: totalUnreadNum,
+      };
+
+    case "DELETE_SEND_OBJ":
+      /** sendObjをひとつ削除
+       * @param {Object} action [type, roomID] */
+
+      _sendCollection = prevState.sendCollection;
+      _includedUserIDs = prevState.includedUserIDs.filter((userID) => {
+        if (_sendCollection[action.roomID]) return userID !== _sendCollection[action.roomID].user.id;
+      });
+      delete _sendCollection[action.roomID];
+      return {
+        ...prevState,
+        sendCollection: _sendCollection,
+        includedUserIDs: _includedUserIDs,
+      };
+
+    case "DELETE_IN_OBJ":
+      /** inObjをひとつ削除
+       * @param {Object} action [type, roomID] */
+
+      _inCollection = prevState.inCollection;
+      _includedUserIDs = prevState.includedUserIDs.filter((userID) => {
+        if (_inCollection[action.roomID]) return userID !== _inCollection[action.roomID].user.id;
+      });
+      delete _inCollection[action.roomID];
+      return {
+        ...prevState,
+        inCollection: _inCollection,
+        includedUserIDs: _includedUserIDs,
       };
 
     case "RESET":
@@ -148,7 +230,7 @@ const chatReducer = (prevState, action) => {
       Object.values(prevState.talkCollection).forEach((talkObj) => {
         if (talkObj.ws) talkObj.ws.close();
       })
-      // asyncRemoveItem("notifications");
+      asyncRemoveItem("talkCollection");
       return {
         ...prevState,
         sendCollection: {},
@@ -198,6 +280,7 @@ const ChatStateContext = createContext({
   inCollection: initInCollection,
   talkCollection: initTalkCollection,
   totalUnreadNum: 0,
+  includedUserIDs: [],
 });
 const ChatDispatchContext = createContext(undefined);
 
@@ -216,6 +299,7 @@ export const ChatProvider = ({ children, token }) => {
     inCollection: initInCollection,
     talkCollection: initTalkCollection,
     totalUnreadNum: 0,
+    includedUserIDs: [],
   });
   return (
     <ChatStateContext.Provider value={chatState}>

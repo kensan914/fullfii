@@ -12,7 +12,7 @@ import { useProfileState, useProfileDispatch } from "../contexts/ProfileContext"
 import BirthdayPicker from "../atoms/BirthdayPicker";
 import { requestPatchProfile } from "../../screensEx/ProfileInput";
 import { useAuthState } from "../contexts/AuthContext";
-import { connectWsChatRequest } from "../../screensEx/Talk";
+import { requestTalk } from "../../screensEx/Talk";
 
 
 const { width } = Dimensions.get("screen");
@@ -326,7 +326,7 @@ export const Catalogue = (props) => {
   );
 }
 
-export const sendChatRequest = (user, navigation, token, chatState, chatDispatch) => {
+export const sendTalkRequest = (user, navigation, token, chatDispatch) => {
   let alertTitle;
   let alertText;
   switch (user.status.key) {
@@ -351,7 +351,7 @@ export const sendChatRequest = (user, navigation, token, chatState, chatDispatch
     cancelButton: "キャンセル",
     okButton: "送信する",
     onPress: () => {
-      connectWsChatRequest(user, token, chatState, chatDispatch);
+      requestTalk(user, token, chatDispatch);
       navigation.navigate("Home");
     },
   });

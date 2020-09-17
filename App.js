@@ -88,7 +88,7 @@ const RootNavigator = () => {
   useEffect(() => {
     console.log("remove プロフィール")
     asyncRemoveItem("profile"); // TODO
-    // asyncRemoveItem("notifications"); // TODO
+    // asyncRemoveItem("talkCollection"); // TODO
 
     const fetchData = async () => {
       const _token = await asyncGetItem("token");
@@ -97,8 +97,6 @@ const RootNavigator = () => {
       const _profile = await asyncGetJson("profile");
       setProfile(_profile ? _profile : null);
       const _notifications = await asyncGetJson("notifications");
-      console.log("_notifications_notifications");
-      console.log(_notifications);
       setNotifications(_notifications ? _notifications : null);
     }
     fetchData();

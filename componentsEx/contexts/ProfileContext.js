@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetJson, cvtKeyFromSnakeToCamel } from "../tools/support";
+import { asyncStoreJson, cvtKeyFromSnakeToCamel } from "../tools/support";
 
 
 const initProfile = {
@@ -28,7 +28,7 @@ const ProfileReducer = (prevState, action) => {
        * @param {Object} action [type, profile] */
 
       const profile = Object.assign(initProfile, cvtKeyFromSnakeToCamel(action.profile));
-      asyncSetJson("profile", profile);
+      asyncStoreJson("profile", profile);
       return {
         ...prevState,
         profile: profile,

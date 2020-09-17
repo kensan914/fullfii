@@ -16,7 +16,7 @@ const SignIn = (props) => {
 export default SignIn;
 
 
-export const requestSignIn = (email, password, dispatches, setErrorMessages, errorMessagesInit, setIsLoading) => {
+export const requestSignIn = (email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading) => {
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "login/");
   console.log("リクエストサインイン");
@@ -26,7 +26,7 @@ export const requestSignIn = (email, password, dispatches, setErrorMessages, err
       password: password,
     })
     .then(res => {
-      dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches) });
+      dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches, chatState) });
     })
     .catch(err => {
       if (err.response.status === 400) {

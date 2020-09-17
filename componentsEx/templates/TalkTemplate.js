@@ -4,7 +4,7 @@ import { Block, Text } from 'galio-framework';
 
 import { Hr } from '../../componentsEx';
 import Avatar from '../../componentsEx/atoms/Avatar';
-import { cvtListDate, cvtBadgeCount } from '../tools/support';
+import { cvtListDate, cvtBadgeCount, alertModal } from '../tools/support';
 import { useAuthState } from '../contexts/AuthContext';
 import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 
@@ -12,16 +12,22 @@ import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 const { width, height } = Dimensions.get('screen');
 
 const TalkTemplate = (props) => {
-  const { navigation, sendCollection, inCollection, talkCollection, connectWsChat } = props;
+  const { navigation, sendCollection, inCollection, talkCollection, initConnectWsChat, cancelTalkRequest } = props;
+  console.log("tttttttttt");
+  console.log(talkCollection);
 
   return (
     <ScrollView>
-      <TalkTitle title="トーク中" />
-      <TalkCollection talkCollection={talkCollection} navigation={navigation} />
-      <TalkTitle title="受信" />
-      <SendInCollection collection={inCollection} connectWsChat={connectWsChat} />
-      <TalkTitle title="送信" />
-      <SendInCollection collection={sendCollection} />
+      <TalkTitle title="トーク中" collection={talkCollection} />
+      <TalkList talkCollection={talkCollection} navigation={navigation} />
+      <Hr h={8} color="whitesmoke" />
+
+      <TalkTitle title="受信" collection={inCollection} />
+      <SendInList collection={inCollection} initConnectWsChat={initConnectWsChat} navigation={navigation} />
+      <Hr h={8} color="whitesmoke" />
+
+      <TalkTitle title="送信" collection={sendCollection} />
+      <SendInList collection={sendCollection} cancelTalkRequest={cancelTalkRequest} navigation={navigation} />
     </ScrollView>
   );
 }
@@ -30,18 +36,25 @@ export default TalkTemplate;
 
 
 const TalkTitle = (props) => {
-  const { title } = props;
+  const { title, collection } = props;
+  const length = Object.keys(collection).length;
   return (
-    <Block flex style={{ paddingHorizontal: 15, paddingVertical: 10, marginTop: 5 }}>
-      <Text size={18} bold color="gray" >{title}</Text>
-    </Block>
+    <>
+      <Block flex row style={{ paddingHorizontal: 15, paddingVertical: 10, paddingTop: 15, backgroundColor: "white" }}>
+        <Text size={14} bold color="gray" >{title}{"  "}{length}</Text>
+      </Block>
+      {length > 0 &&
+        <Hr h={1} color="whitesmoke" />
+      }
+    </>
   );
 }
 
-const TalkCollection = (props) => {
+const TalkList = (props) => {
   const { talkCollection, navigation } = props;
   const talkList = Object.values(talkCollection)
     .sort((a, b) => {
+      console.log(a);
       const timeA = a.messages[a.messages.length - 1].time;
       const timeB = b.messages[b.messages.length - 1].time;
       if (timeA > timeB) return -1;
@@ -64,11 +77,11 @@ const TalkCollection = (props) => {
       const badgeCount = cvtBadgeCount(item.unreadNum);
 
       return (
-        <TouchableOpacity key={index} onPress={() => navigation.navigate("Chat", { roomID: item.roomID })}>
+        <TouchableOpacity key={index} activeOpacity={.6} onPress={() => navigation.navigate("Chat", { roomID: item.roomID })}>
           <Block flex row style={styles.talkCard}>
-            <Block flex={0.2}>
+            <TouchableOpacity style={{ flex: 0.2 }} onPress={() => navigation.navigate("Profile", { item: item.user })}>
               <Avatar size={56} image={item.user.image} style={{ alignSelf: "center" }} />
-            </Block>
+            </TouchableOpacity>
             <Block flex={0.65}>
               <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.user.name}</Text>
               <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{newestMessage.message}</Text>
@@ -93,8 +106,8 @@ const TalkCollection = (props) => {
   );
 }
 
-const SendInCollection = (props) => {
-  const { collection, connectWsChat } = props;
+const SendInList = (props) => {
+  const { collection, initConnectWsChat, cancelTalkRequest, navigation } = props;
   const authState = useAuthState();
   const chatState = useChatState();
   const chatDispatch = useChatDispatch();
@@ -108,16 +121,35 @@ const SendInCollection = (props) => {
       return 0;
     });
 
+  const onPress = (item) => {
+    if (initConnectWsChat) {
+      alertModal({
+        mainText: `${item.user.name}さんとトークを開始しますか？`,
+        subText: "トーク開始から24時間後に自動で会話内容は削除されます。",
+        cancelButton: "キャンセル",
+        okButton: "開始する",
+        onPress: () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, true),
+      });
+    } else if (cancelTalkRequest) {
+      alertModal({
+        mainText: `${item.user.name}さんへのリクエストをキャンセルしますか？`,
+        subText: `${item.user.name}さんの端末からもこのリクエストは削除されます。`,
+        cancelButton: "やめる",
+        okButton: "キャンセルする",
+        onPress: () => cancelTalkRequest(item.roomID, authState.token, chatDispatch),
+      });
+    }
+  }
+
   return (
     list.map((item, index) => (
-      <TouchableOpacity key={index} onPress={connectWsChat && (() => connectWsChat(item.roomID, authState.token, chatState, chatDispatch))}>
+      <TouchableOpacity key={index} activeOpacity={.6} onPress={() => onPress(item)}>
         <Block flex row style={styles.talkCard}>
-          <Block flex={0.2}>
+          <TouchableOpacity style={{ flex: 0.2 }} activeOpacity={.6} onPress={() => navigation.navigate("Profile", { item: item.user })}>
             <Avatar size={56} image={item.user.image} style={{ alignSelf: "center" }} />
-          </Block>
+          </TouchableOpacity>
           <Block flex={0.65}>
             <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.user.name}</Text>
-            {/* <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{}</Text> */}
           </Block>
           <Block flex={0.15} style={{ height: 80 }}>
             <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{cvtListDate(item.date)}</Text>

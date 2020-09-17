@@ -3,6 +3,7 @@ import React from 'react';
 import NotificationTemplate from '../componentsEx/templates/NotificationTemplate';
 import { BASE_URL_WS } from "../constantsEx/env";
 import { URLJoin } from "../componentsEx/tools/support";
+import { initConnectWsChat } from './Talk';
 
 
 const Notification = (props) => {
@@ -16,7 +17,7 @@ const Notification = (props) => {
 export default Notification;
 
 
-export const conectWsNotification = (token, notificationDispatch, chatDispatch) => {
+export const connectWsNotification = (token, notificationDispatch, chatState, chatDispatch) => {
   const url = URLJoin(BASE_URL_WS, "notification/");
   let newestPage = 1;
   const paginateBy = 10;
@@ -52,14 +53,22 @@ export const conectWsNotification = (token, notificationDispatch, chatDispatch) 
     }
 
     else if (data.type === "notice") {
-      if (data.notification.type === "chat_request") {
-        // チャットリクエストの通知
-        alert(data.notification.message + data.room_id);
+      if (data.notification.message) {
+        console.log(data.notification.message);
         notificationDispatch({ type: "ADD", notification: data.notification });
-        chatDispatch({type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date});
+      }
+
+      if (data.notification.type === "talk_request") {
+        // チャットリクエスト通知
+        chatDispatch({ type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date });
+      } else if (data.notification.type === "talk_response") {
+        // チャットレスポンス通知
+        initConnectWsChat(data.room_id, token, chatState, chatDispatch);
+      } else if (data.notification.type === "cancel_talk_request") {
+        // キャンセルトークリクエスト通知
+        chatDispatch({ type: "DELETE_IN_OBJ", roomID: data.room_id });
       } else {
         // 通常の通知
-        notificationDispatch({ type: "ADD", notification: data.notification });
       }
     }
 

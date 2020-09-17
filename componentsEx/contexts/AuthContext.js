@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncSetItem, asyncRemoveAll } from "../tools/support";
+import { asyncStoreItem, asyncRemoveAll } from "../tools/support";
 
 
 const authReducer = (prevState, action) => {
@@ -16,7 +16,7 @@ const authReducer = (prevState, action) => {
       /** state関連の初期化 signin時に実行
        * @param {Object} action [type, token, startUpLogind] */
 
-      asyncSetItem("token", action.token);
+      asyncStoreItem("token", action.token);
       action.startUpLogind();
       return {
         ...prevState,
