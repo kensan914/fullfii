@@ -205,22 +205,19 @@ const SignInUp = (props) => {
                   <Checkbox
                     color="#F69896"
                     style={{ marginVertical: 8, marginHorizontal: 8, }}
-                    labelStyle={{ fontSize: 16 }}
+                    labelStyle={{ color: '#F69896' }}
+                    label="利用規約に同意する"
                     initialValue={active.userpolicy}
                     onChange={(value) => {
                       value ? setUserpolicy(true) : setUserpolicy(false);
                     }}
                     />
                       <Text
-                        style={{color: '#F69896'}}
+                        style={{color: 'lightcoral'}}
                         onPress={_handleOpenWithWebBrowser}
-                        >利用規約
+                        >利用規約を読む
                       </Text>
-                      <Text
-                        style={{color: '#F69896'}}
-                        onPress={_handleOpenWithWebBrowser}
-                        >に同意する
-                      </Text>
+                      
               </Block>
             </>
           }
