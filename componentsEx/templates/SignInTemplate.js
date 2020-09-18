@@ -14,7 +14,7 @@ import { USER_POLICY_URL } from "../../constantsEx/env"
 
 const { height, width } = Dimensions.get("window");
 
-const SignInUp = (props) => {
+const SignInIn = (props) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -178,32 +178,7 @@ const SignInUp = (props) => {
 
             </Block>
 
-            {signup &&
-              <>
-                <Block/>
-                <Block style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                    <Checkbox
-                      color="#F69896"
-                      style={{ marginVertical: 8, marginHorizontal: 8, }}
-                      labelStyle={{ fontSize: 16 }}
-                      initialValue={active.userpolicy}
-                      onChange={(value) => {
-                        value ? setUserpolicy(true) : setUserpolicy(false);
-                      }}
-                      />
-                        <Text
-                          style={{color: '#0066c0'}}
-                          onPress={this._handleOpenWithWebBrowser}
-                          >利用規約
-                        </Text>
-                        <Text
-                          style={{color: '#F69896'}}
-                          onPress={this._handleOpenWithWebBrowser}
-                          >に同意する
-                        </Text>
-                </Block>
-              </>
-            }
+            
 
             <Block flex top style={{ marginTop: 20 }}>
               {Array.isArray(errorMessages.error) &&
@@ -239,7 +214,7 @@ const SignInUp = (props) => {
   );
 }
 
-export default SignInUp;
+export default SignInIn;
 
 const BottomMessage = (props) => {
   const { message, error, style, textcenter } = props;
