@@ -1,360 +1,168 @@
-import React from 'react';
-import { StyleSheet, Dimensions, Image, FlatList, TouchableWithoutFeedback } from 'react-native';
-import { Button, Block, Text, theme } from 'galio-framework';
+import React, { useState } from "react";
+import { StyleSheet, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { Button, Block, Text, theme, Icon } from 'galio-framework';
+import { LinearGradient } from "expo-linear-gradient";
+import * as WebBrowser from 'expo-web-browser';
 
-import { Product, Select } from '../components';
-import { materialTheme, products } from '../constants';
-import cartItems from '../constants/images/cart';
+import { materialTheme } from '../constants';
+import { USER_POLICY_URL } from "../constantsEx/env"
 
 const { width } = Dimensions.get('screen');
 
-export default class Cart extends React.Component {
-  state = {
-    cart: cartItems.products,
-  }
+//現在のユーザーのプラン状況
+let free = true
+let subscription = false
+let month = false
 
-  handleQuantity = (id, qty) => {
-    const { cart } = this.state;
+const Plan = () => {
 
-    const updatedCart = cart.map(product => {
-      if (product.id === id) product.qty = qty;
-      return product;
+    const [buttonColor, setButtonColor] = useState({
+      free: free,
+      subscription: subscription,
+      month: month,
     });
+    const [checkButton, setCheckButton] = useState({
+      free: free,
+      subscription: subscription,
+      month: month,
+    });
+    const [textColor, setTextColor] = useState({
+      free: free,
+      subscription: subscription,
+      month: month,
+    });
+    const [shadowColor, setShadowColor] = useState({
+      free: free,
+      subscription: subscription,
+      month: month,
+    });
+    
 
-    this.setState({ cart: updatedCart });
-  }
+    _handleOpenWithWebBrowser = () => {
+      WebBrowser.openBrowserAsync(USER_POLICY_URL);
+    };
 
-  handleDelete = (id) => {
-    const { cart } = this.state;
-    const updatedCart = cart.filter(product => (product.id !== id));
-    this.setState({ cart: updatedCart });
-  }
+    const changeButtonFree = () => {
+      setButtonColor({free: true}), 
+      setCheckButton({free: true}), 
+      setTextColor({free: true}), 
+      setShadowColor({free: true})
+    }
 
-  handleAdd = (item) => {
-    const { cart } = this.state;
+    const changeButtonSubscription = () => {
+      setButtonColor({subscription: true}), 
+      setCheckButton({subscription: true}), 
+      setTextColor({subscription: true}), 
+      setShadowColor({subscription: true})
+    }
 
-    cart.push({
-      ...item,
-      id: cart.length + 1,
-      stock: true,
-      qty: 1,
-    })
-
-    this.setState({ cart });
-  }
-
-  renderProduct = ({ item }) => {
-    const { navigation } = this.props;
+    const changeButtonMonth = () => {
+      setButtonColor({month: true}), 
+      setCheckButton({month: true}), 
+      setTextColor({month: true}), 
+      setShadowColor({month: true})
+    }
 
     return (
-      <Block>
-        <Block card shadow style={styles.product}>
-          <Block flex row>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Product', { product: item })}>
-              <Block style={styles.imageHorizontal}>
-                <Image
-                  source={{ uri: item.image }}
-                  style={{ height: theme.SIZES.BASE * 5, marginTop: -theme.SIZES.BASE * 2, borderRadius: 3 }}
-                />
-              </Block>
-            </TouchableWithoutFeedback>
-            <Block flex style={styles.productDescription}>
-              <TouchableWithoutFeedback onPress={() => navigation.navigate('Product', { product: item })}>
-                <Text size={14} style={styles.productTitle}>{item.title}</Text>
-              </TouchableWithoutFeedback>
-              <Block flex row space="between">
-                <Block bottom>
-                  <Text
-                    size={theme.SIZES.BASE * 0.75}
-                    color={materialTheme.COLORS[item.stock ? 'SUCCESS' : 'ERROR']}>
-                    {item.stock ? 'In Stock' : 'Out of Stock'}
-                  </Text>
-                </Block>
-                <Block bottom>
-                  <Text
-                    size={theme.SIZES.BASE * 0.75}
-                    color={materialTheme.COLORS.ACTIVE}>
-                    $ {item.price * item.qty}
-                  </Text>
-                </Block>
-              </Block>
+      <LinearGradient
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0.25, y: 1.1 }}
+      locations={[0.2, 1]}
+      colors={["white", "mistyrose"]}
+      style={[styles.container, { flex: 1}]}>
+      <Block flex row>
+      <Block flex middle>
+      <KeyboardAvoidingView behavior="padding" enabled>
+        <Block flex={0.1} style={{ alignItems: "center" }}>
+          <Text size={26} bold color="#F69896">プラン一覧</Text>
+        </Block>
+        <Block flex={0.7}  space="between">
+          <Block flex style={{ marginTop: 20 }}>
+            <Button
+              style={{ height: 80, shadowColor: shadowColor.free ? "silver" : "lightcoral", borderRadius: 20, flexDirection: 'row' }}
+              color={buttonColor.free ? "white" : "lightcoral"}
+              //disabled={" "}
+              onPress={changeButtonFree}
+              //loading={" "}
+            >
+              <Text color={textColor.free ? "lightcoral" : "white"} size={20} bold>2週間無料お試し</Text>
+              { checkButton.free &&
+                <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{paddingRight: 30}}/>
+              }
+            </Button>
+            <Block style={{padding: 10, paddingBottom: 20}}>
+              <Text color="silver" size={12} bold center>お試し期間終了後自動でノーマルに更新されます。</Text>
+              <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
             </Block>
-          </Block>
-          <Block flex row space="between" style={styles.options}>
-            <Block>
-              <Select
-                defaultIndex={1}
-                disabled={!item.stock}
-                options={[1, 2, 3, 4, 5]}
-                onSelect={(index, value) => this.handleQuantity(item.id, value)}
-              />
+            
+            <Button
+              style={{ height: 80, shadowColor: shadowColor.subscription ? "silver" : "lightcoral", borderRadius: 20, flexDirection: 'row' }}
+              color={buttonColor.subscription ? "white" : "lightcoral"}
+              //disabled={" "}
+              onPress={changeButtonSubscription}
+              //loading={" "}
+            >
+              <Block style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text color={textColor.subscription ? "lightcoral" : "white"} size={20} bold>ノーマル</Text>
+                <Text color={textColor.subscription ? "lightcoral" : "white"} size={16} bold>￥500 / 月</Text>
+              </Block>
+              { checkButton.subscription &&
+                <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{alignItems: "right"}}/>
+              }
+            </Button>
+            <Block style={{padding: 10, paddingBottom: 20}}>
+              <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
             </Block>
             <Button
-              center
-              shadowless
-              color={materialTheme.COLORS.INPUT}
-              textStyle={styles.optionsButtonText}
-              style={styles.optionsButton}
-              onPress={() => this.handleDelete(item.id)}
+              style={{ height: 80, shadowColor: shadowColor.month ? "silver" : "lightcoral", borderRadius: 20, flexDirection: 'row' }}
+              color={buttonColor.month ? "white" : "lightcoral"}
+              //disabled={" "}
+              onPress={changeButtonMonth}
+              //loading={" "}
             >
-              DELETE
+              <Block style={{flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+                <Text color={textColor.month ? "lightcoral" : "white"} size={20} bold>1month</Text>
+                <Text color={textColor.month ? "lightcoral" : "white"} size={16} bold>￥700</Text>
+              </Block>
+              { checkButton.month &&
+                <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{alignItems: "right"}}/>
+              }
             </Button>
-            <Button
-              center
-              shadowless
-              color={materialTheme.COLORS.INPUT}
-              textStyle={styles.optionsButtonText}
-              style={styles.optionsButton}
-              onPress={() => console.log('save for later')}
-            >
-              SAVE FOR LATER
-            </Button>
+            <Block style={{padding: 10, paddingBottom: 20}}>
+              <Text color="silver" size={12} bold center>一ヶ月のみのプランです。</Text>
+            </Block>
+  
+            <Block style={{padding: 10}}>
+              <Text color="lightcoral" size={12} bold center>購入を復元する</Text>
+            </Block>
+            <Block style={{padding: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+            <Text color="#F69896" size={12} bold center onPress={_handleOpenWithWebBrowser}
+              >利用規約
+            </Text>
+            <Text
+              color="silver" size={12} bold center
+              >と
+            </Text>
+              <Text
+              color="#F69896" size={12} bold center
+              onPress={_handleOpenWithWebBrowser}
+              >プライバシーポリシー
+            </Text>
+            </Block>
+            
           </Block>
         </Block>
-      </Block>
-    )
-  }
-
-  renderHorizontalProduct = ({ item }) => {
-    return (
-      <Block style={{ marginRight: theme.SIZES.BASE }}>
-        <Product
-          product={item}
-          priceColor={materialTheme.COLORS.ACTIVE}
-          imageStyle={{ width: 'auto', height: 94 }}
-          style={{ width: width / 2.88 }}
-        />
-        <Button
-          center
-          shadowless
-          color={materialTheme.COLORS.ACTIVE}
-          style={styles.optionsButton}
-          textStyle={[styles.optionsButtonText, { color: 'white' }]}
-          onPress={() => this.handleAdd(item)}
-        >
-          ADD TO CART
-        </Button>
-      </Block>
-    )
-  }
-
-  renderHorizontalProducts = () => {
-    return (
-      <Block style={{ marginHorizontal: theme.SIZES.BASE }}>
-        <Text bold size={theme.SIZES.BASE} style={styles.similarTitle}>
-          Customers who shopped for items in your cart also shopped for:
-        </Text>
-        <FlatList
-          data={cartItems.suggestions}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item, index) => `${index}-${item.title}`}
-          renderItem={this.renderHorizontalProduct}
-        />
-      </Block>
-    )
-  }
-
-  renderDivider() {
-    return (
-      <Block style={styles.divider} />
-    )
-  }
-
-  renderHeader = () => {
-    const { navigation } = this.props;
-    const { cart } = this.state;
-    const productsQty = cart.length;
-    const total = cart && cart.reduce((prev, product) => prev + (product.price * product.qty), 0);
-
-    return (
-      <Block flex style={styles.header}>
-        <Block style={{ marginBottom: theme.SIZES.BASE * 2 }}>
-          <Text>
-            Cart subtotal ({productsQty} items):
-            <Text color={materialTheme.COLORS.ERROR} bold>${total}</Text>
-          </Text>
-        </Block>
-        <Block center>
-          <Button flex center style={styles.checkout}
-            color={materialTheme.COLORS.ACTIVE}
-            onPress={() => navigation.navigate('Sign In')} >
-            PROCEED TO CHECKOUT
-          </Button>
-        </Block>
-        <Block style={styles.divider} />
-      </Block>
-    )
-  }
-
-  renderFooter = () => {
-    const { navigation } = this.props;
-    return (
-      <Block flex style={styles.footer}>
-        {this.renderHorizontalProducts()}
-        <Block style={{ marginHorizontal: theme.SIZES.BASE }}>
-          <Block style={styles.divider} />
-        </Block>
-        <Block center style={{ paddingHorizontal: theme.SIZES.BASE }}>
-          <Button flex center style={styles.checkout}
-            color={materialTheme.COLORS.ACTIVE}
-            onPress={() => navigation.navigate('SignIn')} >
-            PROCEED TO CHECKOUT
-          </Button>
-        </Block>
-      </Block>
-    )
-  }
-
-  renderEmpty() {
-    return (
-      <Text color={materialTheme.COLORS.ERROR}>The cart is empty</Text>
+      </KeyboardAvoidingView>
+    </Block>
+    </Block>
+    </LinearGradient>
     );
-  }
-
-  renderCheckoutButton() {
-    const { navigation } = this.props;
-    return (
-      <Block center>
-        <Button
-          flex
-          center
-          style={styles.checkout}
-          color={materialTheme.COLORS.ACTIVE}
-          onPress={() => navigation.navigate('SignIn')} >
-          PROCEED TO CHECKOUT
-          </Button>
-      </Block>
-    )
-  }
-
-  render() {
-    return (
-      <Block flex center style={styles.cart}>
-        <FlatList
-          data={this.state.cart}
-          renderItem={this.renderProduct}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item, index) => `${index}-${item.title}`}
-          ListEmptyComponent={this.renderEmpty()}
-          ListHeaderComponent={this.renderHeader()}
-          ListFooterComponent={this.renderFooter()} />
-      </Block>
-    );
-  }
 }
 
+export default Plan;
+
 const styles = StyleSheet.create({
-  cart: {
-    width: width,
-  },
-  header: {
-    paddingVertical: theme.SIZES.BASE,
-    marginTop: theme.SIZES.BASE * 2,
-    marginHorizontal: theme.SIZES.BASE,
-  },
-  footer: {
-    marginBottom: theme.SIZES.BASE * 2,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: materialTheme.COLORS.INPUT,
-    marginVertical: theme.SIZES.BASE,
-  },
-  checkoutWrapper: {
-    paddingTop: theme.SIZES.BASE * 2,
-    margin: theme.SIZES.BASE,
-    borderStyle: "solid",
-    borderTopWidth: 1,
-    borderTopColor: materialTheme.COLORS.INPUT,
-  },
-  products: {
-    minHeight: '100%',
-  },
-  product: {
-    width: width * 0.9,
-    borderWidth: 0,
-    marginVertical: theme.SIZES.BASE * 1.5,
-    marginHorizontal: theme.SIZES.BASE,
-    backgroundColor: theme.COLORS.WHITE,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: theme.SIZES.BASE / 4,
-    shadowOpacity: 0.1
-  },
-  productTitle: {
-    flex: 1,
-    flexWrap: 'wrap',
-    paddingBottom: 6,
-  },
-  productDescription: {
-    padding: theme.SIZES.BASE / 2,
-  },
-  imageHorizontal: {
-    width: theme.SIZES.BASE * 6.25,
-    margin: theme.SIZES.BASE / 2,
-  },
-  options: {
-    padding: theme.SIZES.BASE / 2,
-  },
-  qty: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignContent: 'center',
-    width: theme.SIZES.BASE * 6.25,
-    backgroundColor: materialTheme.COLORS.INPUT,
-    paddingHorizontal: theme.SIZES.BASE,
-    paddingVertical: 10,
-    borderRadius: 3,
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    shadowOpacity: 1,
-  },
-  optionsButtonText: {
-    fontSize: theme.SIZES.BASE * 0.75,
-    color: '#4a4a4a',
-    fontWeight: "normal",
-    fontStyle: "normal",
-    letterSpacing: -0.29,
-  },
-  optionsButton: {
-    width: 'auto',
-    height: 34,
-    paddingHorizontal: theme.SIZES.BASE,
-    paddingVertical: 10,
-    borderRadius: 3,
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    shadowOpacity: 1,
-  },
-  checkout: {
-    height: theme.SIZES.BASE * 3,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    shadowOpacity: 0.2,
-  },
-  similarTitle: {
-    lineHeight: 26,
-    marginBottom: theme.SIZES.BASE,
-    paddingHorizontal: theme.SIZES.BASE,
-  },
-  productVertical: {
-    height: theme.SIZES.BASE * 10.75,
-    width: theme.SIZES.BASE * 8.125,
-    overflow: 'hidden',
-    borderWidth: 0,
-    borderRadius: 4,
-    marginBottom: theme.SIZES.BASE,
-    backgroundColor: theme.COLORS.WHITE,
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowRadius: theme.SIZES.BASE / 4,
-    shadowOpacity: 1
+  container: {
+    marginTop: Platform.OS === "android" ? -HeaderHeight : 0,
   }
 });
