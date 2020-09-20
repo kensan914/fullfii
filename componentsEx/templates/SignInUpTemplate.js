@@ -21,11 +21,15 @@ const SignInUp = (props) => {
   const [password, setPassword] = useState("");
   const [birthday, setBirthday] = useState();
   const [userpolicy, setUserpolicy] = useState();
+  const [male, setMale] = useState();
+  const [female, setFemale] = useState();
   const [active, setActive] = useState({
     username: false,
     email: false,
     password: false,
-    userpolicy: false
+    userpolicy: false,
+    male: false,
+    female: false
   });
   const errorMessagesInit = {
     username: "",
@@ -60,13 +64,15 @@ const SignInUp = (props) => {
   const { navigation, signup, signin, requestSignUp, requestSignIn } = props;
   let buttonColor;
   let buttonTextColor;
+  let gender
   let submit;
   let disabled = true;
-  if ((signup && username && email && password && birthday && userpolicy) || (signin && email && password)) {
+  if ((signup && username && email && password && birthday && userpolicy) && ((male && !female) || (female && !male))|| (signin && email && password)) {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
+    male ? gender = "male" : gender = "female"
     if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignUp(username, email, password, birthday, gender, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     } else if (signin) {
       submit = () => requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     }
@@ -80,7 +86,6 @@ const SignInUp = (props) => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
-  
   const [currentPage, setCurrentPage] = useState(1);
   const maxPage = 1;
   const scrollView = useRef(null);
@@ -198,6 +203,34 @@ const SignInUp = (props) => {
             }
 
           </Block>
+
+          {signup &&
+            <>
+              <Block/>
+              <Block style={{ marginTop: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                  <Checkbox
+                    color="#F69896"
+                    style={{ marginVertical: 8, marginHorizontal: 8, }}
+                    labelStyle={{ color: '#F69896' }}
+                    label="女性"
+                    initialValue={active.female}
+                    onChange={(value) => {
+                      value ? setFemale(true) : setFemale(false);
+                    }}
+                    />
+                    <Checkbox
+                    color="#F69896"
+                    style={{ marginVertical: 8, marginHorizontal: 8, }}
+                    labelStyle={{ color: '#F69896' }}
+                    label="男性"
+                    initialValue={active.male}
+                    onChange={(value) => {
+                      value ? setMale(true) : setMale(false);
+                    }}
+                    />
+              </Block>
+            </>
+          }
 
           {signup &&
             <>
