@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
-import { Block, theme, Text, Input, Button } from "galio-framework";
+import { Block, theme, Text, Input, Button, Checkbox } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import { Hr, Icon } from "../componentsEx";
@@ -34,6 +34,8 @@ const Settings = (props) => {
     return (
       <ScrollView>
         <SettingsTitle title="アカウント" />
+        <SettingsCheckBox title="異性との相談を許可" />
+        <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
         <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputMailAdress" })} />
         <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
         <SettingsButton title="ログアウト" color="crimson" onPress={() => {
@@ -106,6 +108,15 @@ const SettingsTitle = (props) => {
   );
 }
 
+const SettingsExplain = (props) => {
+  const { explain } = props;
+  return (
+    <Block flex style={{ paddingHorizontal: 15, paddingTop: 5, paddingBottom: 25, marginTop: 5 }}>
+      <Text size={12} bold color="gray" >{explain}</Text>
+    </Block>
+  );
+}
+
 const SettingsCard = (props) => {
   const { title, onPress } = props;
   return (
@@ -133,6 +144,30 @@ const SettingsLabel = (props) => {
         </Block>
         <Block style={{ alignItems: "center", justifyContent: "center" }} >
           <Text size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{content}</Text>
+        </Block>
+      </Block>
+      <Hr h={1} color="whitesmoke" />
+    </>
+  );
+}
+
+const SettingsCheckBox = (props) => {
+  const { title } = props;
+  return (
+    <>
+      <Block flex row space="between" style={styles.settingsCard}>
+        <Block>
+          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
+        </Block>
+        <Block style={{ alignItems: "center", justifyContent: "center" }} >
+        <Checkbox
+                    color="#F69896"
+                    style={{ marginVertical: 8, marginHorizontal: 15, }}
+                    labelStyle={{ color: '#F69896' }}
+                    onChange={(value) => {
+                      
+                    }}
+                    />
         </Block>
       </Block>
       <Hr h={1} color="whitesmoke" />

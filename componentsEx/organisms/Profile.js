@@ -93,9 +93,9 @@ export const ConsultantProfile = (props) => {
 
       <Catalogue title="特徴" items={user.features} />
       <ProfileHr />
-      <Catalogue title="対応できる悩みのジャンル" items={user.genreOfWorries} />
+      <Catalogue title="話したい悩みのジャンル" items={user.genreOfWorries} />
       <ProfileHr />
-      <Catalogue title="対応できる悩みの大きさ" items={user.scaleOfWorries} />
+      <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} />
       <ProfileHr />
       <Catalogue title="共感できる悩み" items={user.worriesToSympathize} />
       <ProfileHr />
@@ -227,9 +227,9 @@ export const ConsultantProfileEditor = (props) => {
 
         <Catalogue title="特徴" items={user.features} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.features, screen: "InputFeature" })} />
         <ProfileHr />
-        <Catalogue title="対応できる悩みのジャンル" items={user.genreOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.genreOfWorries, screen: "InputGenreOfWorries" })} />
+        <Catalogue title="話したい悩みのジャンル" items={user.genreOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.genreOfWorries, screen: "InputGenreOfWorries" })} />
         <ProfileHr />
-        <Catalogue title="対応できる悩みの大きさ" items={user.scaleOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.scaleOfWorries, screen: "InputScaleOfWorries" })} />
+        <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.scaleOfWorries, screen: "InputScaleOfWorries" })} />
         <ProfileHr />
         <Catalogue title="共感できる悩み" items={user.worriesToSympathize} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.worriesToSympathize, screen: "InputWorriesToSympathize" })} />
       </Block >
