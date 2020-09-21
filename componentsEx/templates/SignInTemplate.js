@@ -9,7 +9,7 @@ import BirthdayPicker from "../atoms/BirthdayPicker";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { useProfileDispatch } from "../contexts/ProfileContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
-import { useChatDispatch } from "../contexts/ChatContext";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { USER_POLICY_URL } from "../../constantsEx/env"
 
 const { height, width } = Dimensions.get("window");
@@ -48,6 +48,7 @@ const SignInIn = (props) => {
     setActive(newActive);
   }
 
+  const chatState = useChatState();
   const dispatches = {
     authDispatch: useAuthDispatch(),
     profileDispatch: useProfileDispatch(),
@@ -64,9 +65,9 @@ const SignInIn = (props) => {
     buttonColor = "lightcoral";
     buttonTextColor = "white";
     if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignUp(username, email, password, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     } else if (signin) {
-      submit = () => requestSignIn(email, password, dispatches, setErrorMessages, errorMessagesInit, setIsLoading);
+      submit = () => requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
     }
     disabled = false;
   } else {
@@ -74,7 +75,7 @@ const SignInIn = (props) => {
     buttonTextColor = "silver";
   }
 
-  _handleOpenWithWebBrowser = () => {
+  const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 

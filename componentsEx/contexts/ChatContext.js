@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection } from "../tools/support";
+import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem } from "../tools/support";
 
 
 const chatReducer = (prevState, action) => {
@@ -43,48 +43,93 @@ const chatReducer = (prevState, action) => {
         inCollection: _inCollection,
         includedUserIDs: prevState.includedUserIDs.concat([action.user.id]),
       };
+    
+    case "SET_SEND_IN_COLLECTION":
+      /** アプリ起動時に取得したsendObjects, inObjectsからsendCollection, inCollectionを作成.
+       * @param {Object} action [type, sendObjects, inObjects] */
+
+      _includedUserIDs = [];
+      const generateSendInCollection = sendInObjects => {
+        const sendInCollection = {};
+        sendInObjects.forEach(sendInObj => {
+          sendInObj = cvtKeyFromSnakeToCamel(sendInObj);
+          sendInObj.user = cvtKeyFromSnakeToCamel(sendInObj.user);
+          _includedUserIDs.push(sendInObj.user.id);
+          sendInObj.date = new Date(sendInObj.date);
+          sendInCollection[sendInObj.roomID] = sendInObj;
+        });
+        return sendInCollection;
+      }
+      _sendCollection = generateSendInCollection(action.sendObjects);
+      _inCollection = generateSendInCollection(action.inObjects);
+
+      // Object.values(action.sendCollection).forEach(sendObj => _includedUserIDs.push(sendObj.user.id));
+      // Object.values(action.inCollection).forEach(inObj => _includedUserIDs.push(inObj.user.id));
+      return {
+        ...prevState,
+        sendCollection: _sendCollection,
+        inCollection: _inCollection,
+        includedUserIDs: _includedUserIDs,
+      };
 
     case "START_TALK":
       /** トーク開始時(init)に実行 1つのtalkObjを作成し、talkCollectionに追加 sendCollection・inCollectionからobjを削除
        * @param {Object} action [type, roomID, user, ws] */
 
-      _talkCollection = Object.assign(prevState.talkCollection, {
-        [action.roomID]: {
-          roomID: action.roomID,
-          user: cvtKeyFromSnakeToCamel(action.user),
-          messages: [{ id: 0, message: "最初のメッセージを送りましょう。", common: true, time: new Date(Date.now()) }],
-          offlineMessages: [],
-          ws: action.ws,
-          unreadNum: 0,
-        }
-      });
-      _sendCollection = prevState.sendCollection;
-      _inCollection = prevState.inCollection;
-      delete _sendCollection[action.roomID];
-      delete _inCollection[action.roomID];
+      if (!prevState.talkingRoomIDs.includes(action.roomID)) {
+        _talkCollection = Object.assign(prevState.talkCollection, {
+          [action.roomID]: {
+            roomID: action.roomID,
+            user: cvtKeyFromSnakeToCamel(action.user),
+            messages: [{ id: 0, message: "最初のメッセージを送りましょう。", common: true, time: new Date(Date.now()) }],
+            offlineMessages: [],
+            ws: action.ws,
+            unreadNum: 0,
+          }
+        });
+        _sendCollection = prevState.sendCollection;
+        _inCollection = prevState.inCollection;
+        delete _sendCollection[action.roomID];
+        delete _inCollection[action.roomID];
 
-      asyncStoreTalkCollection(_talkCollection);
-      return {
-        ...prevState,
-        sendCollection: _sendCollection,
-        inCollection: _inCollection,
-        talkCollection: _talkCollection,
-      };
+        asyncStoreTalkCollection(_talkCollection);
+        return {
+          ...prevState,
+          sendCollection: _sendCollection,
+          inCollection: _inCollection,
+          talkCollection: _talkCollection,
+          talkingRoomIDs: prevState.talkingRoomIDs.concat([action.roomID]),
+        };
+      } else {
+        // WSの重複を防ぐ
+        alert("wsの重複を防ぎました");
+        action.ws.close();
+        return { ...prevState };
+      }
 
     case "RESTART_TALK":
       /** トーク開始時に実行 受け取ったtalkObjを修正し、talkCollectionに追加
        * @param {Object} action [type, roomID, user, ws, talkCollection] */
 
-      const _talkObj = action.talkCollection[action.roomID];
-      _talkObj.user = action.user;
-      _talkObj.ws = action.ws;
-      _talkObj.messages.forEach((message, index) => _talkObj.messages[index].time = new Date(message.time));
+      if (!prevState.talkingRoomIDs.includes(action.roomID)) {
+        const _talkObj = action.talkCollection[action.roomID];
+        _talkObj.user = cvtKeyFromSnakeToCamel(action.user);
+        _talkObj.ws = action.ws;
+        _talkObj.messages.forEach((message, index) => _talkObj.messages[index].time = new Date(message.time));
+        _talkObj.offlineMessages = [];
 
-      _talkCollection = Object.assign(prevState.talkCollection, {[action.roomID]: _talkObj});
-      return {
-        ...prevState,
-        talkCollection: _talkCollection,
-      };
+        _talkCollection = Object.assign(prevState.talkCollection, { [action.roomID]: _talkObj });
+        return {
+          ...prevState,
+          talkCollection: _talkCollection,
+          talkingRoomIDs: prevState.talkingRoomIDs.concat([action.roomID]),
+        };
+      } else {
+        // WSの重複を防ぐ
+        alert("wsの重複を防ぎました");
+        ws.close();
+        return { ...prevState };
+      }
 
     case "APPEND_MESSAGE":
       /** messageを作成し, 追加. 未読値をインクリメント ストア通知
@@ -230,6 +275,8 @@ const chatReducer = (prevState, action) => {
       Object.values(prevState.talkCollection).forEach((talkObj) => {
         if (talkObj.ws) talkObj.ws.close();
       })
+      asyncRemoveItem("sendCollection");
+      asyncRemoveItem("inCollection");
       asyncRemoveItem("talkCollection");
       return {
         ...prevState,
@@ -281,6 +328,7 @@ const ChatStateContext = createContext({
   talkCollection: initTalkCollection,
   totalUnreadNum: 0,
   includedUserIDs: [],
+  talkingRoomIDs: [],
 });
 const ChatDispatchContext = createContext(undefined);
 
@@ -300,6 +348,7 @@ export const ChatProvider = ({ children, token }) => {
     talkCollection: initTalkCollection,
     totalUnreadNum: 0,
     includedUserIDs: [],
+    talkingRoomIDs: [],
   });
   return (
     <ChatStateContext.Provider value={chatState}>

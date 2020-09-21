@@ -22,11 +22,11 @@ const Settings = (props) => {
   const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
 
-  _handleOpenWithWebBrowser = () => {
+  const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
-  _handleOpenWithWebBrowserContactUsForm = () => {
+  const _handleOpenWithWebBrowserContactUsForm = () => {
     WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
@@ -53,10 +53,10 @@ const Settings = (props) => {
 
         <SettingsTitle title="Fullfiiについて" />
         <SettingsLabel title="バージョン" content="1.0.0" />
-        <SettingsCard title="利用規約" onPress={this._handleOpenWithWebBrowser} />
-        <SettingsCard title="プライバシーポリシー" onPress={this._handleOpenWithWebBrowser} />
-        <SettingsCard title="特定商取引法に基づく表示" onPress={this._handleOpenWithWebBrowser} />
-        <SettingsCard title="お問い合わせ" onPress={this._handleOpenWithWebBrowserContactUsForm} />
+        <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
+        <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowser} />
+        <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
+        <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
       </ScrollView>
     );
   else if (screen === "InputMailAdress")
@@ -160,14 +160,15 @@ const SettingsCheckBox = (props) => {
           <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
         </Block>
         <Block style={{ alignItems: "center", justifyContent: "center" }} >
-        <Checkbox
-                    color="#F69896"
-                    style={{ marginVertical: 8, marginHorizontal: 15, }}
-                    labelStyle={{ color: '#F69896' }}
-                    onChange={(value) => {
-                      
-                    }}
-                    />
+          <Checkbox
+            color="#F69896"
+            style={{ marginVertical: 8, marginHorizontal: 15, }}
+            labelStyle={{ color: "#F69896" }}
+            label=""
+            onChange={(value) => {
+
+            }}
+          />
         </Block>
       </Block>
       <Hr h={1} color="whitesmoke" />

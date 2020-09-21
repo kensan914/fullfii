@@ -6,6 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 
 import { materialTheme } from '../constants';
 import { USER_POLICY_URL } from "../constantsEx/env"
+import { HeaderHeight } from "../constantsEx/utils";
 
 const { width } = Dimensions.get('screen');
 
@@ -38,7 +39,7 @@ const Plan = () => {
     });
     
 
-    _handleOpenWithWebBrowser = () => {
+    const _handleOpenWithWebBrowser = () => {
       WebBrowser.openBrowserAsync(USER_POLICY_URL);
     };
 

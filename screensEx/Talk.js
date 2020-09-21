@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import TalkTemplate from '../componentsEx/templates/TalkTemplate';
 import { BASE_URL_WS, BASE_URL } from '../constantsEx/env';
@@ -73,7 +73,7 @@ export const initConnectWsChat = (roomID, token, chatState, chatDispatch) => {
   });
 }
 
-const _reConnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
+const _reconnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
   _connectWsChat(roomID, token, chatState, chatDispatch, false, callbackSuccess = (data, ws) => {
     chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
   });
@@ -126,10 +126,29 @@ export const cancelTalkRequest = (roomID, token, chatDispatch) => {
     });
 }
 
-export const reConnectWsChat = async (token, chatState, chatDispatch) => {
+export const reconnectWsChat = async (token, chatState, chatDispatch) => {
   const talkCollection = await asyncGetJson("talkCollection");
   if (talkCollection) {
     const roomIDs = Object.keys(talkCollection);
-    roomIDs.forEach(roomID => _reConnectWsChat(roomID, token, chatState, chatDispatch, talkCollection));
+    roomIDs.forEach(roomID => _reconnectWsChat(roomID, token, chatState, chatDispatch, talkCollection));
   }
+}
+
+export const requestGetTalkInfo = (token, chatState, chatDispatch) => {
+  const url = URLJoin(BASE_URL, "me/talk-info");
+
+  authAxios(token)
+    .get(url)
+    .then(res => {
+      console.log("xxxxxxxx");
+      console.log(res.data);
+      chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: res.data["send_objects"], inObjects: res.data["in_objects"] });
+      res.data["talking_room_ids"].forEach(talking_room_id => {
+        if (!chatState.talkingRoomIDs.includes(talking_room_id)) {
+          initConnectWsChat(talking_room_id, token, chatState, chatDispatch);
+        }
+      })
+    })
+    .catch(err => {
+    });
 }

@@ -79,9 +79,10 @@ export const cvtKeyFromSnakeToCamel = (obj) => {
   );
 }
 
-// スネークケースのtextをキャメルケースに変換
+// スネークケースのtextをキャメルケースに変換(例外: id => ID)
 export const fromSnakeToCamel = (text) => {
-  return text.replace(/_./g, (s) => {
+  const textConvertedID = text.replace(/_id/g, s => "ID");
+  return textConvertedID.replace(/_./g, (s) => {
     return s.charAt(1).toUpperCase();
   });
 }
@@ -128,7 +129,6 @@ export const asyncStoreTalkCollection = async (talkCollection) => {
   Object.keys(_talkCollection).forEach(roomID => {
     _talkCollection[roomID].ws = null;
   });
-  console.log(_talkCollection);
   asyncStoreJson("talkCollection", _talkCollection);
 }
 
@@ -193,20 +193,17 @@ export const isString = (obj) => {
   return typeof (obj) == "string" || obj instanceof String;
 }
 
-export const deepCopy = (obj, passKeys=[]) => {
+export const deepCopy = (obj, passKeys = []) => {
   let r = {};
   for (const name in obj) {
     if (passKeys.includes(name)) { // ["ws"] そのままcopy
       r[name] = obj[name];
-      console.log("lalala");
     } else if (isObject(obj[name])) {
       r[name] = deepCopy(obj[name], passKeys);
     } else {
       r[name] = obj[name];
     }
   }
-  console.log("rrrrrrr");
-  console.log(r);
   return r;
 }
 

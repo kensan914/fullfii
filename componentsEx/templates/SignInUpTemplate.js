@@ -82,7 +82,7 @@ const SignInUp = (props) => {
     buttonTextColor = "silver";
   }
 
-  _handleOpenWithWebBrowser = () => {
+  const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 

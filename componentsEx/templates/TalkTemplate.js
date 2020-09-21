@@ -13,8 +13,6 @@ const { width, height } = Dimensions.get('screen');
 
 const TalkTemplate = (props) => {
   const { navigation, sendCollection, inCollection, talkCollection, initConnectWsChat, cancelTalkRequest } = props;
-  console.log("tttttttttt");
-  console.log(talkCollection);
 
   return (
     <ScrollView>

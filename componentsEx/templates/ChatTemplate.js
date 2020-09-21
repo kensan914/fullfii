@@ -59,7 +59,7 @@ const ChatTemplate = (props) => {
             }
             <Block style={styles.messageCardWrapper}>
               {!message.isMe ?
-                <Block style={[styles.messageCard, styles.shadow]}>
+                <Block style={[styles.messageCard, {backgroundColor: "lavenderblush"}]}>
                   <Text>{message.message}</Text>
                 </Block> :
                 <LinearGradient
