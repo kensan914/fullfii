@@ -12,7 +12,7 @@ import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 const { width, height } = Dimensions.get('screen');
 
 const TalkTemplate = (props) => {
-  const { navigation, sendCollection, inCollection, talkCollection, initConnectWsChat, cancelTalkRequest } = props;
+  const { navigation, sendCollection, inCollection, talkCollection, initConnectWsChat, requestCancelTalk } = props;
 
   return (
     <ScrollView>
@@ -25,7 +25,7 @@ const TalkTemplate = (props) => {
       <Hr h={8} color="whitesmoke" />
 
       <TalkTitle title="送信" collection={sendCollection} />
-      <SendInList collection={sendCollection} cancelTalkRequest={cancelTalkRequest} navigation={navigation} />
+      <SendInList collection={sendCollection} requestCancelTalk={requestCancelTalk} navigation={navigation} />
     </ScrollView>
   );
 }
@@ -105,7 +105,7 @@ const TalkList = (props) => {
 }
 
 const SendInList = (props) => {
-  const { collection, initConnectWsChat, cancelTalkRequest, navigation } = props;
+  const { collection, initConnectWsChat, requestCancelTalk, navigation } = props;
   const authState = useAuthState();
   const chatState = useChatState();
   const chatDispatch = useChatDispatch();
@@ -128,13 +128,13 @@ const SendInList = (props) => {
         okButton: "開始する",
         onPress: () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, true),
       });
-    } else if (cancelTalkRequest) {
+    } else if (requestCancelTalk) {
       alertModal({
         mainText: `${item.user.name}さんへのリクエストをキャンセルしますか？`,
         subText: `${item.user.name}さんの端末からもこのリクエストは削除されます。`,
         cancelButton: "やめる",
         okButton: "キャンセルする",
-        onPress: () => cancelTalkRequest(item.roomID, authState.token, chatDispatch),
+        onPress: () => requestCancelTalk(item.roomID, authState.token, chatDispatch),
       });
     }
   }

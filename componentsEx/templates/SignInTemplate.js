@@ -1,83 +1,30 @@
 import React, { useState } from "react";
-import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
-import { Block, Button, Input, Text, theme, Checkbox } from "galio-framework";
+import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { Block, Button, Text, theme } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
-import * as WebBrowser from 'expo-web-browser';
 
 import { HeaderHeight } from "../../constantsEx/utils";
-import BirthdayPicker from "../atoms/BirthdayPicker";
-import { useAuthDispatch } from "../contexts/AuthContext";
-import { useProfileDispatch } from "../contexts/ProfileContext";
-import { useNotificationDispatch } from "../contexts/NotificationContext";
-import { useChatDispatch, useChatState } from "../contexts/ChatContext";
-import { USER_POLICY_URL } from "../../constantsEx/env"
+
 
 const { height, width } = Dimensions.get("window");
 
-const SignInIn = (props) => {
-  const [username, setUsername] = useState("");
+const SignInTemplate = (props) => {
+  const { requestSignIn, navigation, active, toggleActive, getSubmitButtonParams, isLoading, setIsLoading, chatState, dispatches,
+    BottomMessage, EmailInput, PasswordInput } = props;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [birthday, setBirthday] = useState();
-  const [userpolicy, setUserpolicy] = useState();
-  const [active, setActive] = useState({
-    username: false,
-    email: false,
-    password: false,
-    userpolicy: false
-  });
   const errorMessagesInit = {
-    username: "",
     email: "",
     password: "",
-    birthday: "",
     error: "", // common error message
   };
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessages, setErrorMessages] = useState(errorMessagesInit);
-  const [isOpenBirthdayPicker, setIsOpenBirthdayPicker] = useState(false);
-  const toggleIsOpenBirthdayPicker = (value) => {
-    Keyboard.dismiss();
-    setActive({ username: false, email: false, password: false, });
-    setIsOpenBirthdayPicker(value);
-  }
 
-  const toggleActive = (name, value) => {
-    active[name] = value;
-    const newActive = Object.assign({}, active);
-    setActive(newActive);
+  const submitButtonParams = getSubmitButtonParams(email && password);
+  const submitSignIn = () => {
+    requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
   }
-
-  const chatState = useChatState();
-  const dispatches = {
-    authDispatch: useAuthDispatch(),
-    profileDispatch: useProfileDispatch(),
-    notificationDispatch: useNotificationDispatch(),
-    chatDispatch: useChatDispatch(),
-  }
-
-  const { navigation, signup, signin, requestSignUp, requestSignIn } = props;
-  let buttonColor;
-  let buttonTextColor;
-  let submit;
-  let disabled = true;
-  if ((signup && username && email && password && birthday && userpolicy) || (signin && email && password)) {
-    buttonColor = "lightcoral";
-    buttonTextColor = "white";
-    if (signup) {
-      submit = () => requestSignUp(username, email, password, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
-    } else if (signin) {
-      submit = () => requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
-    }
-    disabled = false;
-  } else {
-    buttonColor = "gainsboro";
-    buttonTextColor = "silver";
-  }
-
-  const _handleOpenWithWebBrowser = () => {
-    WebBrowser.openBrowserAsync(USER_POLICY_URL);
-  };
 
   return (
     <LinearGradient
@@ -89,97 +36,14 @@ const SignInIn = (props) => {
       <Block flex middle>
         <KeyboardAvoidingView behavior="padding" enabled>
           <Block flex={0.1} style={{ alignItems: "center" }}>
-            <Text size={26} bold color="#F69896">{signup ? "アカウントを作成" : (signin && "ログイン")}</Text>
+            <Text size={26} bold color="#F69896">アカウントを作成</Text>
           </Block>
           <Block flex={0.7} center space="between">
+
             <Block center>
-              {signup &&
-                <>
-                  <Input
-                    bgColor="transparent"
-                    placeholderTextColor="darkgray"
-                    borderless
-                    color="lightcoral"
-                    placeholder="ユーザネーム"
-                    autoCapitalize="none"
-                    style={[styles.input, active.username ? styles.inputActive : null]}
-                    onChangeText={text => setUsername(text)}
-                    onBlur={() => toggleActive("username", false)}
-                    onFocus={() => toggleActive("username", true)}
-                    maxLength={15}
-                  />
-                  {(active.username && !Array.isArray(errorMessages.username)) && <BottomMessage message="あなたのニックネームを入力してください。" />}
-                  {Array.isArray(errorMessages.username) &&
-                    errorMessages.username.map((message, index) => <BottomMessage message={message} error key={index} />)
-                  }
-                </>
-              }
-
-              <Input
-                bgColor="transparent"
-                placeholderTextColor="darkgray"
-                borderless
-                color="lightcoral"
-                type="email-address"
-                placeholder="メールアドレス"
-                autoCapitalize="none"
-                style={[styles.input, active.email ? styles.inputActive : null]}
-                onChangeText={text => setEmail(text)}
-                onBlur={() => toggleActive("email", false)}
-                onFocus={() => toggleActive("email", true)}
-                maxLength={225}
-              />
-              {Array.isArray(errorMessages.email) &&
-                errorMessages.email.map((message, index) => <BottomMessage message={message} error key={index} />)
-              }
-
-              <Input
-                bgColor="transparent"
-                placeholderTextColor="darkgray"
-                borderless
-                color="lightcoral"
-                password
-                viewPass
-                placeholder="パスワード"
-                iconColor="#F69896"
-                style={[styles.input, active.password ? styles.inputActive : null]}
-                onChangeText={text => setPassword(text)}
-                onBlur={() => toggleActive("password", false)}
-                onFocus={() => toggleActive("password", true)}
-                maxLength={30}
-                textContentType={'oneTimeCode'}
-              />
-              {(active.password && !Array.isArray(errorMessages.password)) && <BottomMessage message="8文字以上" />}
-              {Array.isArray(errorMessages.password) &&
-                errorMessages.password.map((message, index) => <BottomMessage message={message} error key={index} />)
-              }
-
-              {signup &&
-                <>
-                  <Block>
-                    <Button shadowless color="transparent" style={{ position: "absolute" }} onPress={() => toggleIsOpenBirthdayPicker(true)} />
-                    <Input
-                      defaultValue={typeof birthday === "undefined" ? null : `${birthday.getFullYear()}年${birthday.getMonth() + 1}月${birthday.getDate()}日`}
-                      bgColor="transparent"
-                      placeholderTextColor="darkgray"
-                      borderless
-                      color="lightcoral"
-                      placeholder="生年月日"
-                      style={[styles.input, isOpenBirthdayPicker ? styles.inputActive : null]}
-                      editable={false}
-                      selectTextOnFocus={false}
-                    />
-                  </Block>
-                  {Array.isArray(errorMessages.birthday) &&
-                    errorMessages.birthday.map((message, index) => <BottomMessage message={message} error key={index} />)
-                  }
-                  <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={toggleIsOpenBirthdayPicker} />
-                </>
-              }
-
+              <EmailInput active={active} setEmail={setEmail} toggleActive={toggleActive} errorMessages={errorMessages} />
+              <PasswordInput active={active} setPassword={setPassword} toggleActive={toggleActive} errorMessages={errorMessages} />
             </Block>
-
-            
 
             <Block flex top style={{ marginTop: 20 }}>
               {Array.isArray(errorMessages.error) &&
@@ -188,25 +52,16 @@ const SignInIn = (props) => {
 
               <Button
                 round
-                style={{ height: 48, shadowColor: buttonColor }}
-                color={buttonColor}
-                disabled={disabled}
-                onPress={submit}
+                style={{ height: 48, shadowColor: submitButtonParams.buttonColor }}
+                color={submitButtonParams.buttonColor}
+                disabled={!submitButtonParams.canSubmit}
+                onPress={submitSignIn}
                 loading={isLoading}
               >
-                <Text color={buttonTextColor} size={16} bold>完了</Text>
+                <Text color={submitButtonParams.buttonTextColor} size={16} bold>完了</Text>
               </Button>
 
-              {signup &&
-                <Button color="transparent" shadowless onPress={() => navigation.navigate("SignIn")}>
-                  <Text center color="#F69896" size={theme.SIZES.FONT * 0.75}>すでにアカウントをお持ちですか？ サインイン</Text>
-                </Button>
-              }
-              {signin &&
-                <Button color="transparent" shadowless onPress={() => navigation.navigate("SignUp")}>
-                  <Text center color="#F69896" size={theme.SIZES.FONT * 0.75}>アカウントをお持ちではありませんか？サインアップ</Text>
-                </Button>
-              }
+              <ToSignUpButton navigation={navigation} />
             </Block>
           </Block>
         </KeyboardAvoidingView>
@@ -215,16 +70,18 @@ const SignInIn = (props) => {
   );
 }
 
-export default SignInIn;
+export default SignInTemplate;
 
-const BottomMessage = (props) => {
-  const { message, error, style, textcenter } = props;
+
+const ToSignUpButton = (props) => {
+  const { navigation } = props;
   return (
-    <Block style={[{ alignSelf: "flex-start", width: width * 0.9 }, style]}>
-      <Text color={error ? "cornflowerblue" : "lightgray"} bold={error} style={{ alignSelf: textcenter ? "center" : "flex-start" }}>{message}</Text>
-    </Block>
+    <Button color="transparent" shadowless onPress={() => navigation.navigate("SignUp")}>
+      <Text center color="#F69896" size={theme.SIZES.FONT * 0.75}>アカウントをお持ちではありませんか？サインアップ</Text>
+    </Button>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

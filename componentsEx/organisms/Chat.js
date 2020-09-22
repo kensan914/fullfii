@@ -6,6 +6,8 @@ import LottieView from "lottie-react-native";
 import { TextInput } from "react-native-gesture-handler";
 import DropDown from "../atoms/Select";
 import { alertModal } from "../tools/support";
+import { MenuModal } from "../molecules/Menu";
+import { TouchableOpacity } from "react-native";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -19,20 +21,38 @@ export const CommonMessage = (props) => {
   );
 }
 
-export const EndConsultation = (navigation, isOpenEndConsultation, setIsOpenEndConsultation) => {
+export const TalkMenuButton = (props) => {
+  const { navigation, talkObj } = props;
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
+
+  return (
+    <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
+      <Icon family="font-awesome" size={20} name="ellipsis-h" color="gray" />
+      <MenuModal isOpen={isOpen} setIsOpen={setIsOpen} items={[
+        { title: "相談を終了する", onPress: () => EndTalk(navigation, isOpenEndTalk, setIsOpenEndTalk, talkObj) },
+        { title: "通報する", onPress: () => { } },
+      ]} otherModal={<EndTalkScreen navigation={navigation} isOpen={isOpenEndTalk} setIsOpen={setIsOpenEndTalk} talkObj={talkObj} />} />
+    </TouchableOpacity >
+  );
+}
+
+export const EndTalk = (navigation, isOpenEndTalk, setIsOpenEndTalk, talkObj) => {
   alertModal({
     mainText: "相談を終了しますか？",
     subText: "",
     cancelButton: "キャンセル",
     okButton: "終了する",
     onPress: () => {
-      setIsOpenEndConsultation(true);
+      setIsOpenEndTalk(true);
+      // TODO send end talk
+      talkObj.ws.send(JSON.stringify({ type: "end_talk", token: token }));
     },
   });
 }
 
-export const EndConsultationScreen = (props) => {
-  const { isOpen, setIsOpen, navigation } = props;
+export const EndTalkScreen = (props) => {
+  const { isOpen, setIsOpen, navigation, talkObj } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const maxPage = 1;
   const scrollView = useRef(null);
@@ -49,9 +69,13 @@ export const EndConsultationScreen = (props) => {
       if (!pushed) {
         pushed = true;
         animation.current.play();
+        // TODO send thunks
+        talkObj.ws.send(JSON.stringify({ type: "send_thunks", token: token }));
+
         setTimeout(() => {
           // goNextPage();
           navigation.navigate("Home");
+          // TODO delte talk info
         }, 800);
       }
     }
@@ -60,15 +84,16 @@ export const EndConsultationScreen = (props) => {
         pushed = true;
         // goNextPage();
         navigation.navigate("Home");
+        // TODO delte talk info
       }
     }
 
     return (
-      <Block style={styles.endConsultationContainer} >
-        <Block style={styles.endConsultationHeader}>
+      <Block style={styles.endTalkContainer} >
+        <Block style={styles.endTalkHeader}>
           <Text bold size={26} color="gray">相談を終了しました</Text>
         </Block>
-        <Block style={styles.endConsultationContents}>
+        <Block style={styles.endTalkContents}>
           <Text style={{ width: "55%" }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
           <Block style={{ postion: "relative", width: width, height: width, justifyContent: "center", alignItems: "center" }}>
             <LottieView
@@ -83,7 +108,7 @@ export const EndConsultationScreen = (props) => {
             <Button round shadowless color="transparent" style={{ position: "absolute", width: 100, height: 100 }} onPress={pushThunks} ></Button>
           </Block>
         </Block>
-        <Block style={styles.endConsultationFooter}>
+        <Block style={styles.endTalkFooter}>
           <Button size="small" round shadowless color="lightgray" onPress={pushSkip}>
             <Text bold color="white" size={18}>スキップ</Text>
           </Button>
@@ -110,11 +135,11 @@ export const EndConsultationScreen = (props) => {
     }
 
     return (
-      <Block style={styles.endConsultationContainer} >
-        <Block style={styles.endConsultationHeader}>
+      <Block style={styles.endTalkContainer} >
+        <Block style={styles.endTalkHeader}>
           <Text bold size={26} color="gray">聞き手の評価をしましょう。</Text>
         </Block>
-        <Block style={[styles.endConsultationContents]}>
+        <Block style={[styles.endTalkContents]}>
           <Block flex={0.55} style={{ width: "90%", paddingVertical: 15, justifyContent: "center" }}>
             <TextInput
               multiline
@@ -138,7 +163,7 @@ export const EndConsultationScreen = (props) => {
             </Button>
           </Block>
         </Block>
-        <Block style={styles.endConsultationFooter}>
+        <Block style={styles.endTalkFooter}>
           <Button size="small" round shadowless color="lightgray" onPress={pushSkip}>
             <Text bold color="white" size={18}>スキップ</Text>
           </Button>
@@ -179,11 +204,11 @@ export const EndConsultationScreen = (props) => {
     );
 
     return (
-      <Block style={styles.endConsultationContainer} >
-        <Block style={styles.endConsultationHeader}>
+      <Block style={styles.endTalkContainer} >
+        <Block style={styles.endTalkHeader}>
           <Text bold size={26} color="gray">聞き手の詳しい評価をお願いします。</Text>
         </Block>
-        <Block style={[styles.endConsultationContents]}>
+        <Block style={[styles.endTalkContents]}>
           <Block flex={0.8}>
             {renderForm({ formNum: 0, title: "1. 返信の早さは適切でしたか？" })}
             {renderForm({ formNum: 1, title: "2. 返信の早さは適切でしたか？" })}
@@ -195,7 +220,7 @@ export const EndConsultationScreen = (props) => {
             </Button>
           </Block>
         </Block>
-        <Block style={styles.endConsultationFooter}>
+        <Block style={styles.endTalkFooter}>
           <Button size="small" round shadowless color="lightgray" onPress={pushSkip}>
             <Text bold color="white" size={18}>スキップ</Text>
           </Button>
@@ -233,8 +258,8 @@ export const EndConsultationScreen = (props) => {
     <Modal
       backdropOpacity={0.3}
       isVisible={isOpen}
-      style={styles.endConsultationModal}>
-      <ScrollView ref={scrollView} style={styles.endConsultationScrollView} horizontal scrollEnabled={false}>
+      style={styles.endTalkModal}>
+      <ScrollView ref={scrollView} style={styles.endTalkScrollView} horizontal scrollEnabled={false}>
         <Block flex row>
           {renderFirstPage()}
           {/* {renderSecondPage()}
@@ -255,17 +280,17 @@ const styles = StyleSheet.create({
     borderRadius: theme.SIZES.BASE,
     marginVertical: theme.SIZES.BASE / 2,
   },
-  endConsultationModal: {
+  endTalkModal: {
     margin: 0,
     position: "relative"
   },
-  endConsultationScrollView: {
+  endTalkScrollView: {
     marginTop: 50,
     backgroundColor: "white",
     borderTopRightRadius: 17,
     borderTopLeftRadius: 17,
   },
-  endConsultationContainer: {
+  endTalkContainer: {
     width: width,
     backgroundColor: "white",
     padding: 22,
@@ -273,18 +298,22 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
   },
-  endConsultationHeader: {
+  endTalkHeader: {
     flex: 0.15,
     justifyContent: "flex-end",
   },
-  endConsultationContents: {
+  endTalkContents: {
     flex: 0.7,
     width: width,
     justifyContent: "center",
     alignItems: "center",
   },
-  endConsultationFooter: {
+  endTalkFooter: {
     flex: 0.15,
     justifyContent: "flex-start",
+  },
+  TalkMenuButton: {
+    padding: 12,
+    position: "relative",
   },
 });

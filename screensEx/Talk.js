@@ -5,13 +5,14 @@ import { BASE_URL_WS, BASE_URL } from '../constantsEx/env';
 import { URLJoin, asyncGetJson } from '../componentsEx/tools/support';
 import { useChatState } from '../componentsEx/contexts/ChatContext';
 import authAxios from '../componentsEx/tools/authAxios';
+import { concat } from 'react-native-reanimated';
 
 const Talk = (props) => {
   const chatState = useChatState();
 
   return (
     <TalkTemplate {...props} sendCollection={chatState.sendCollection} inCollection={chatState.inCollection} talkCollection={chatState.talkCollection}
-      initConnectWsChat={initConnectWsChat} cancelTalkRequest={cancelTalkRequest} />
+      initConnectWsChat={initConnectWsChat} requestCancelTalk={requestCancelTalk} />
   );
 }
 
@@ -73,7 +74,7 @@ export const initConnectWsChat = (roomID, token, chatState, chatDispatch) => {
   });
 }
 
-const _reconnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
+const reconnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
   _connectWsChat(roomID, token, chatState, chatDispatch, false, callbackSuccess = (data, ws) => {
     chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
   });
@@ -114,7 +115,7 @@ const handleChatMessage = (data, chatState, chatDispatch, token) => {
 
 /** 
  *  cansel talk request. */
-export const cancelTalkRequest = (roomID, token, chatDispatch) => {
+export const requestCancelTalk = (roomID, token, chatDispatch) => {
   const url = URLJoin(BASE_URL, "rooms/", roomID, "cancel/");
 
   authAxios(token)
@@ -126,29 +127,40 @@ export const cancelTalkRequest = (roomID, token, chatDispatch) => {
     });
 }
 
-export const reconnectWsChat = async (token, chatState, chatDispatch) => {
-  const talkCollection = await asyncGetJson("talkCollection");
-  if (talkCollection) {
-    const roomIDs = Object.keys(talkCollection);
-    roomIDs.forEach(roomID => _reconnectWsChat(roomID, token, chatState, chatDispatch, talkCollection));
-  }
-}
-
-export const requestGetTalkInfo = (token, chatState, chatDispatch) => {
+const requestGetTalkInfo = (token, sccessCallback) => {
   const url = URLJoin(BASE_URL, "me/talk-info");
 
   authAxios(token)
     .get(url)
-    .then(res => {
-      console.log("xxxxxxxx");
-      console.log(res.data);
-      chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: res.data["send_objects"], inObjects: res.data["in_objects"] });
-      res.data["talking_room_ids"].forEach(talking_room_id => {
-        if (!chatState.talkingRoomIDs.includes(talking_room_id)) {
-          initConnectWsChat(talking_room_id, token, chatState, chatDispatch);
-        }
-      })
-    })
+    .then((res) => sccessCallback(res))
     .catch(err => {
     });
+}
+
+/** 
+ *  トークのstate, wsなど全て再開, 復元する. startupで実行 */
+export const resumeTalk = (token, chatState, chatDispatch) => {
+  requestGetTalkInfo(token, async res => {
+    const sendObjects = res.data["send_objects"];
+    const inObjects = res.data["in_objects"];
+    const talkingRoomIDs = res.data["talking_room_ids"];
+    chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: sendObjects, inObjects: inObjects });
+
+    let willConnectRoomIDs = [].concat(talkingRoomIDs);
+    const talkCollection = await asyncGetJson("talkCollection");
+    // resume talks that has already started
+    if (talkCollection) {
+      const roomIDs = Object.keys(talkCollection);
+      roomIDs.forEach(roomID => {
+        if (talkingRoomIDs.includes(roomID)) {
+          willConnectRoomIDs = willConnectRoomIDs.filter(elm => elm !== roomID);
+          reconnectWsChat(roomID, token, chatState, chatDispatch, talkCollection);
+        }
+      });
+    }
+    // init talks other than that
+    willConnectRoomIDs.forEach(talkingRoomID => {
+      initConnectWsChat(talkingRoomID, token, chatState, chatDispatch);
+    });
+  })
 }

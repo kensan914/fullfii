@@ -1,12 +1,11 @@
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { TouchableOpacity, StyleSheet, Platform, Dimensions } from "react-native";
 import { Block, NavBar, theme } from "galio-framework";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
-import { MenuModal } from "../molecules/Menu";
-import { EndConsultation, EndConsultationScreen } from "./Chat";
+import { TalkMenuButton } from "./Chat";
 import Avatar from "../atoms/Avatar";
 import { useChatDispatch } from "../contexts/ChatContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
@@ -28,31 +27,15 @@ const ProPlanButton = ({ isWhite, style, navigation }) => (
   </TouchableOpacity>
 );
 
-const MenuButton = ({ navigation }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOpenEndConsultation, setIsOpenEndConsultation] = useState(false);
-
-  return (
-    <TouchableOpacity style={[styles.button, {}]} onPress={() => setIsOpen(true)}>
-      <Icon family="font-awesome" size={20} name="ellipsis-h" color="gray" />
-      <MenuModal isOpen={isOpen} setIsOpen={setIsOpen} items={[
-        { title: "相談を終了する", onPress: () => EndConsultation(navigation, isOpenEndConsultation, setIsOpenEndConsultation) },
-        { title: "通報する", onPress: () => { } },
-      ]} otherModal={<EndConsultationScreen navigation={navigation} isOpen={isOpenEndConsultation} setIsOpen={setIsOpenEndConsultation} />} />
-    </TouchableOpacity >
-  );
-};
-
-
 const Header = (props) => {
-  const { back, title, name, white, transparent, navigation, scene, profile } = props;
+  const { back, title, name, white, transparent, navigation, scene, profile, talkObj } = props;
   const authState = useAuthState();
   const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
     if (scene.route.name === "Chat") return (
-      <MenuButton key="basket-search" navigation={navigation} />
+      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
     );
     switch (name) {
       case "Home":
@@ -61,7 +44,7 @@ const Header = (props) => {
       case "Profile":
         return (
           // <ChatButton key="chat-search" navigation={navigation} isWhite={white} />,
-          <ProPlanButton key="basket-search" navigation={navigation} isWhite={white} />
+          <ProPlanButton key="Plan" navigation={navigation} isWhite={white} />
         );
       default:
         break;
@@ -81,15 +64,6 @@ const Header = (props) => {
       navigation.goBack();
     else
       navigation.openDrawer();
-  }
-
-  const [isOpenEndConsultation, setIsOpenEndConsultation] = useState(false);
-  const renderOthers = () => {
-    if (scene.route.name === "Chat") {
-      return (
-        <EndConsultationScreen navigation={navigation} isOpen={isOpenEndConsultation} setIsOpen={setIsOpenEndConsultation} />
-      );
-    }
   }
 
   const [currentScreenName, setCurrentScreenName] = useState(name);
@@ -169,7 +143,6 @@ const Header = (props) => {
         leftIconColor={white ? theme.COLORS.WHITE : theme.COLORS.ICON}
         onLeftPress={handleLeftPress}
       />
-      {renderOthers()}
     </Block>
   );
 }

@@ -7,7 +7,7 @@ import { useAuthState, useAuthDispatch } from "../componentsEx/contexts/AuthCont
 import { useProfileDispatch } from "../componentsEx/contexts/ProfileContext";
 import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 import { useChatDispatch, useChatState } from "../componentsEx/contexts/ChatContext";
-import { reconnectWsChat, requestGetTalkInfo } from "./Talk";
+import { resumeTalk } from "./Talk";
 
 
 const Manager = (props) => {
@@ -41,7 +41,8 @@ export const startUpLogind = (token, dispatches, chatState) => {
     requestGetProfile(token, dispatches.profileDispatch);
     requestGetProfileParams(token, dispatches.profileDispatch);
     connectWsNotification(token, dispatches.notificationDispatch, chatState, dispatches.chatDispatch);
-    reconnectWsChat(token, chatState, dispatches.chatDispatch);
-    requestGetTalkInfo(token, chatState, dispatches.chatDispatch);
+    resumeTalk(token, chatState, dispatches.chatDispatch)
+    // reconnectWsChat(token, chatState, dispatches.chatDispatch);
+    // requestGetTalkInfo(token, chatState, dispatches.chatDispatch);
   }
 }

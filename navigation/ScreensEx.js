@@ -122,6 +122,7 @@ const HomeStack = (props) => {
                 <Header
                   title={title}
                   name={"Chat"}
+                  talkObj={chatState.talkCollection[roomID]}
                   back
                   navigation={navigation}
                   scene={scene}

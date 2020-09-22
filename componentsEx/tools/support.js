@@ -210,3 +210,10 @@ export const deepCopy = (obj, passKeys = []) => {
 export const isObject = (val) => {
   return val !== null && typeof (val) === "object" && val.constructor === Object;
 }
+
+export const geneArrPushedWithoutDup = (arr, val) => {
+  if (!arr.includes(val)) {
+    return arr.concat([val]);
+  }
+  else return arr;
+}

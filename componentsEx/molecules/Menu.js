@@ -1,10 +1,8 @@
 import React from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { Block, Text, theme, Button } from 'galio-framework';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Block, Text, Button } from 'galio-framework';
 import Modal from 'react-native-modal';
 
-
-const { width } = Dimensions.get('screen');
 
 export const MenuModal = (props) => {
   const { isOpen, setIsOpen, items, otherModal } = props;

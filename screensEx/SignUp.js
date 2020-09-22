@@ -3,13 +3,13 @@ import axios from "axios";
 
 import { BASE_URL } from "../constantsEx/env";
 import { URLJoin } from "../componentsEx/tools/support";
-import SignInUp from "../componentsEx/templates/SignInUpTemplate";
 import { requestSignIn } from "./SignIn";
+import SignInUpTemplate from "../componentsEx/templates/SignInUpTemplate";
 
 
 const SignUp = (props) => {
   return (
-    <SignInUp {...props} signup requestSignUp={requestSignUp} />
+    <SignInUpTemplate {...props} signup requestSignUp={requestSignUp} />
   );
 }
 

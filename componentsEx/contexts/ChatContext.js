@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem } from "../tools/support";
+import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem, geneArrPushedWithoutDup } from "../tools/support";
 
 
 const chatReducer = (prevState, action) => {
@@ -24,7 +24,7 @@ const chatReducer = (prevState, action) => {
       return {
         ...prevState,
         sendCollection: _sendCollection,
-        includedUserIDs: prevState.includedUserIDs.concat([action.user.id]),
+        includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
       };
 
     case "APPEND_INCOLLECTION":
@@ -41,20 +41,20 @@ const chatReducer = (prevState, action) => {
       return {
         ...prevState,
         inCollection: _inCollection,
-        includedUserIDs: prevState.includedUserIDs.concat([action.user.id]),
+        includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
       };
     
     case "SET_SEND_IN_COLLECTION":
       /** アプリ起動時に取得したsendObjects, inObjectsからsendCollection, inCollectionを作成.
        * @param {Object} action [type, sendObjects, inObjects] */
 
-      _includedUserIDs = [];
+      _includedUserIDs = [].concat(prevState.includedUserIDs);
       const generateSendInCollection = sendInObjects => {
         const sendInCollection = {};
         sendInObjects.forEach(sendInObj => {
           sendInObj = cvtKeyFromSnakeToCamel(sendInObj);
           sendInObj.user = cvtKeyFromSnakeToCamel(sendInObj.user);
-          _includedUserIDs.push(sendInObj.user.id);
+          _includedUserIDs = geneArrPushedWithoutDup(_includedUserIDs, sendInObj.user.id)
           sendInObj.date = new Date(sendInObj.date);
           sendInCollection[sendInObj.roomID] = sendInObj;
         });
@@ -63,8 +63,6 @@ const chatReducer = (prevState, action) => {
       _sendCollection = generateSendInCollection(action.sendObjects);
       _inCollection = generateSendInCollection(action.inObjects);
 
-      // Object.values(action.sendCollection).forEach(sendObj => _includedUserIDs.push(sendObj.user.id));
-      // Object.values(action.inCollection).forEach(inObj => _includedUserIDs.push(inObj.user.id));
       return {
         ...prevState,
         sendCollection: _sendCollection,
@@ -98,7 +96,8 @@ const chatReducer = (prevState, action) => {
           sendCollection: _sendCollection,
           inCollection: _inCollection,
           talkCollection: _talkCollection,
-          talkingRoomIDs: prevState.talkingRoomIDs.concat([action.roomID]),
+          includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
+          talkingRoomIDs: geneArrPushedWithoutDup(prevState.talkingRoomIDs, action.roomID),
         };
       } else {
         // WSの重複を防ぐ
@@ -119,10 +118,13 @@ const chatReducer = (prevState, action) => {
         _talkObj.offlineMessages = [];
 
         _talkCollection = Object.assign(prevState.talkCollection, { [action.roomID]: _talkObj });
+
+        asyncStoreTalkCollection(_talkCollection);
         return {
           ...prevState,
           talkCollection: _talkCollection,
-          talkingRoomIDs: prevState.talkingRoomIDs.concat([action.roomID]),
+          includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
+          talkingRoomIDs: geneArrPushedWithoutDup(prevState.talkingRoomIDs, action.roomID),
         };
       } else {
         // WSの重複を防ぐ
