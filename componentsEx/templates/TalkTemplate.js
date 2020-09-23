@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { Block, Text } from 'galio-framework';
 
-import { Hr } from '../../componentsEx';
+import Hr from '../../componentsEx/atoms/Hr';
 import Avatar from '../../componentsEx/atoms/Avatar';
 import { cvtListDate, cvtBadgeCount, alertModal } from '../tools/support';
 import { useAuthState } from '../contexts/AuthContext';

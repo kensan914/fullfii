@@ -7,22 +7,26 @@ import { useChatState, useChatDispatch } from "../componentsEx/contexts/ChatCont
 const Chat = (props) => {
   const roomID = props.route.params.roomID;
   const talkObj = useChatState().talkCollection[roomID];
-  const user = talkObj.user;
-  const messages = talkObj.messages;
-  const offlineMessages = talkObj.offlineMessages;
-  const ws = talkObj.ws;
 
-  const chatDispatch = useChatDispatch();
-  const authState = useAuthState();
+  if (talkObj) {
+    const user = talkObj.user;
+    const messages = talkObj.messages;
+    const offlineMessages = talkObj.offlineMessages;
+    const ws = talkObj.ws;
+    const isEnd = talkObj.isEnd
 
-  const appendOfflineMessage = (messageID, message) => {
-    chatDispatch({ type: "APPEND_OFFLINE_MESSAGE", roomID: roomID, messageID: messageID, message: message });
-  }
+    const chatDispatch = useChatDispatch();
+    const authState = useAuthState();
 
-  return (
-    <ChatTemplate user={user} messages={messages.concat(offlineMessages)} ws={ws} appendOfflineMessage={appendOfflineMessage}
-      sendWsMesssage={sendWsMesssage} token={authState.token} roomID={roomID} />
-  );
+    const appendOfflineMessage = (messageID, message) => {
+      chatDispatch({ type: "APPEND_OFFLINE_MESSAGE", roomID: roomID, messageID: messageID, message: message });
+    }
+
+    return (
+      <ChatTemplate user={user} messages={messages.concat(offlineMessages)} ws={ws} appendOfflineMessage={appendOfflineMessage}
+        sendWsMesssage={sendWsMesssage} token={authState.token} roomID={roomID} isEnd={isEnd} />
+    );
+  } else return <></>;
 }
 
 export default Chat;

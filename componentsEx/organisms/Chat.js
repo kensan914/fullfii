@@ -1,13 +1,18 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, Alert, Dimensions, ScrollView } from "react-native";
+import { StyleSheet, Dimensions, ScrollView } from "react-native";
 import { Block, Text, theme, Button, Icon } from "galio-framework";
 import Modal from "react-native-modal";
 import LottieView from "lottie-react-native";
 import { TextInput } from "react-native-gesture-handler";
+import Spinner from "react-native-loading-spinner-overlay";
+
 import DropDown from "../atoms/Select";
 import { alertModal } from "../tools/support";
 import { MenuModal } from "../molecules/Menu";
 import { TouchableOpacity } from "react-native";
+import { useAuthState } from "../contexts/AuthContext";
+import { requestCloseTalk, requestEndTalk } from "../../screensEx/Talk";
+import { useChatDispatch } from "../contexts/ChatContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -25,37 +30,73 @@ export const TalkMenuButton = (props) => {
   const { navigation, talkObj } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
+  const [isShowSpinner, setIsShowSpinner] = useState(false);
+  const [canPressBackdrop, setCanPressBackdrop] = useState(true);
+
+  const authState = useAuthState();
+  const chatDispatch = useChatDispatch();
 
   return (
-    <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
-      <Icon family="font-awesome" size={20} name="ellipsis-h" color="gray" />
-      <MenuModal isOpen={isOpen} setIsOpen={setIsOpen} items={[
-        { title: "相談を終了する", onPress: () => EndTalk(navigation, isOpenEndTalk, setIsOpenEndTalk, talkObj) },
-        { title: "通報する", onPress: () => { } },
-      ]} otherModal={<EndTalkScreen navigation={navigation} isOpen={isOpenEndTalk} setIsOpen={setIsOpenEndTalk} talkObj={talkObj} />} />
-    </TouchableOpacity >
+    <>
+      <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
+        <Icon family="font-awesome" size={20} name="ellipsis-h" color="gray" />
+        <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
+          items={[
+            {
+              title: "トークを終了する", onPress: () => {
+                if (!talkObj.isEnd) endTalk(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, setIsShowSpinner, setCanPressBackdrop);
+                else {
+                  setCanPressBackdrop(false);
+                  requestEndTalk(talkObj.roomID, authState.token, setIsOpenEndTalk, navigation, chatDispatch, setIsShowSpinner);
+                }
+              }
+            },
+            { title: "通報する", onPress: () => { } },
+          ]}
+          otherModal={
+            <EndTalkScreen
+              navigation={navigation}
+              isOpen={isOpenEndTalk}
+              setIsOpen={setIsOpenEndTalk}
+              talkObj={talkObj}
+              token={authState.token}
+            />}
+          spinnerOverlay={
+            <Spinner
+              visible={isShowSpinner}
+              overlayColor="rgba(0,0,0,0)"
+            />}
+          canPressBackdrop={canPressBackdrop}
+        />
+      </TouchableOpacity >
+    </>
   );
 }
 
-export const EndTalk = (navigation, isOpenEndTalk, setIsOpenEndTalk, talkObj) => {
+export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, setIsShowSpinner, setCanPressBackdrop) => {
+  setCanPressBackdrop(false);
   alertModal({
-    mainText: "相談を終了しますか？",
-    subText: "",
+    mainText: "トークを終了しますか？",
+    subText: "あなたの端末と相手の端末から全ての会話内容が削除されます。",
     cancelButton: "キャンセル",
     okButton: "終了する",
     onPress: () => {
-      setIsOpenEndTalk(true);
-      // TODO send end talk
-      talkObj.ws.send(JSON.stringify({ type: "end_talk", token: token }));
+      setIsShowSpinner(true);
+      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, setIsShowSpinner);
     },
+    cancelOnPress: () => {
+      setCanPressBackdrop(true);
+    }
   });
 }
 
 export const EndTalkScreen = (props) => {
-  const { isOpen, setIsOpen, navigation, talkObj } = props;
+  const { isOpen, setIsOpen, navigation, talkObj, token } = props;
   const [currentPage, setCurrentPage] = useState(1);
   const maxPage = 1;
   const scrollView = useRef(null);
+
+  const chatDispatch = useChatDispatch();
 
   const goNextPage = () => {
     scrollView.current.scrollTo({ y: 0, x: width * currentPage, animated: true });
@@ -69,13 +110,9 @@ export const EndTalkScreen = (props) => {
       if (!pushed) {
         pushed = true;
         animation.current.play();
-        // TODO send thunks
-        talkObj.ws.send(JSON.stringify({ type: "send_thunks", token: token }));
-
         setTimeout(() => {
           // goNextPage();
-          navigation.navigate("Home");
-          // TODO delte talk info
+          requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, true);
         }, 800);
       }
     }
@@ -83,15 +120,14 @@ export const EndTalkScreen = (props) => {
       if (!pushed) {
         pushed = true;
         // goNextPage();
-        navigation.navigate("Home");
-        // TODO delte talk info
+        requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch);
       }
     }
 
     return (
       <Block style={styles.endTalkContainer} >
         <Block style={styles.endTalkHeader}>
-          <Text bold size={26} color="gray">相談を終了しました</Text>
+          <Text bold size={26} color="gray">トークを終了しました</Text>
         </Block>
         <Block style={styles.endTalkContents}>
           <Text style={{ width: "55%" }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>

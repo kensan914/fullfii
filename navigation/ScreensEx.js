@@ -117,12 +117,13 @@ const HomeStack = (props) => {
           return {
             header: ({ navigation, scene }) => {
               const roomID = route.params.roomID;
-              const title = chatState.talkCollection[roomID].user.name;
+              const talkObj = chatState.talkCollection[roomID];
+              const title = talkObj ? talkObj.user.name : "";
               return (
                 <Header
                   title={title}
                   name={"Chat"}
-                  talkObj={chatState.talkCollection[roomID]}
+                  talkObj={talkObj}
                   back
                   navigation={navigation}
                   scene={scene}

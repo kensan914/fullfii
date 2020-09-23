@@ -17,7 +17,7 @@ const NotificationTemplate = (props) => {
       data={notifications}
       renderItem={({ item, index }) => (
         <TouchableOpacity key={index} activeOpacity={.6} onPress={() => { }}>
-          <Block flex row style={styles.notificationCard}>
+          <Block flex row style={[styles.notificationCard, {backgroundColor: item.read ? "white" : "lavenderblush"}]}>
             <Block flex={0.2}>
               <Avatar size={56} image={item.subject.image} style={{ alignSelf: "center" }} />
             </Block>

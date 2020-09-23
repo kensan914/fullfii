@@ -14,7 +14,7 @@ const { width } = Dimensions.get("screen");
 
 
 const ChatTemplate = (props) => {
-  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token, roomID } = props;
+  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token, roomID, isEnd } = props;
 
   const messagesScroll = useRef(null);
   const [message, setMessage] = useState("");
@@ -59,7 +59,7 @@ const ChatTemplate = (props) => {
             }
             <Block style={styles.messageCardWrapper}>
               {!message.isMe ?
-                <Block style={[styles.messageCard, {backgroundColor: "lavenderblush"}]}>
+                <Block style={[styles.messageCard, { backgroundColor: "lavenderblush" }]}>
                   <Text>{message.message}</Text>
                 </Block> :
                 <LinearGradient
@@ -105,10 +105,13 @@ const ChatTemplate = (props) => {
 
   const handleMessage = () => {
     if (typeof message !== "undefined" && message.length > 0) {
+      if (isEnd) {
+        alert(`${user.name}さんは退室しています`);
+        return;
+      }
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
-      // handleScroll();
       sendWsMesssage(ws, messageID, message, token);
     }
   }
@@ -124,7 +127,7 @@ const ChatTemplate = (props) => {
             opacity={0.9}
             style={styles.iconButton}
             color={materialTheme.COLORS.BUTTON_COLOR}
-            onPress={() => { }}>
+            onPress={() => { if (!isEnd) { } }}>
             <Icon size={20} name="phone" family="font-awesome" color={theme.COLORS.MUTED} />
           </Button>
           <Input

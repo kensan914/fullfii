@@ -64,9 +64,12 @@ export const connectWsNotification = (token, notificationDispatch, chatState, ch
       } else if (data.notification.type === "talk_response") {
         // チャットレスポンス通知
         initConnectWsChat(data.room_id, token, chatState, chatDispatch);
-      } else if (data.notification.type === "cancel_talk_request") {
-        // キャンセルトークリクエスト通知
+      } else if (data.notification.type === "cancel_talk_request_to_res") {
+        // レスポンスユーザへのキャンセルトークリクエスト通知
         chatDispatch({ type: "DELETE_IN_OBJ", roomID: data.room_id });
+      } else if (data.notification.type === "cancel_talk_request_to_req") {
+        // リクエストユーザへのキャンセルトークリクエスト通知
+        chatDispatch({ type: "DELETE_SEND_OBJ", roomID: data.room_id });
       } else {
         // 通常の通知
       }

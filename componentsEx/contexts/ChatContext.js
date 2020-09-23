@@ -9,6 +9,8 @@ const chatReducer = (prevState, action) => {
   let _messages;
   let _offlineMessages;
   let _includedUserIDs;
+  let _talkingRoomIDs;
+  let _talkObj;
   switch (action.type) {
     case "APPEND_SENDCOLLECTION":
       /** 1つのsendObjを作成し、sendCollectionに追加
@@ -43,7 +45,7 @@ const chatReducer = (prevState, action) => {
         inCollection: _inCollection,
         includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
       };
-    
+
     case "SET_SEND_IN_COLLECTION":
       /** アプリ起動時に取得したsendObjects, inObjectsからsendCollection, inCollectionを作成.
        * @param {Object} action [type, sendObjects, inObjects] */
@@ -79,10 +81,11 @@ const chatReducer = (prevState, action) => {
           [action.roomID]: {
             roomID: action.roomID,
             user: cvtKeyFromSnakeToCamel(action.user),
-            messages: [{ id: 0, message: "最初のメッセージを送りましょう。", common: true, time: new Date(Date.now()) }],
+            messages: [geneCommonMessage("init")],
             offlineMessages: [],
             ws: action.ws,
             unreadNum: 0,
+            isEnd: false,
           }
         });
         _sendCollection = prevState.sendCollection;
@@ -111,7 +114,7 @@ const chatReducer = (prevState, action) => {
        * @param {Object} action [type, roomID, user, ws, talkCollection] */
 
       if (!prevState.talkingRoomIDs.includes(action.roomID)) {
-        const _talkObj = action.talkCollection[action.roomID];
+        _talkObj = action.talkCollection[action.roomID];
         _talkObj.user = cvtKeyFromSnakeToCamel(action.user);
         _talkObj.ws = action.ws;
         _talkObj.messages.forEach((message, index) => _talkObj.messages[index].time = new Date(message.time));
@@ -145,6 +148,10 @@ const chatReducer = (prevState, action) => {
       };
 
       _messages = prevState.talkCollection[action.roomID].messages.concat([message]);
+      // remove init message
+      // if (_messages.length === 2 && _messages[0].id === 0) {
+      //   _messages.shift();
+      // }
       const prevUnreadNum_AM = prevState.talkCollection[action.roomID].unreadNum;
       const incrementNum_AM = action.isMe ? 0 : 1;
 
@@ -177,6 +184,11 @@ const chatReducer = (prevState, action) => {
         }
       });
       _messages = prevState.talkCollection[action.roomID].messages.concat(messages);
+      // remove init message
+      // if (_messages.length > 0 && _messages[0].id === 0) {
+      //   _messages.shift();
+      // }
+
       const prevUnreadNum_MM = prevState.talkCollection[action.roomID].unreadNum;
       _talkCollection = prevState.talkCollection;
       _talkCollection[action.roomID].messages = _messages;
@@ -270,6 +282,78 @@ const chatReducer = (prevState, action) => {
         includedUserIDs: _includedUserIDs,
       };
 
+    case "APPEND_COMMON_MESSAGE":
+      /** common message を追加
+       * @param {Object} action [type, roomID, alert] */
+
+      if (action.alert) {
+        _messages = prevState.talkCollection[action.roomID].messages.concat([geneCommonMessage("alert")]);
+        _talkCollection = prevState.talkCollection;
+        _talkCollection[action.roomID].messages = _messages;
+        asyncStoreTalkCollection(_talkCollection);
+        return {
+          ...prevState,
+          talkCollection: _talkCollection,
+        };
+      } else return { ...prevState };
+
+
+    case "END_TALK":
+      /** トークの終了. messages, offlineMessagesの削除, unreadNum, totalUnreadNumの変更., ws.close()
+       * @param {Object} action [type, roomID, (timeOut)] */
+
+      _talkCollection = prevState.talkCollection;
+      _talkCollection[action.roomID].messages = [geneCommonMessage("end", _talkCollection[action.roomID].user.name, Boolean(action.timeOut))];
+      _talkCollection[action.roomID].offlineMessages = [];
+      const unreadNumDifference = _talkCollection[action.roomID].unreadNum;
+      _talkCollection[action.roomID].unreadNum = 0;
+      _talkCollection[action.roomID].isEnd = true;
+      _talkCollection[action.roomID].ws.close();
+
+      asyncStoreTalkCollection(_talkCollection);
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
+        totalUnreadNum: prevState.totalUnreadNum - unreadNumDifference,
+      };
+
+    case "CLOSE_TALK":
+      /** トークのクローズ. talkObjの削除. 
+       * @param {Object} action [type, roomID] */
+
+      _talkCollection = prevState.talkCollection;
+      _includedUserIDs = prevState.includedUserIDs.filter(userID => userID !== _talkCollection[action.roomID].user.id);
+      _talkingRoomIDs = prevState.talkingRoomIDs.filter(roomID => roomID !== action.roomID);
+
+      delete _talkCollection[action.roomID];
+      asyncStoreTalkCollection(_talkCollection);
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
+        includedUserIDs: _includedUserIDs,
+        talkingRoomIDs: _talkingRoomIDs,
+      };
+
+    case "APPEND_END_TALK_OBJ":
+      /** startup時に実行. 受け取ったtalkObjをend修正し、追加。既にend修正されたtalkObjも対応可。
+       * @param {Object} action [type, talkObj, (timeOut)] */
+
+      _talkObj = Object.assign({}, action.talkObj);
+      if (!_talkObj.isEnd) {
+        _talkObj.messages = [geneCommonMessage("end", _talkObj.user.name, Boolean(action.timeOut))];
+        _talkObj.offlineMessages = [];
+        _talkObj.unreadNum = 0;
+        _talkObj.isEnd = true;
+      } else {
+        _talkObj.messages[0].time = new Date(_talkObj.messages[0].time);
+      }
+      _talkCollection = Object.assign(prevState.talkCollection, { [_talkObj.roomID]: _talkObj });
+
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
+      };
+
     case "RESET":
       /** リセット wsの切断
        * @param {Object} action [type] */
@@ -321,8 +405,35 @@ const initInCollection = {};
  *  offlineMessages: {Array},
  *  ws: {Obj},
  *  unreadNum: {Num},
+ *  isEnd: {boolean},
  * },} */
 const initTalkCollection = {};
+
+const geneCommonMessage = (type, user_name = "", timeOut = false) => {
+  const message = {
+    common: true,
+    time: new Date(Date.now()),
+  };
+  switch (type) {
+    case "init":
+      message["id"] = 0;
+      message["message"] = "最初のメッセージを送りましょう。";
+      break;
+    case "alert":
+      message["id"] = 2;
+      message["message"] = "残り5分で自動退室となります。";
+      break;
+    case "end":
+      message["id"] = -1;
+      if (timeOut) {
+        message["message"] = "トークが開始されてから24時間が経過したため、自動退室されました。右上のメニューボタンからトークを終了してください。";
+      } else {
+        message["message"] = `${user_name}さんが退室しました。右上のメニューボタンからトークを終了してください。`;
+      }
+      break;
+  }
+  return message;
+}
 
 const ChatStateContext = createContext({
   sendCollection: initSendCollection,

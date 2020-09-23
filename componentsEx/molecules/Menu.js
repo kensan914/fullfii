@@ -5,15 +5,18 @@ import Modal from 'react-native-modal';
 
 
 export const MenuModal = (props) => {
-  const { isOpen, setIsOpen, items, otherModal } = props;
+  const { isOpen, setIsOpen, items, otherModal, spinnerOverlay, canPressBackdrop } = props;
 
   return (
     <Modal
       backdropOpacity={0.3}
       isVisible={isOpen}
-      onBackdropPress={() => setIsOpen(false)}
+      onBackdropPress={() => {
+        if (canPressBackdrop) setIsOpen(false);
+      }}
       style={styles.menuModal}
     >
+      {spinnerOverlay}
       <Block style={styles.menuContainer}>
         {items.map((item, index) => (
           <TouchableOpacity key={index} onPress={item.onPress} style={styles.menuItem}>

@@ -34,7 +34,7 @@ const Header = (props) => {
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
-    if (scene.route.name === "Chat") return (
+    if (scene.route.name === "Chat" && talkObj) return (
       <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
     );
     switch (name) {

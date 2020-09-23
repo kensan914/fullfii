@@ -42,6 +42,7 @@ export const cvtListDate = (date) => {
         return fmtfromDateToStr(date, "hh:mm");
       } else if (today.getDate() - 1 === date.getDate()) {
         // 1日前
+        return "昨日";
       } else {
         // 1日以上前
         return fmtfromDateToStr(date, "MM/DD");
@@ -171,14 +172,16 @@ export const asyncRemoveAll = async () => {
       onPress: () => {
         navigation.navigate("Home");
       },
+      (cancelOnPress: () => {}),
     });
  */
-export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress }) => {
+export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress, cancelOnPress = () => { } }) => {
   Alert.alert(
     mainText ? mainText : "", subText ? subText : "",
     [
       {
         text: cancelButton ? cancelButton : "キャンセル",
+        onPress: cancelOnPress,
         style: "cancel",
       },
       {
