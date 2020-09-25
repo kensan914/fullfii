@@ -130,11 +130,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.rnmaterialkitpro"
+        applicationId 'com.fullfii.fullfii'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.6.0"
     }
     splits {
         abi {
