@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Platform, StatusBar, Image } from "react-native";
-import { AppLoading } from "expo";
+// import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import { Block, GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
@@ -52,16 +52,16 @@ export default class App extends React.Component {
   };
 
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
-      return (
-        <AppLoading
-          startAsync={this._loadResourcesAsync}
-          onError={this._handleLoadingError}
-          onFinish={this._handleFinishLoading}
-        />
-      );
-    } else
-      return <RootNavigator />;
+    // if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
+    //   return (
+    //     <AppLoading
+    //       startAsync={this._loadResourcesAsync}
+    //       onError={this._handleLoadingError}
+    //       onFinish={this._handleFinishLoading}
+    //     />
+    //   );
+    // } else
+    return <RootNavigator />;
   }
 
   _loadResourcesAsync = async () => {

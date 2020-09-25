@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "rn-material-kit-pro",
-    "description": "React Native - Material Kit PRO",
-    "slug": "rn-material-kit-pro",
+    "name": "fullfii",
+    "description": "fullfii",
+    "slug": "fullfii",
     "privacy": "unlisted",
     "sdkVersion": "37.0.0",
     "platforms": [
@@ -24,7 +24,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
-    }
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fullfii.fullfii"
+    },
+    "android": {
+      "package": "com.fullfii.fullfii"
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }
