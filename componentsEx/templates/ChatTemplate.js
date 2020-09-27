@@ -137,7 +137,7 @@ const ChatTemplate = (props) => {
             style={[styles.input, { height: inputHeight + theme.SIZES.BASE }]}
             placeholder="メッセージ"
             autoCapitalize="none"
-            returnKeyType="none"
+            returnKeyType="send"
             textContentType="none"
             placeholderTextColor="#9fa5aa"
             defaultValue={message}
