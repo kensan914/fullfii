@@ -20,6 +20,7 @@ const requestSignUp = (username, email, password, birthday, dispatches, chatStat
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "signup/");
   console.log("リクエストサインアップ")
+  
   axios
     .post(url, {
       username: username,
