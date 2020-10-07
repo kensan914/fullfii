@@ -96,9 +96,9 @@ const Header = (props) => {
       case "InputFeature":
         return "特徴";
       case "InputGenreOfWorries":
-        return "対応できる悩みのジャンル";
+        return "話したい悩みのジャンル";
       case "InputScaleOfWorries":
-        return "対応できる悩みの大きさ";
+        return "話せる悩みの大きさ";
       case "InputWorriesToSympathize":
         return "共感できる悩み";
       case "InputPrivacyName":

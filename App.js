@@ -20,6 +20,7 @@ import { ProfileProvider } from "./componentsEx/contexts/ProfileContext";
 import { NotificationProvider } from "./componentsEx/contexts/NotificationContext";
 import { ChatProvider } from "./componentsEx/contexts/ChatContext";
 import Manager from "./screensEx/Manager";
+import { ProductProvider } from "./componentsEx/contexts/ProductContext";
 
 const assetImages = [
   Images.Profile,
@@ -88,7 +89,7 @@ const RootNavigator = () => {
   useEffect(() => {
     console.log("remove プロフィール")
     asyncRemoveItem("profile"); // TODO
-    // asyncRemoveItem("talkCollection"); // TODO
+    // asyncRemoveItem("token"); // TODO
 
     const fetchData = async () => {
       const _token = await asyncGetItem("token");
@@ -111,13 +112,15 @@ const RootNavigator = () => {
           <ProfileProvider profile={profile} >
             <NotificationProvider notifications={notifications} >
               <ChatProvider >
-                <GalioProvider theme={materialTheme}>
-                  <Manager>
-                    {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                    {/* <Screens /> */}
-                    <ScreensEx />
-                  </Manager>
-                </GalioProvider>
+                <ProductProvider token={token}>
+                  <GalioProvider theme={materialTheme}>
+                    <Manager>
+                      {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                      {/* <Screens /> */}
+                      <ScreensEx />
+                    </Manager>
+                  </GalioProvider>
+                </ProductProvider>
               </ChatProvider>
             </NotificationProvider>
           </ProfileProvider>

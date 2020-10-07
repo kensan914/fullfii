@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem, geneArrPushedWithoutDup } from "../tools/support";
+import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem, geneArrPushedWithoutDup, closeWsSafely } from "../tools/support";
 
 
 const chatReducer = (prevState, action) => {
@@ -105,9 +105,22 @@ const chatReducer = (prevState, action) => {
       } else {
         // WSの重複を防ぐ
         alert("wsの重複を防ぎました");
-        action.ws.close();
+        closeWsSafely(action.ws);
         return { ...prevState };
       }
+
+    case "RECONNECT_TALK":
+      /** wsをset. wsが切断され再接続された際に実行
+       * @param {Object} action [type, ws, roomID] */
+
+      _talkCollection = Object.assign(prevState.talkCollection, {});
+      _talkCollection[action.roomID].ws = action.ws;
+
+      asyncStoreTalkCollection(_talkCollection);
+      return {
+        ...prevState,
+        talkCollection: _talkCollection,
+      };
 
     case "RESTART_TALK":
       /** トーク開始時に実行 受け取ったtalkObjを修正し、talkCollectionに追加
@@ -132,7 +145,7 @@ const chatReducer = (prevState, action) => {
       } else {
         // WSの重複を防ぐ
         alert("wsの重複を防ぎました");
-        ws.close();
+        closeWsSafely(action.ws);
         return { ...prevState };
       }
 
@@ -148,10 +161,6 @@ const chatReducer = (prevState, action) => {
       };
 
       _messages = prevState.talkCollection[action.roomID].messages.concat([message]);
-      // remove init message
-      // if (_messages.length === 2 && _messages[0].id === 0) {
-      //   _messages.shift();
-      // }
       const prevUnreadNum_AM = prevState.talkCollection[action.roomID].unreadNum;
       const incrementNum_AM = action.isMe ? 0 : 1;
 
@@ -184,10 +193,6 @@ const chatReducer = (prevState, action) => {
         }
       });
       _messages = prevState.talkCollection[action.roomID].messages.concat(messages);
-      // remove init message
-      // if (_messages.length > 0 && _messages[0].id === 0) {
-      //   _messages.shift();
-      // }
 
       const prevUnreadNum_MM = prevState.talkCollection[action.roomID].unreadNum;
       _talkCollection = prevState.talkCollection;
@@ -308,7 +313,7 @@ const chatReducer = (prevState, action) => {
       const unreadNumDifference = _talkCollection[action.roomID].unreadNum;
       _talkCollection[action.roomID].unreadNum = 0;
       _talkCollection[action.roomID].isEnd = true;
-      _talkCollection[action.roomID].ws.close();
+      closeWsSafely(_talkCollection[action.roomID].ws);
 
       asyncStoreTalkCollection(_talkCollection);
       return {
@@ -359,7 +364,7 @@ const chatReducer = (prevState, action) => {
        * @param {Object} action [type] */
 
       Object.values(prevState.talkCollection).forEach((talkObj) => {
-        if (talkObj.ws) talkObj.ws.close();
+        closeWsSafely(talkObj.ws);
       })
       asyncRemoveItem("sendCollection");
       asyncRemoveItem("inCollection");
@@ -370,6 +375,8 @@ const chatReducer = (prevState, action) => {
         inCollection: {},
         talkCollection: {},
         totalUnreadNum: 0,
+        includedUserIDs: [],
+        talkingRoomIDs: [],
       };
 
     default:

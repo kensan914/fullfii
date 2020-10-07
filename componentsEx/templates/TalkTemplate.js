@@ -7,6 +7,7 @@ import Avatar from '../../componentsEx/atoms/Avatar';
 import { cvtListDate, cvtBadgeCount, alertModal } from '../tools/support';
 import { useAuthState } from '../contexts/AuthContext';
 import { useChatDispatch, useChatState } from '../contexts/ChatContext';
+import { useProfileDispatch } from '../contexts/ProfileContext';
 
 
 const { width, height } = Dimensions.get('screen');
@@ -20,11 +21,11 @@ const TalkTemplate = (props) => {
       <TalkList talkCollection={talkCollection} navigation={navigation} />
       <Hr h={8} color="whitesmoke" />
 
-      <TalkTitle title="受信" collection={inCollection} />
+      <TalkTitle title="リクエスト受信" collection={inCollection} />
       <SendInList collection={inCollection} initConnectWsChat={initConnectWsChat} navigation={navigation} />
       <Hr h={8} color="whitesmoke" />
 
-      <TalkTitle title="送信" collection={sendCollection} />
+      <TalkTitle title="リクエスト送信" collection={sendCollection} />
       <SendInList collection={sendCollection} requestCancelTalk={requestCancelTalk} navigation={navigation} />
     </ScrollView>
   );
@@ -109,6 +110,7 @@ const SendInList = (props) => {
   const authState = useAuthState();
   const chatState = useChatState();
   const chatDispatch = useChatDispatch();
+  const profileDispatch = useProfileDispatch();
 
   const list = Object.values(collection)
     .sort((a, b) => {
@@ -126,7 +128,7 @@ const SendInList = (props) => {
         subText: "トーク開始から24時間後に自動で会話内容は削除されます。",
         cancelButton: "キャンセル",
         okButton: "開始する",
-        onPress: () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, true),
+        onPress: () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch),
       });
     } else if (requestCancelTalk) {
       alertModal({

@@ -1,10 +1,12 @@
-import React from 'react';
+import React from "react";
+import * as WebBrowser from "expo-web-browser";
 
-import TalkTemplate from '../componentsEx/templates/TalkTemplate';
-import { BASE_URL_WS, BASE_URL } from '../constantsEx/env';
-import { URLJoin, asyncGetJson } from '../componentsEx/tools/support';
-import { useChatState } from '../componentsEx/contexts/ChatContext';
-import authAxios from '../componentsEx/tools/authAxios';
+import TalkTemplate from "../componentsEx/templates/TalkTemplate";
+import { BASE_URL_WS, BASE_URL, REPORT_URL } from "../constantsEx/env";
+import { URLJoin, asyncGetJson, initWs, closeWsSafely } from "../componentsEx/tools/support";
+import { useChatState } from "../componentsEx/contexts/ChatContext";
+import authAxios from "../componentsEx/tools/authAxios";
+
 
 const Talk = (props) => {
   const chatState = useChatState();
@@ -30,7 +32,7 @@ export const requestTalk = (user, token, chatDispatch) => {
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {
-        alert("成立したトークが既に存在します。相手がまだ退室していない可能性があります。");
+        alert("成立したトークが既に存在します。以前のトークが完全に終了していない可能性があります。");
       } else if (err.response.data.type === "conflict") {
         alert("成立したトークが既に存在します。");
       }
@@ -40,56 +42,69 @@ export const requestTalk = (user, token, chatDispatch) => {
 /** 
  * response talk request. 
  * If you are a request user and you are starting a talk, init is true. */
-const _connectWsChat = (roomID, token, chatState, chatDispatch, init, callbackSuccess) => {
-  const url = URLJoin(BASE_URL_WS, "chat/", roomID);
+const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch, init, callbackSuccess) => {
+  const wsSettings = {
+    url: URLJoin(BASE_URL_WS, "chat/", roomID),
 
-  let ws = new WebSocket(url);
-  ws.onopen = (e) => {
-    alert("websocket接続が完了しました(talk-request)");
-    ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
-  };
-  ws.onmessage = (e) => {
-    const data = JSON.parse(e.data);
-    if (data.type === "auth") {
-      console.log("websocket認証OK(talk-request)");
-      callbackSuccess(data, ws);
-    }
+    onopen: (e, ws) => {
+      alert("websocket接続が完了しました(talk-request)");
+      ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
+    },
+    onmessage: (e, ws, isReconnect) => {
+      const data = JSON.parse(e.data);
+      switch (data.type) {
+        case "auth":
+          console.log("websocket認証OK(talk-request)");
+          if (isReconnect) {
+            chatDispatch({ type: "RECONNECT_TALK", ws: ws, roomID: roomID });
+          } else {
+            callbackSuccess(data, ws);
+          }
+          profileDispatch({ type: "SET_ALL", profile: data.profile });
+          break;
 
-    else if (data.type === "end_talk_alert") {
-      chatDispatch({ type: "APPEND_COMMON_MESSAGE", roomID: roomID, alert: true });
-    }
-    else if (data.type === "end_talk_time_out") {
-      chatDispatch({ type: "END_TALK", roomID: roomID, timeOut: true });
-    }
-    else if (data.type === "end_talk") {
-      chatDispatch({ type: "END_TALK", roomID: roomID });
-    }
+        case "end_talk_alert":
+          profileDispatch({ type: "SET_ALL", profile: data.profile });
+          chatDispatch({ type: "APPEND_COMMON_MESSAGE", roomID: roomID, alert: true });
+          break;
 
-    else if (data.type === "error") {
-      console.log(data);
-      if (data.message) alert(data.message);
-      ws.close();
-    }
-    handleChatMessage(data, chatState, chatDispatch, token);
+        case "end_talk_time_out":
+          profileDispatch({ type: "SET_ALL", profile: data.profile });
+          chatDispatch({ type: "END_TALK", roomID: roomID, timeOut: true });
+          break;
+
+        case "end_talk":
+          profileDispatch({ type: "SET_ALL", profile: data.profile });
+          chatDispatch({ type: "END_TALK", roomID: roomID });
+          break;
+
+        case "error":
+          console.log(data);
+          if (data.message) alert(data.message);
+          closeWsSafely(ws);
+          break;
+
+        default:
+          break;
+      }
+      handleChatMessage(data, chatState, chatDispatch, token);
+    },
+    onclose: (e, ws) => {
+      alert("切断されました(talk-request)");
+    },
   };
-  ws.onclose = (e) => {
-    // alert("切断されました(talk-request)");
-    if (e.wasClean) {
-    } else {
-      // e.g. サーバのプロセスが停止、あるいはネットワークダウン
-      // この場合、event.code は通常 1006 になります
-    }
-  };
+
+  initWs(wsSettings);
 }
 
-export const initConnectWsChat = (roomID, token, chatState, chatDispatch) => {
-  _connectWsChat(roomID, token, chatState, chatDispatch, true, (data, ws) => {
+export const initConnectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch) => {
+  _connectWsChat(roomID, token, chatState, chatDispatch, profileDispatch, true, (data, ws) => {
     chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
   });
 }
 
-const reconnectWsChat = (roomID, token, chatState, chatDispatch, talkCollection) => {
-  _connectWsChat(roomID, token, chatState, chatDispatch, false, (data, ws) => {
+const restartWsChat = (roomID, token, chatState, chatDispatch, profileDispatch, talkCollection) => {
+  _connectWsChat(roomID, token, chatState, chatDispatch, profileDispatch, false, (data, ws) => {
     chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
   });
 }
@@ -146,15 +161,26 @@ export const requestCancelTalk = (roomID, token, chatDispatch) => {
 
 /** 
  *  end talk request. */
-export const requestEndTalk = (roomID, token, setIsOpenEndTalk, navigation, chatDispatch, setIsShowSpinner) => {
+export const requestEndTalk = (roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, willSkipEvaluation = false) => {
   setIsShowSpinner(true);
   const url = URLJoin(BASE_URL, "rooms/", roomID, "end/");
 
   authAxios(token)
     .post(url)
-    .then(res => {
-      setIsOpenEndTalk(true);
-      chatDispatch({ type: "END_TALK", roomID: roomID });
+    .then(async res => {
+      if (res.data.profile) {
+        profileDispatch({ type: "SET_ALL", profile: res.data.profile });
+      }
+
+      if (!willSkipEvaluation) {
+        setIsOpenEndTalk(true);
+        chatDispatch({ type: "END_TALK", roomID: roomID });
+      } else {
+        // report
+        await WebBrowser.openBrowserAsync(REPORT_URL);
+        navigation.navigate("Home");
+        chatDispatch({ type: "CLOSE_TALK", roomID: roomID });
+      }
     })
     .catch(err => {
       if (err.response.status === 404) {
@@ -201,7 +227,7 @@ const requestGetTalkInfo = (token, callbackSuccess) => {
 
 /** 
  *  トークのstate, wsなど全て再開, 復元する. startupで実行 */
-export const resumeTalk = (token, chatState, chatDispatch) => {
+export const resumeTalk = (token, chatState, chatDispatch, profileDispatch) => {
   requestGetTalkInfo(token, async res => {
     console.log(res.data);
     const sendObjects = res.data["send_objects"];
@@ -219,7 +245,7 @@ export const resumeTalk = (token, chatState, chatDispatch) => {
       roomIDs.forEach(roomID => {
         if (talkingRoomIDs.includes(roomID)) {
           willConnectRoomIDs = willConnectRoomIDs.filter(elm => elm !== roomID);
-          reconnectWsChat(roomID, token, chatState, chatDispatch, talkCollection);
+          restartWsChat(roomID, token, chatState, chatDispatch, profileDispatch, talkCollection);
         }
         else if (endRoomIDs.includes(roomID)) {
           chatDispatch({ type: "APPEND_END_TALK_OBJ", talkObj: talkCollection[roomID] });
@@ -231,7 +257,7 @@ export const resumeTalk = (token, chatState, chatDispatch) => {
     }
     // init talks other than that
     willConnectRoomIDs.forEach(talkingRoomID => {
-      initConnectWsChat(talkingRoomID, token, chatState, chatDispatch);
+      initConnectWsChat(talkingRoomID, token, chatState, chatDispatch, profileDispatch);
     });
   })
 }

@@ -1,7 +1,7 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Block, Text, Button } from 'galio-framework';
-import Modal from 'react-native-modal';
+import React from "react";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { Block, Text, Button } from "galio-framework";
+import Modal from "react-native-modal";
 
 
 export const MenuModal = (props) => {
@@ -14,8 +14,8 @@ export const MenuModal = (props) => {
       onBackdropPress={() => {
         if (canPressBackdrop) setIsOpen(false);
       }}
-      style={styles.menuModal}
-    >
+      style={styles.menuModal}>
+
       {spinnerOverlay}
       <Block style={styles.menuContainer}>
         {items.map((item, index) => (
@@ -34,21 +34,21 @@ export const MenuModal = (props) => {
 
 const styles = StyleSheet.create({
   menuModal: {
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     margin: 0,
   },
   menuContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 22,
     paddingBottom: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderTopRightRadius: 17,
     borderTopLeftRadius: 17,
   },
   menuItem: {
     paddingVertical: 15,
     width: "100%",
-    textAlign: 'right',
+    textAlign: "right",
   }
 });

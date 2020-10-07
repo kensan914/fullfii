@@ -1,166 +1,111 @@
-import React, { useState } from "react";
-import { StyleSheet, KeyboardAvoidingView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, Dimensions } from "react-native";
 import { Button, Block, Text, Icon } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
+import Spinner from "react-native-loading-spinner-overlay";
 
-import { USER_POLICY_URL } from "../../constantsEx/env";
+import { FREE_PLAN, USER_POLICY_URL } from "../../constantsEx/env";
 import { HeaderHeight } from "../../constantsEx/utils";
+import { useProductDispatch, useProductState } from "../contexts/ProductContext";
+import { useProfileDispatch } from "../contexts/ProfileContext";
+import { useAuthState } from "../contexts/AuthContext";
 
 
-//現在のユーザーのプラン状況
-let free = true
-let subscription = false
-let month = false
 
-const PlanTemplate = () => {
-  const [buttonColor, setButtonColor] = useState({
-    free: free,
-    subscription: subscription,
-    month: month,
-  });
-  const [checkButton, setCheckButton] = useState({
-    free: free,
-    subscription: subscription,
-    month: month,
-  });
-  const [textColor, setTextColor] = useState({
-    free: free,
-    subscription: subscription,
-    month: month,
-  });
-  const [shadowColor, setShadowColor] = useState({
-    free: free,
-    subscription: subscription,
-    month: month,
-  });
+const { width, height } = Dimensions.get("screen");
 
+const PlanTemplate = (props) => {
+  const { requestSubscription, requestPurchase, getPurchases, plan } = props;
+  const productState = useProductState();
+  const productDispatch = useProductDispatch();
+  const profileDispatch = useProfileDispatch();
+  const token = useAuthState().token;
 
-  const _handleOpenWithWebBrowser = () => {
+  const handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
-  const changeButtonFree = () => {
-    setButtonColor({ free: true }),
-      setCheckButton({ free: true }),
-      setTextColor({ free: true }),
-      setShadowColor({ free: true })
-  }
-
-  const changeButtonSubscription = () => {
-    setButtonColor({ subscription: true }),
-      setCheckButton({ subscription: true }),
-      setTextColor({ subscription: true }),
-      setShadowColor({ subscription: true })
-  }
-
-  const changeButtonMonth = () => {
-    setButtonColor({ month: true }),
-      setCheckButton({ month: true }),
-      setTextColor({ month: true }),
-      setShadowColor({ month: true })
-  }
+  let plans = productState.products;
+  if (plan === FREE_PLAN.productId) plans = plans.concat([FREE_PLAN]);
 
   return (
-    <LinearGradient
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0.25, y: 1.1 }}
-      locations={[0.2, 1]}
-      colors={["white", "mistyrose"]}
-      style={[styles.container, { flex: 1 }]}>
-      <Block flex row>
-        <Block flex middle>
-          <KeyboardAvoidingView behavior="padding" enabled>
-            <Block flex={0.1} style={{ alignItems: "center" }}>
+    <ScrollView bounces={false}>
+
+      <LinearGradient
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.25, y: 1.1 }}
+        locations={[0.2, 1]}
+        colors={["white", "mistyrose"]}
+        style={[styles.container, { flex: 1 }]}>
+
+        <Block flex row>
+          <Block flex middle>
+            <Block flex={0.1} style={{ alignItems: "center", marginTop: 30 }}>
               <Text size={26} bold color="#F69896">プラン一覧</Text>
             </Block>
-            <Block flex={0.7} space="between">
-              <Block flex style={{ marginTop: 20 }}>
-                <Button
-                  style={{ height: 80, shadowColor: shadowColor.free ? "silver" : "lightcoral", borderRadius: 20, flexDirection: "row" }}
-                  color={buttonColor.free ? "white" : "lightcoral"}
-                  //disabled={" "}
-                  onPress={changeButtonFree}
-                //loading={" "}
-                >
-                  <Text color={textColor.free ? "lightcoral" : "white"} size={20} bold>2週間無料お試し</Text>
-                  {checkButton.free &&
-                    <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{ paddingRight: 30 }} />
-                  }
-                </Button>
-                <Block style={{ padding: 10, paddingBottom: 20 }}>
-                  <Text color="silver" size={12} bold center>お試し期間終了後自動でノーマルに更新されます。</Text>
-                  <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
-                </Block>
+            <Block flex={0.6}>
+              <Block flex style={{ marginTop: 20, paddingHorizontal: 10, alignItems: "center" }}>
 
-                <Button
-                  style={{ height: 80, shadowColor: shadowColor.subscription ? "silver" : "lightcoral", borderRadius: 20, flexDirection: "row" }}
-                  color={buttonColor.subscription ? "white" : "lightcoral"}
-                  //disabled={" "}
-                  onPress={changeButtonSubscription}
-                //loading={" "}
-                >
-                  <Block style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                    <Text color={textColor.subscription ? "lightcoral" : "white"} size={20} bold>ノーマル</Text>
-                    <Text color={textColor.subscription ? "lightcoral" : "white"} size={16} bold>￥500 / 月</Text>
-                  </Block>
-                  {checkButton.subscription &&
-                    <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{ alignItems: "right" }} />
-                  }
-                </Button>
-                <Block style={{ padding: 10, paddingBottom: 20 }}>
-                  <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
-                </Block>
-                <Button
-                  style={{ height: 80, shadowColor: shadowColor.month ? "silver" : "lightcoral", borderRadius: 20, flexDirection: "row" }}
-                  color={buttonColor.month ? "white" : "lightcoral"}
-                  //disabled={" "}
-                  onPress={changeButtonMonth}
-                //loading={" "}
-                >
-                  <Block style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                    <Text color={textColor.month ? "lightcoral" : "white"} size={20} bold>1month</Text>
-                    <Text color={textColor.month ? "lightcoral" : "white"} size={16} bold>￥700</Text>
-                  </Block>
-                  {checkButton.month &&
-                    <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{ alignItems: "right" }} />
-                  }
-                </Button>
-                <Block style={{ padding: 10, paddingBottom: 20 }}>
-                  <Text color="silver" size={12} bold center>一ヶ月のみのプランです。</Text>
-                </Block>
+                {plans.map((_plan) => (
+                  <Block key={_plan.productId}>
+                    <Button
+                      style={{ height: 80, shadowColor: plan === _plan.productId ? "silver" : "lightcoral", borderRadius: 20, flexDirection: "row", alignSelf: "center" }}
+                      color={plan === _plan.productId ? "white" : "lightcoral"}
+                      onPress={() => {
+                        // if (plan !== _plan.productId) requestSubscription(_plan.productId, productDispatch);
+                        if (plan !== _plan.productId) requestPurchase(_plan.productId, productDispatch);
+                      }}>
 
-                <Block style={{ padding: 10 }}>
-                  <Text color="lightcoral" size={12} bold center>購入を復元する</Text>
-                </Block>
-                <Block style={{ padding: 10, flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                  <Text color="#F69896" size={12} bold center onPress={_handleOpenWithWebBrowser}
-                  >利用規約
-                </Text>
-                  <Text
-                    color="silver" size={12} bold center
-                  >と
-                </Text>
-                  <Text
-                    color="#F69896" size={12} bold center
-                    onPress={_handleOpenWithWebBrowser}
-                  >プライバシーポリシー
-                  </Text>
-                </Block>
+                      <Block style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                        <Text color={plan === _plan.productId ? "lightcoral" : "white"} size={20} bold>{_plan.title}</Text>
+                        {_plan.localizedPrice &&
+                          <Text color={plan === _plan.productId ? "lightcoral" : "white"} size={16} bold>{_plan.localizedPrice} / 月</Text>}
+                      </Block>
+                      {plan === _plan.productId &&
+                        <Icon family="font-awesome" name="check-circle" size={30} color="lightcoral" styles={{ marginLeft: 20 }} />
+                      }
+                    </Button>
+                    <Block style={{ padding: 10, paddingBottom: 20 }}>
+                      <Text color="silver" size={12} bold center>{_plan.description}</Text>
+                    </Block>
+                  </Block>
+                ))}
 
               </Block>
             </Block>
-          </KeyboardAvoidingView>
+
+            <Block flex={0.2}>
+              <Block style={{ padding: 10 }}>
+                <Text color="lightcoral" size={12} bold center onPress={() => {
+                  if (plan === FREE_PLAN.productId) {
+                    getPurchases(token, productDispatch, profileDispatch);
+                  } else alert("すでに購入したプランが適用されています。");
+                }}>購入を復元する</Text>
+              </Block>
+              <Block style={{ padding: 10, flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                <Text color="#F69896" size={12} bold center onPress={handleOpenWithWebBrowser}>利用規約</Text>
+                <Text color="silver" size={12} bold center>と</Text>
+                <Text color="#F69896" size={12} bold center onPress={handleOpenWithWebBrowser}>プライバシーポリシー</Text>
+              </Block>
+            </Block>
+          </Block>
         </Block>
-      </Block>
-    </LinearGradient>
+      </LinearGradient>
+
+      <Spinner
+        visible={productState.isProcessing}
+      />
+    </ScrollView>
   );
 }
 
 export default PlanTemplate;
 
+
 const styles = StyleSheet.create({
   container: {
     marginTop: Platform.OS === "android" ? -HeaderHeight : 0,
+    minHeight: height - 88,
   }
 });

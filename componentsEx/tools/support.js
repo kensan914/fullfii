@@ -172,7 +172,7 @@ export const asyncRemoveAll = async () => {
       onPress: () => {
         navigation.navigate("Home");
       },
-      (cancelOnPress: () => {}),
+      cancelOnPress: () => {}, // 任意. キャンセルを押した際の付加処理
     });
  */
 export const alertModal = ({ mainText, subText, cancelButton, okButton, onPress, cancelOnPress = () => { } }) => {
@@ -219,4 +219,45 @@ export const geneArrPushedWithoutDup = (arr, val) => {
     return arr.concat([val]);
   }
   else return arr;
+}
+
+export const initWs = (wsSettings) => {
+  // Object.keys(webSetting) >>> [url, onopen, onmessage, onclose, registerWs]
+  const connectIntervalTime = 2000;
+
+  const connect = (isReconnect = false) => {
+    let ws = new WebSocket(wsSettings.url);
+    let connectInterval;
+
+    ws.onopen = wsSettings.onopen ? (e) => {
+      clearTimeout(connectInterval);
+      wsSettings.onopen(e, ws);
+    } : (e) => { };
+    ws.onmessage = wsSettings.onmessage ? (e) => {
+      wsSettings.onmessage(e, ws, isReconnect);
+    } : (e) => { };
+    ws.onclose = wsSettings.onclose ? (e) => {
+      if (!e.wasClean) {
+        connectInterval = setTimeout(() => {
+          if (!ws || ws.readyState == WebSocket.CLOSED) {
+            // alert("再接続中...");
+            connect(true); // isReconnect = true
+          }
+        }, connectIntervalTime);
+      }
+      wsSettings.onclose(e, ws);
+    } : (e) => { };
+
+    wsSettings.registerWs && wsSettings.registerWs(ws);
+  }
+
+  connect();
+}
+
+// ios環境でclosecodeが1001で固定されてしまうため対処
+export const closeWsSafely = (ws) => {
+  if (ws) {
+    ws.onclose = (e) => { };
+    ws.close();
+  }
 }

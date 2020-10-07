@@ -50,18 +50,19 @@ const ProfileInputTemplate = (props) => {
   const [validationText, setValidationText] = useState("");
 
   useEffect(() => {
-    setLength(value.length);
-    setCanSubmit(prevValue !== value);
+    if (!isCheckBox) {
+      setLength(value.length);
+      setCanSubmit(prevValue !== value);
+    }
   }, [value]);
 
   useEffect(() => {
-    // set canSubmit
-    const prevCheckedItemsJSON = JSON.stringify(prevCheckedItems);
-    const checkedItemsJSON = JSON.stringify(checkedItems);
-    setCanSubmit(prevCheckedItemsJSON !== checkedItemsJSON);
-
     // set value if checkBox is true
     if (isCheckBox) {
+      // set canSubmit
+      const prevCheckedItemsJSON = JSON.stringify(prevCheckedItems);
+      const checkedItemsJSON = JSON.stringify(checkedItems);
+      setCanSubmit(prevCheckedItemsJSON !== checkedItemsJSON);
       let _value = [];
       Object.keys(checkedItems).map((key) => {
         if (checkedItems[key]) {

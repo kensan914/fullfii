@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncStoreJson, asyncRemoveItem } from "../tools/support";
+import { asyncStoreJson, asyncRemoveItem, closeWsSafely } from "../tools/support";
 
 
 const NotificationReducer = (prevState, action) => {
@@ -106,7 +106,7 @@ const NotificationReducer = (prevState, action) => {
       /** リセット wsの切断
        * @param {Object} action [type] */
 
-      if (prevState.ws) prevState.ws.close();
+      closeWsSafely(prevState.ws);
       asyncRemoveItem("notifications");
       return {
         ...prevState,

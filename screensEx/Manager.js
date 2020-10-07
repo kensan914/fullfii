@@ -40,8 +40,8 @@ export const startUpLogind = (token, dispatches, chatState) => {
   if (typeof token !== "undefined") {
     requestGetProfile(token, dispatches.profileDispatch);
     requestGetProfileParams(token, dispatches.profileDispatch);
-    connectWsNotification(token, dispatches.notificationDispatch, chatState, dispatches.chatDispatch);
-    resumeTalk(token, chatState, dispatches.chatDispatch)
+    connectWsNotification(token, dispatches.notificationDispatch, dispatches.profileDispatch, chatState, dispatches.chatDispatch);
+    resumeTalk(token, chatState, dispatches.chatDispatch, dispatches.profileDispatch);
     // reconnectWsChat(token, chatState, dispatches.chatDispatch);
     // requestGetTalkInfo(token, chatState, dispatches.chatDispatch);
   }

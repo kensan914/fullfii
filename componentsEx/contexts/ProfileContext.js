@@ -22,16 +22,17 @@ const initProfile = {
 }
 
 const ProfileReducer = (prevState, action) => {
+  let _profile;
   switch (action.type) {
     case "SET_ALL":
       /** profileをset
        * @param {Object} action [type, profile] */
 
-      const profile = Object.assign(initProfile, cvtKeyFromSnakeToCamel(action.profile));
-      asyncStoreJson("profile", profile);
+      _profile = Object.assign(initProfile, cvtKeyFromSnakeToCamel(action.profile));
+      asyncStoreJson("profile", _profile);
       return {
         ...prevState,
-        profile: profile,
+        profile: _profile,
       };
 
     case "SET_PARAMS":
@@ -43,6 +44,15 @@ const ProfileReducer = (prevState, action) => {
         profileParams: cvtKeyFromSnakeToCamel(action.profileParams),
       };
 
+    case "RESET":
+      /** リセット wsの切断
+       * @param {Object} action [type] */
+
+      return {
+        ...prevState,
+        profile: initProfile,
+        profileParams: null,
+      };
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;

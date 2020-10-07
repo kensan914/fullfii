@@ -13,6 +13,7 @@ import { TouchableOpacity } from "react-native";
 import { useAuthState } from "../contexts/AuthContext";
 import { requestCloseTalk, requestEndTalk } from "../../screensEx/Talk";
 import { useChatDispatch } from "../contexts/ChatContext";
+import { useProfileDispatch } from "../contexts/ProfileContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -35,6 +36,7 @@ export const TalkMenuButton = (props) => {
 
   const authState = useAuthState();
   const chatDispatch = useChatDispatch();
+  const profileDispatch = useProfileDispatch();
 
   return (
     <>
@@ -44,14 +46,16 @@ export const TalkMenuButton = (props) => {
           items={[
             {
               title: "トークを終了する", onPress: () => {
-                if (!talkObj.isEnd) endTalk(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, setIsShowSpinner, setCanPressBackdrop);
+                if (!talkObj.isEnd) endTalk(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop);
                 else {
                   setCanPressBackdrop(false);
-                  requestEndTalk(talkObj.roomID, authState.token, setIsOpenEndTalk, navigation, chatDispatch, setIsShowSpinner);
+                  requestEndTalk(talkObj.roomID, authState.token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
                 }
               }
             },
-            { title: "通報する", onPress: () => { } },
+            {
+              title: "通報する", onPress: () => handleReport(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop)
+            },
           ]}
           otherModal={
             <EndTalkScreen
@@ -73,7 +77,7 @@ export const TalkMenuButton = (props) => {
   );
 }
 
-export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, setIsShowSpinner, setCanPressBackdrop) => {
+export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
   setCanPressBackdrop(false);
   alertModal({
     mainText: "トークを終了しますか？",
@@ -81,8 +85,24 @@ export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispat
     cancelButton: "キャンセル",
     okButton: "終了する",
     onPress: () => {
-      setIsShowSpinner(true);
-      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, setIsShowSpinner);
+      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
+    },
+    cancelOnPress: () => {
+      setCanPressBackdrop(true);
+    }
+  });
+}
+
+const handleReport = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
+  setCanPressBackdrop(false);
+  alertModal({
+    mainText: "通報しますか？",
+    subText: "トークは終了され、あなたの端末と相手の端末から全ての会話内容が削除されます。",
+    cancelButton: "キャンセル",
+    okButton: "通報する",
+    onPress: () => {
+      setCanPressBackdrop(true);
+      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, true);
     },
     cancelOnPress: () => {
       setCanPressBackdrop(true);
@@ -130,8 +150,8 @@ export const EndTalkScreen = (props) => {
           <Text bold size={26} color="gray">トークを終了しました</Text>
         </Block>
         <Block style={styles.endTalkContents}>
-          <Text style={{ width: "55%" }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
-          <Block style={{ postion: "relative", width: width, height: width, justifyContent: "center", alignItems: "center" }}>
+          <Block style={{ postion: "relative", width: width, height: "100%", alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ width: "55%", position: "absolute", top: 0 }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
             <LottieView
               ref={animation}
               style={{
@@ -343,6 +363,7 @@ const styles = StyleSheet.create({
     width: width,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 10,
   },
   endTalkFooter: {
     flex: 0.15,
