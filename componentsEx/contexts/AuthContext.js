@@ -35,6 +35,21 @@ const authReducer = (prevState, action) => {
         status: "Unauthenticated",
         token: undefined,
       };
+
+    case "SET_TOKEN":
+      /** set token.
+       * @param {Object} action [type, token] */
+
+      console.log("gggggggg");
+      console.log(action.token);
+
+      asyncStoreItem("token", action.token);
+      return {
+        ...prevState,
+        status: "Authenticated",
+        token: action.token,
+      };
+
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;

@@ -18,6 +18,7 @@ import ProfileInputScreen from "../screensEx/ProfileInput";
 import TalkScreen from "../screensEx/Talk";
 import NotificationScreen from "../screensEx/Notification";
 import SettingsScreen from "../screensEx/Settings";
+import SettingsInputScreen from "../screensEx/SettingsInput";
 import SignUpScreen from "../screensEx/SignUp";
 import SignInScreen from "../screensEx/SignIn";
 
@@ -152,7 +153,7 @@ const HomeStack = (props) => {
       />
       <Stack.Screen
         name="SettingsInput"
-        component={SettingsScreen}
+        component={SettingsInputScreen}
         options={({ route }) => ({
           header: ({ navigation, scene }) => {
             const name = typeof route.params.screen === "undefined" ? "SettingsInput" : route.params.screen;

@@ -103,7 +103,7 @@ const Header = (props) => {
         return "共感できる悩み";
       case "InputPrivacyName":
         return "プライバシーネーム";
-      case "InputMailAdress":
+      case "InputEmail":
         return "メールアドレス";
       case "InputPassword":
         return "パスワード";

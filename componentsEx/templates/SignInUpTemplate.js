@@ -79,7 +79,7 @@ const handleOpenWithWebBrowser = () => {
   WebBrowser.openBrowserAsync(USER_POLICY_URL);
 };
 
-const BottomMessage = (props) => {
+export const BottomMessage = (props) => {
   const { message, error, style, textcenter } = props;
   return (
     <Block style={[{ alignSelf: "flex-start", width: width * 0.9 }, style]}>
@@ -88,7 +88,7 @@ const BottomMessage = (props) => {
   );
 }
 
-const EmailInput = (props) => {
+export const EmailInput = (props) => {
   const { active, setEmail, toggleActive, errorMessages } = props;
   return (
     <>
@@ -102,8 +102,8 @@ const EmailInput = (props) => {
         autoCapitalize="none"
         style={[styles.input, active.email ? styles.inputActive : null]}
         onChangeText={text => setEmail(text)}
-        onBlur={() => toggleActive("email", false)}
-        onFocus={() => toggleActive("email", true)}
+        onBlur={() => toggleActive && toggleActive("email", false)}
+        onFocus={() => toggleActive && toggleActive("email", true)}
         maxLength={225}
       />
       {Array.isArray(errorMessages.email) &&
@@ -113,8 +113,8 @@ const EmailInput = (props) => {
   );
 }
 
-const PasswordInput = (props) => {
-  const { active, setPassword, toggleActive, errorMessages } = props;
+export const PasswordInput = (props) => {
+  const { active, setPassword, toggleActive, errorMessages, placeholder } = props;
   return (
     <>
       <Input
@@ -124,12 +124,12 @@ const PasswordInput = (props) => {
         color="lightcoral"
         password
         viewPass
-        placeholder="パスワード"
+        placeholder={placeholder ? placeholder : "パスワード"}
         iconColor="#F69896"
         style={[styles.input, active.password ? styles.inputActive : null]}
         onChangeText={text => setPassword(text)}
-        onBlur={() => toggleActive("password", false)}
-        onFocus={() => toggleActive("password", true)}
+        onBlur={() => toggleActive && toggleActive("password", false)}
+        onFocus={() => toggleActive && toggleActive("password", true)}
         maxLength={30}
         textContentType={"oneTimeCode"}
       />

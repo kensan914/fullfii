@@ -17,7 +17,6 @@ const { width, height } = Dimensions.get("screen");
 const Settings = (props) => {
   const { screen } = props.route.params;
   const { navigation } = props;
-  const [value, setValue] = useState("");
   const authDispatch = useAuthDispatch();
   const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
@@ -36,7 +35,7 @@ const Settings = (props) => {
         <SettingsTitle title="アカウント" />
         <SettingsCheckBox title="異性との相談を許可" />
         <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
-        <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputMailAdress" })} />
+        <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
         <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
         <SettingsButton title="ログアウト" color="crimson" onPress={() => {
           alertModal({
@@ -59,45 +58,11 @@ const Settings = (props) => {
         <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
       </ScrollView>
     );
-  else if (screen === "InputMailAdress")
-    return (
-      <ScrollView>
-        <Block style={styles.container}>
-          <Input
-            placeholder={""}
-            rounded
-            color="black"
-            style={{ borderColor: "silver" }}
-            placeholderTextColor="gray"
-            maxLength={15}
-            value={value}
-            onChangeText={text => setValue(text)}
-          />
-          <Text color="red" style={{ paddingHorizontal: 10, paddingVertical: 3 }}>{""}</Text>
-          <Button color="#F69896" size="small" round style={styles.submitButton}>決定</Button>
-        </Block>
-      </ScrollView>
-    );
-  else if (screen === "InputPassword")
-    return (
-      <ScrollView>
-        <Block style={styles.container}>
-          <Input
-            placeholder={""}
-            rounded
-            color="black"
-            style={{ borderColor: "silver" }}
-            placeholderTextColor="gray"
-            maxLength={100}
-            value={value}
-            onChangeText={text => setValue(text)}
-          />
-          <Text color="red" style={{ paddingHorizontal: 10, paddingVertical: 3 }}>{""}</Text>
-          <Button color="#F69896" size="small" round style={styles.submitButton}>決定</Button>
-        </Block>
-      </ScrollView>
-    );
 }
+
+
+export default Settings;
+
 
 const SettingsTitle = (props) => {
   const { title } = props;
@@ -188,7 +153,6 @@ const SettingsButton = (props) => {
   );
 }
 
-export default Settings;
 
 const styles = StyleSheet.create({
   settingsCard: {
