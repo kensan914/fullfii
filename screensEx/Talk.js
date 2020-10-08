@@ -47,14 +47,12 @@ const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch,
     url: URLJoin(BASE_URL_WS, "chat/", roomID),
 
     onopen: (e, ws) => {
-      alert("websocket接続が完了しました(talk-request)");
       ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
     },
     onmessage: (e, ws, isReconnect) => {
       const data = JSON.parse(e.data);
       switch (data.type) {
         case "auth":
-          console.log("websocket認証OK(talk-request)");
           if (isReconnect) {
             chatDispatch({ type: "RECONNECT_TALK", ws: ws, roomID: roomID });
           } else {
@@ -79,7 +77,7 @@ const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch,
           break;
 
         case "error":
-          console.log(data);
+          (data);
           if (data.message) alert(data.message);
           closeWsSafely(ws);
           break;
@@ -90,7 +88,6 @@ const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch,
       handleChatMessage(data, chatState, chatDispatch, token);
     },
     onclose: (e, ws) => {
-      alert("切断されました(talk-request)");
     },
   };
 
@@ -229,7 +226,6 @@ const requestGetTalkInfo = (token, callbackSuccess) => {
  *  トークのstate, wsなど全て再開, 復元する. startupで実行 */
 export const resumeTalk = (token, chatState, chatDispatch, profileDispatch) => {
   requestGetTalkInfo(token, async res => {
-    console.log(res.data);
     const sendObjects = res.data["send_objects"];
     const inObjects = res.data["in_objects"];
     const talkingRoomIDs = res.data["talking_room_ids"];

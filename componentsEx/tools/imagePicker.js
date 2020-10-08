@@ -16,7 +16,7 @@ export const onLoad = async () => {
       return photo;
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
@@ -25,7 +25,7 @@ export const onSave = async (photo) => {
     const Photo = JSON.stringify(photo);
     await AsyncStorage.setItem(PHOTO, Photo);
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 }
 

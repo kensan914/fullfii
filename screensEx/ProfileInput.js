@@ -20,10 +20,10 @@ export const requestPatchProfile = (token, data, profileDispatch, successSubmit,
     .patch(url, data)
     .then(res => {
       profileDispatch({type: "SET_ALL", profile: res.data});
-      successSubmit();
+      successSubmit && successSubmit();
     })
     .catch(err => {
       console.log(err.response);
-      errorSubmit(err);
+      errorSubmit && errorSubmit(err);
     });
 }

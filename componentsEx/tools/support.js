@@ -1,5 +1,6 @@
 import { AsyncStorage, Alert } from "react-native";
 import { useRef, useEffect } from "react";
+import { FREE_PLAN } from "../../constantsEx/env";
 
 
 // ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo" 
@@ -118,7 +119,6 @@ export const asyncGetItem = async (key) => {
 
 export const asyncStoreJson = async (key, value) => {
   try {
-    console.log("asyncStoreJson実行");
     await AsyncStorage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.log(error);
@@ -136,7 +136,6 @@ export const asyncStoreTalkCollection = async (talkCollection) => {
 export const asyncGetJson = async (key) => {
   try {
     const json = await AsyncStorage.getItem(key);
-    console.log("asyncGetJson実行");
     if (json === null) return null;
     else return JSON.parse(json);
   } catch (error) {
@@ -259,5 +258,17 @@ export const closeWsSafely = (ws) => {
   if (ws) {
     ws.onclose = (e) => { };
     ws.close();
+  }
+}
+
+
+/**
+ * 有料Planに加入しているか判定し、加入していれば、callbackを実行。加入していなければalertTextをアラートし加入を促す。
+ */
+export const checkSubscribePlan = (profile, callback, alertText) => {
+  if (profile.plan.key !== FREE_PLAN.productId) {
+    callback();
+  } else {
+    alert(alertText);
   }
 }

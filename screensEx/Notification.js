@@ -25,15 +25,12 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
     url: URLJoin(BASE_URL_WS, "notification/"),
 
     onopen: (e, ws) => {
-      alert("websocket接続が完了しました(notification)");
       ws.send(JSON.stringify({ type: "auth", token: token }));
     },
     onmessage: (e, ws, isReconnect) => {
       const data = JSON.parse(e.data);
-      console.log(data);
 
       if (data.type === "auth") {
-        console.log("websocket認証OK(notification)");
         profileDispatch({ type: "SET_ALL", profile: data.profile });
         // get newest notifications
         ws.send(JSON.stringify({ type: "get", page: newestPage, token: token }));
@@ -55,7 +52,6 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
 
       else if (data.type === "notice") {
         if (data.notification.message) {
-          console.log(data.notification.message);
           notificationDispatch({ type: "ADD", notification: data.notification });
         }
 
@@ -81,7 +77,6 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
       }
     },
     onclose: (e, ws) => {
-      // alert("切断されました(notification)");
     },
 
     registerWs: (ws) => {

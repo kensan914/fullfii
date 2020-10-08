@@ -1,15 +1,18 @@
 import React, { useState } from "react";
-import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
-import { Block, theme, Text, Input, Button, Checkbox } from "galio-framework";
+import { StyleSheet, Dimensions, ScrollView, TouchableOpacity, Switch } from "react-native";
+import { Block, theme, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import { Hr, Icon } from "../componentsEx";
-import { useAuthDispatch } from "../componentsEx/contexts/AuthContext";
-import { alertModal } from "../componentsEx/tools/support";
+import { useAuthDispatch, useAuthState } from "../componentsEx/contexts/AuthContext";
+import { alertModal, URLJoin } from "../componentsEx/tools/support";
 import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 import { useChatDispatch } from "../componentsEx/contexts/ChatContext";
-import { USER_POLICY_URL } from "../constantsEx/env"
+import { BASE_URL, USER_POLICY_URL } from "../constantsEx/env"
 import { GOOGLE_FORM_URL } from "../constantsEx/env"
+import { useProfileDispatch, useProfileState } from "../componentsEx/contexts/ProfileContext";
+import { requestPatchProfile } from "./ProfileInput";
+import authAxios from "../componentsEx/tools/authAxios";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -20,6 +23,9 @@ const Settings = (props) => {
   const authDispatch = useAuthDispatch();
   const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
+  const profileState = useProfileState();
+  const profileDispatch = useProfileDispatch();
+  const authState = useAuthState();
 
   const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
@@ -29,11 +35,37 @@ const Settings = (props) => {
     WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
+  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(profileState.profile.canTalkHeterosexual);
+
   if (typeof screen === "undefined")
     return (
       <ScrollView>
         <SettingsTitle title="アカウント" />
-        <SettingsCheckBox title="異性との相談を許可" />
+        <SettingsSwitch title="異性との相談を許可" value={canTalkHeterosexual} onChange={(value) => {
+          setCanTalkHeterosexual(value);
+          if (profileState.profile.canTalkHeterosexual !== value) {
+            alertModal({
+              mainText: value ? "異性との相談を許可しますか？" : "異性との相談を制限しますか？",
+              subText: value ? "異性のユーザの端末にあなたが表示されるようになり、リクエストが届く可能性があります。" : "異性のユーザの端末にあなたが表示されることはなくなります。",
+              cancelButton: "キャンセル",
+              okButton: value ? "許可する" : "制限する",
+              onPress: () => {
+                // request patch canTalkHeterosexual
+                requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, () => {
+                  setCanTalkHeterosexual(value);
+                }, () => {
+                  alertModal("変更に失敗しました。");
+                  setCanTalkHeterosexual(!value);
+                })
+              },
+              cancelOnPress: () => {
+                setCanTalkHeterosexual(!value);
+              },
+            });
+          } else {
+
+          }
+        }} />
         <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
         <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
         <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
@@ -48,7 +80,25 @@ const Settings = (props) => {
             },
           });
         }} />
-        <SettingsButton title="アカウントを削除" color="silver" onPress={() => { }} />
+        <SettingsButton title="アカウントを削除" color="silver" onPress={() => {
+          alertModal({
+            mainText: "アカウントを削除します。",
+            subText: "本当によろしいですか？",
+            cancelButton: "キャンセル",
+            okButton: "削除する",
+            onPress: () => {
+              alertModal({
+                mainText: "削除後、アカウントを復元することはできません。",
+                subText: "本当によろしいですか？",
+                cancelButton: "キャンセル",
+                okButton: "削除する",
+                onPress: () => {
+                  requestDeleteAccount(authState.token, notificationDispatch, chatDispatch, authDispatch);
+                },
+              });
+            },
+          });
+        }} />
 
         <SettingsTitle title="Fullfiiについて" />
         <SettingsLabel title="バージョン" content="1.0.0" />
@@ -116,8 +166,8 @@ const SettingsLabel = (props) => {
   );
 }
 
-const SettingsCheckBox = (props) => {
-  const { title } = props;
+const SettingsSwitch = (props) => {
+  const { title, onChange, value } = props;
   return (
     <>
       <Block flex row space="between" style={styles.settingsCard}>
@@ -125,14 +175,13 @@ const SettingsCheckBox = (props) => {
           <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
         </Block>
         <Block style={{ alignItems: "center", justifyContent: "center" }} >
-          <Checkbox
-            color="#F69896"
+          <Switch
+            trackColor={{ false: "dimgray", true: "#F69896" }}
+            ios_backgroundColor={"gray"}
+            // initialValue={value}
+            value={value}
             style={{ marginVertical: 8, marginHorizontal: 15, }}
-            labelStyle={{ color: "#F69896" }}
-            label=""
-            onChange={(value) => {
-
-            }}
+            onValueChange={onChange}
           />
         </Block>
       </Block>
@@ -151,6 +200,20 @@ const SettingsButton = (props) => {
       <Hr h={1} color="whitesmoke" />
     </TouchableOpacity>
   );
+}
+
+
+const requestDeleteAccount = (token, notificationDispatch, chatDispatch, authDispatch) => {
+  const url = URLJoin(BASE_URL, "me/");
+
+  authAxios(token)
+    .delete(url)
+    .then(res => {
+      authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch });
+    })
+    .catch(err => {
+      console.log(err);
+    });
 }
 
 

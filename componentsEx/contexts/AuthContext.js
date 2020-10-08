@@ -4,14 +4,17 @@ import { asyncStoreItem, asyncRemoveAll } from "../tools/support";
 
 const authReducer = (prevState, action) => {
   switch (action.type) {
-    case "START_SIGNIN":
-      /** signin開始
-       * @param {Object} action [type] */
+    case "WHILE_SIGNIN":
+      /** signin未完状態. signup⇒signinが完了し、plan選択に入る際に実行.
+       * @param {Object} action [type, token] */
 
+      asyncStoreItem("token", action.token);
       return {
         ...prevState,
         status: "Loading",
+        token: action.token,
       };
+
     case "COMPLETE_SIGNIN":
       /** state関連の初期化 signin時に実行
        * @param {Object} action [type, token, startUpLogind] */
@@ -23,6 +26,7 @@ const authReducer = (prevState, action) => {
         status: "Authenticated",
         token: action.token,
       };
+
     case "COMPLETE_LOGOUT":
       /** state関連の削除処理 logout時に実行
        * @param {Object} action [type, notificationDispatch, chatDispatch] */
@@ -39,9 +43,6 @@ const authReducer = (prevState, action) => {
     case "SET_TOKEN":
       /** set token.
        * @param {Object} action [type, token] */
-
-      console.log("gggggggg");
-      console.log(action.token);
 
       asyncStoreItem("token", action.token);
       return {

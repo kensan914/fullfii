@@ -87,13 +87,10 @@ const RootNavigator = () => {
   const [notifications, setNotifications] = useState();
 
   useEffect(() => {
-    console.log("remove プロフィール")
-    asyncRemoveItem("profile"); // TODO
-    // asyncRemoveItem("token"); // TODO
+    asyncRemoveItem("profile");
 
     const fetchData = async () => {
       const _token = await asyncGetItem("token");
-      console.log(_token);
       setToken(_token ? _token : null);
       const _profile = await asyncGetJson("profile");
       setProfile(_profile ? _profile : null);

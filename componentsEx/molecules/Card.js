@@ -47,7 +47,7 @@ const Card = (props) => {
               <Block style={{ height: titleSize + contentSize + 17 }}>
                 <Text size={titleSize} style={styles.title} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
                 <Block row style={{ marginBottom: 7 }} >
-                  <Text size={contentSize} style={[{ marginRight: 10 }, styles.textPale]} >{item.age}歳</Text>
+                  <Text size={contentSize} style={[{ marginRight: 10 }, styles.textPale]} >{item.gender.label}{"・"}{item.age}歳</Text>
                   <Block style={{ justifyContent: "center" }}>
                     <Ionicons name="ios-heart" size={contentSize} color="#F69896" />
                   </Block>

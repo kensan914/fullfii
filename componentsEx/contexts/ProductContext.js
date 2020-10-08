@@ -104,9 +104,6 @@ export const ProductProvider = ({ children, token }) => {
         // まだ保留中の購入がある場合 (保留中の購入を消費することはできません) いずれにしても、エラーで特別なことをする必要はないかもしれません。
       }).then(() => {
         purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-          console.log("oooooooooooooooo");
-          console.log(purchase);
-
           // TODO Debug時、失敗したpurchaseが溜まるのでリセット
           // await RNIap.finishTransaction(purchase);
 
@@ -183,8 +180,6 @@ const requestGetProducts = async (productDispatch) => {
     });
     const _products = await RNIap.getProducts(productIDs);
     productDispatch({ type: "SET_PRODUCTS", products: _products });
-    console.log("xxxxxxx");
-    console.log(_products);
   } catch (err) {
     console.warn(err); // standardized err.code and err.message available
   }

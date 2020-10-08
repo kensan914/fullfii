@@ -39,7 +39,6 @@ const requestPatchAuth = (token, data, profileDispatch, authDispatch, errorMessa
       console.log(err.response);
       if (err.response.status === 400) {
         const newErrorMessages = Object.assign(errorMessagesInit, err.response.data);
-        console.log(errorMessagesInit);
         setErrorMessages(Object.assign({}, newErrorMessages));
       }
     })
@@ -47,28 +46,3 @@ const requestPatchAuth = (token, data, profileDispatch, authDispatch, errorMessa
       setIsLoading(false);
     });
 }
-
-// const requestPatchPassword = (token, prevPassword, password, profileDispatch, errorMessagesInit, setErrorMessages, setIsLoading, navigation) => {
-//   setIsLoading(true);
-//   const url = URLJoin(BASE_URL, "me/password");
-
-//   authAxios(token)
-//     .patch(url, {
-//       prev_password: prevPassword,
-//       password: password,
-//     })
-//     .then(res => {
-//       profileDispatch({ type: "SET_ALL", profile: res.data });
-//     })
-//     .catch(err => {
-//       console.log(err.response);
-//       if (err.response.status === 400) {
-//         const newErrorMessages = Object.assign(errorMessagesInit, err.response.data);
-//         setErrorMessages(Object.assign({}, newErrorMessages));
-//       }
-//     })
-//     .finally(() => {
-//       setIsLoading(false);
-//     });
-// }
-

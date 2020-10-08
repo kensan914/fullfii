@@ -4,10 +4,10 @@ import { Block, Text } from 'galio-framework';
 
 import Hr from '../../componentsEx/atoms/Hr';
 import Avatar from '../../componentsEx/atoms/Avatar';
-import { cvtListDate, cvtBadgeCount, alertModal } from '../tools/support';
+import { cvtListDate, cvtBadgeCount, alertModal, checkSubscribePlan } from '../tools/support';
 import { useAuthState } from '../contexts/AuthContext';
 import { useChatDispatch, useChatState } from '../contexts/ChatContext';
-import { useProfileDispatch } from '../contexts/ProfileContext';
+import { useProfileDispatch, useProfileState } from '../contexts/ProfileContext';
 
 
 const { width, height } = Dimensions.get('screen');
@@ -53,7 +53,6 @@ const TalkList = (props) => {
   const { talkCollection, navigation } = props;
   const talkList = Object.values(talkCollection)
     .sort((a, b) => {
-      console.log(a);
       const timeA = a.messages[a.messages.length - 1].time;
       const timeB = b.messages[b.messages.length - 1].time;
       if (timeA > timeB) return -1;
@@ -111,6 +110,7 @@ const SendInList = (props) => {
   const chatState = useChatState();
   const chatDispatch = useChatDispatch();
   const profileDispatch = useProfileDispatch();
+  const profileState = useProfileState();
 
   const list = Object.values(collection)
     .sort((a, b) => {
@@ -128,7 +128,9 @@ const SendInList = (props) => {
         subText: "トーク開始から24時間後に自動で会話内容は削除されます。",
         cancelButton: "キャンセル",
         okButton: "開始する",
-        onPress: () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch),
+        onPress: () => {
+          checkSubscribePlan(profileState.profile, () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
+        },
       });
     } else if (requestCancelTalk) {
       alertModal({

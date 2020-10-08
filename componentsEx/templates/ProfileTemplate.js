@@ -10,6 +10,7 @@ import { ConsultantProfile, profileImageHeight, profileContentBR, sendTalkReques
 import { useProfileState } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
+import { checkSubscribePlan } from "../tools/support";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -54,7 +55,7 @@ const ProfileTemplate = (props) => {
 
                 <Block row style={{ justifyContent: "space-between" }}>
                   <Block row style={{ marginBottom: 7 }} >
-                    <Text size={15} style={{ marginRight: 10 }} color="white" >{user.age}歳</Text>
+                    <Text size={15} style={{ marginRight: 10 }} color="white" >{user.gender.label}{"  "}{user.age}歳</Text>
                     {user.status &&
                       <>
                         <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
@@ -102,7 +103,9 @@ const ProfileTemplate = (props) => {
             <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
           </Button> :
           (!chatState.includedUserIDs.includes(user.id) &&
-            <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => sendTalkRequest(user, navigation, authState.token, chatDispatch)}>リクエストを送る</Button>)
+            <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
+              checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
+            }}>リクエストを送る</Button>)
       }
     </Block >
   );

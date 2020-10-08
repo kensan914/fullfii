@@ -1,11 +1,16 @@
 import React, { useRef, useState } from "react";
 import { Dimensions, StyleSheet, KeyboardAvoidingView, Platform, Keyboard, ScrollView } from "react-native";
-import { Block, Button, Input, Text, theme, Checkbox, Icon } from "galio-framework";
+import { Block, Button, Input, Text, theme, Checkbox } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderHeight } from "../../constantsEx/utils";
 import BirthdayPicker from "../atoms/BirthdayPicker";
 import { TouchableWithoutFeedback } from "react-native";
+import { useAuthState } from "../contexts/AuthContext";
+import { startUpLogind } from "../../screensEx/Manager";
+import { requestSubscription, requestPurchase, getPurchases } from "../../screensEx/Plan";
+import { PlanTemplateContent } from "./PlanTemplate";
+import { FREE_PLAN } from "../../constantsEx/env";
 
 
 const { height, width } = Dimensions.get("window");
@@ -34,6 +39,7 @@ const SignUpTemplate = (props) => {
     username: "",
     email: "",
     password: "",
+    gender: "",
     birthday: "",
     error: "", // common error message
   };
@@ -41,11 +47,10 @@ const SignUpTemplate = (props) => {
 
   const submitButtonParams = getSubmitButtonParams(username && email && password && birthday && isAgreedUserpolicy && gender);
   const submitSignUp = () => {
-    requestSignUp(username, email, password, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
+    requestSignUp(username, email, password, gender, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage);
   }
 
   const [currentPage, setCurrentPage] = useState(1);
-  const maxPage = 1; // 
   const scrollView = useRef(null);
 
   const goNextPage = () => {
@@ -53,17 +58,9 @@ const SignUpTemplate = (props) => {
     setCurrentPage(currentPage - 1);
   }
 
-  const pushNext = () => {
-    goNextPage();
-  }
-
-  const goPrevPage = () => {
-    scrollView.current.scrollTo({ y: 0, x: width * currentPage, animated: true });
-    setCurrentPage(currentPage + 1);
-  }
-
-  const pushBack = () => {
-    goPrevPage();
+  const authState = useAuthState();
+  const handleSelectedPlan = () => {
+    dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: authState.token, startUpLogind: () => startUpLogind(authState.token, dispatches, chatState) });
   }
 
   const FirstPage = () => {
@@ -120,6 +117,9 @@ const SignUpTemplate = (props) => {
               <GenderRadioButton label="女性" genderKey="FEMALE" gender={gender} setGender={setGender} genderEnum={genderEnum} />
               <GenderRadioButton label="男性" genderKey="MALE" gender={gender} setGender={setGender} genderEnum={genderEnum} />
             </Block>
+            {Array.isArray(errorMessages.gender) &&
+              errorMessages.gender.map((message, index) => <BottomMessage message={message} error key={index} />)
+            }
 
             <Block style={{ marginTop: 10, flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
               <Checkbox
@@ -142,10 +142,10 @@ const SignUpTemplate = (props) => {
                 round
                 style={{ height: 48, shadowColor: submitButtonParams.buttonColor }}
                 color={submitButtonParams.buttonColor}
-                disabled={!submitButtonParams.canSubmit}
-                onPress={pushNext}
-                loading={isLoading}
-              >
+                disabled={!submitButtonParams.canSubmit || isLoading}
+                onPress={submitSignUp}
+                loading={isLoading}>
+
                 <Text color={submitButtonParams.buttonTextColor} size={16} bold>次に進む</Text>
               </Button>
 
@@ -161,66 +161,7 @@ const SignUpTemplate = (props) => {
     return (
       <Block flex middle style={styles.signupContainer}>
         <KeyboardAvoidingView behavior="padding" enabled>
-          <Block style={{ alignItems: "flex-start" }}>
-            <Icon family="font-awesome" name="chevron-left" size={15} color="silver" onPress={pushBack} />
-          </Block>
-          <Block flex={0.1} style={{ alignItems: "center" }}>
-            <Text size={26} bold color="#F69896">プランの選択</Text>
-          </Block>
-          <Block flex={0.7} center space="between">
-
-            <Block flex style={{ marginTop: 20 }}>
-              {Array.isArray(errorMessages.error) &&
-                errorMessages.error.map((message, index) => <BottomMessage style={{ marginBottom: 10, }} textcenter message={message} error key={index} />)
-              }
-
-              <Button
-                style={{ height: 80, shadowColor: "lightcoral", borderRadius: 20 }}
-                color="lightcoral"
-                onPress={submitSignUp}
-              >
-                <Text color="white" size={20} bold>2週間無料お試し</Text>
-              </Button>
-              <Block style={{ padding: 10, paddingBottom: 20 }}>
-                <Text color="silver" size={12} bold center>お試し期間終了後自動でノーマルに更新されます。</Text>
-                <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
-              </Block>
-
-              <Button
-                style={{ height: 80, shadowColor: "lightcoral", borderRadius: 20 }}
-                color="lightcoral"
-                onPress={submitSignUp}
-              >
-                <Text color="white" size={20} bold>ノーマル</Text>
-                <Text color="white" size={16} bold>￥500 / 月</Text>
-              </Button>
-              <Block style={{ padding: 10, paddingBottom: 20 }}>
-                <Text color="silver" size={12} bold center>キャンセルしない限り、プランは毎月自動更新されます。</Text>
-              </Block>
-              <Button
-                style={{ height: 80, shadowColor: "lightcoral", borderRadius: 20 }}
-                color="lightcoral"
-                onPress={submitSignUp}
-              >
-                <Text color="white" size={20} bold>1month</Text>
-                <Text color="white" size={16} bold>￥700　一ヶ月のみ</Text>
-              </Button>
-              <Block style={{ padding: 10, paddingBottom: 20 }}>
-                <Text color="silver" size={12} bold center>一ヶ月のみのプランです。</Text>
-              </Block>
-
-              <Block style={{ padding: 10 }}>
-                <Text color="lightcoral" size={12} bold center>購入を復元する</Text>
-              </Block>
-              <Block style={{ padding: 10, flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-                <Text color="#F69896" size={12} bold center onPress={handleOpenWithWebBrowser} >利用規約</Text>
-                <Text color="silver" size={12} bold center >と</Text>
-                <Text color="#F69896" size={12} bold center onPress={handleOpenWithWebBrowser}>プライバシーポリシー</Text>
-              </Block>
-
-              <ToSignInButton navigation={navigation} />
-            </Block>
-          </Block>
+          <PlanTemplateContent requestSubscription={requestSubscription} requestPurchase={requestPurchase} getPurchases={getPurchases} handleSelectedPlan={handleSelectedPlan} />
         </KeyboardAvoidingView>
       </Block>
     );

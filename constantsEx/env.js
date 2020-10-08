@@ -1,9 +1,9 @@
-const BASE_HOST = "192.168.11.9:8080";
-const URL_SCHEME_HTTP = "http";
-const WS_SCHEME_HTTP = "ws";
-// const BASE_HOST = "fullfii.com";
-// const URL_SCHEME_HTTP = "https";
-// const WS_SCHEME_HTTP = "wss";
+const DEBUG = true;
+// const DEBUG = false;
+
+const BASE_HOST = DEBUG ? "192.168.11.9:8080" : "fullfii.com";
+const URL_SCHEME_HTTP = DEBUG ? "http" : "https";
+const WS_SCHEME_HTTP = DEBUG ? "ws" : "wss";
 
 export const BASE_URL = `${URL_SCHEME_HTTP}://${BASE_HOST}/api/v1/`;
 export const BASE_URL_WS = `${WS_SCHEME_HTTP}://${BASE_HOST}/ws/`;

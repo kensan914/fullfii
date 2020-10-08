@@ -244,7 +244,6 @@ export const ClientProfileEditor = (props) => {
     if (result) {
       onLoad();
       pickImage().then((image) => {
-        console.log(image);
       });
     }
   }

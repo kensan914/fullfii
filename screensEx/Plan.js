@@ -18,7 +18,7 @@ const Plan = () => {
   const plan = useProfileState().profile.plan.key;
 
   if (productState.products) {
-    return <PlanTemplate products={productState.products} requestSubscription={requestSubscription} plan={plan} requestPurchase={requestPurchase}
+    return <PlanTemplate products={productState.products} requestSubscription={requestSubscription} plan={plan}
       getPurchases={getPurchases} />;
   } else {
     return (
@@ -31,32 +31,20 @@ const Plan = () => {
 
 export default Plan;
 
-const requestPurchase = async (productID, productDispatch) => {
-  try {
-    productDispatch({ type: "START_PURCHASE" });
-    await RNIap.requestPurchase(productID, false);
-    alert("こうにゅう！2");
-  } catch (err) {
-    console.warn(err.code, err.message);
-  }
-}
-
-const requestSubscription = async (productID, productDispatch) => {
+const requestSubscription = async (productID, productDispatch, handleSelectedPlan) => {
   try {
     productDispatch({ type: "START_PURCHASE" });
     await RNIap.requestSubscription(productID);
-    alert("こうにゅう！");
+    handleSelectedPlan && handleSelectedPlan();
   } catch (err) {
     console.warn(err.code, err.message);
   }
 }
 
-const getPurchases = async (token, productDispatch, profileDispatch) => {
+const getPurchases = async (token, productDispatch, profileDispatch, handleSelectedPlan) => {
   try {
     productDispatch({ type: "START_PURCHASE" });
     const purchases = await RNIap.getAvailablePurchases();
-    console.log("iiiiiiiiiiiiii");
-    console.log(purchases);
 
     let _purchase;
     purchases.forEach(purchase => {
@@ -73,6 +61,7 @@ const getPurchases = async (token, productDispatch, profileDispatch) => {
       .then(res => {
         productDispatch({ type: "SET_WILL_ALERT", text: "復元完了" });
         productDispatch({ type: "SUCCESS_RESTORE", profile: res.data["profile"], profileDispatch: profileDispatch });
+        handleSelectedPlan && handleSelectedPlan();
       })
       .catch(err => {
         if (err.response.status === 404 || err.response.status === 409) {

@@ -104,7 +104,6 @@ const chatReducer = (prevState, action) => {
         };
       } else {
         // WSの重複を防ぐ
-        alert("wsの重複を防ぎました");
         closeWsSafely(action.ws);
         return { ...prevState };
       }
@@ -144,7 +143,6 @@ const chatReducer = (prevState, action) => {
         };
       } else {
         // WSの重複を防ぐ
-        alert("wsの重複を防ぎました");
         closeWsSafely(action.ws);
         return { ...prevState };
       }
