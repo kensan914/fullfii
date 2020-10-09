@@ -31,7 +31,7 @@ const Plan = () => {
 
 export default Plan;
 
-const requestSubscription = async (productID, productDispatch, handleSelectedPlan) => {
+export const requestSubscription = async (productID, productDispatch, handleSelectedPlan) => {
   try {
     productDispatch({ type: "START_PURCHASE" });
     await RNIap.requestSubscription(productID);

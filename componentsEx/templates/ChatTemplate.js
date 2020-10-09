@@ -119,17 +119,7 @@ const ChatTemplate = (props) => {
   const messageForm = () => {
     return (
       <View style={[styles.messageFormContainer, { height: inputHeight + theme.SIZES.BASE * 4.6 }]}>
-        <Block flex row middle space="between" style={{ alignItems: "flex-end" }} >
-          <Button
-            round
-            shadowless
-            radius={28}
-            opacity={0.9}
-            style={styles.iconButton}
-            color={materialTheme.COLORS.BUTTON_COLOR}
-            onPress={() => { if (!isEnd) { } }}>
-            <Icon size={20} name="phone" family="font-awesome" color={theme.COLORS.MUTED} />
-          </Button>
+        <Block flex row middle space="evenly" style={{ alignItems: "flex-end", paddingLeft: 15 }} >
           <Input
             borderless
             color="#9fa5aa"
@@ -183,13 +173,12 @@ const styles = StyleSheet.create({
   },
   messageFormContainer: {
     maxHeight: theme.SIZES.BASE * 12 + 10,
-    // paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 40,
     backgroundColor: "lavenderblush",
   },
   input: {
-    width: width * 0.7,
+    width: width * 0.8,
     maxHeight: theme.SIZES.BASE * 9,
     minHeight: theme.SIZES.BASE * 2.2,
     borderRadius: theme.SIZES.BASE * 1.1,

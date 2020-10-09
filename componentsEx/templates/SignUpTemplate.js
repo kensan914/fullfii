@@ -10,7 +10,6 @@ import { useAuthState } from "../contexts/AuthContext";
 import { startUpLogind } from "../../screensEx/Manager";
 import { requestSubscription, requestPurchase, getPurchases } from "../../screensEx/Plan";
 import { PlanTemplateContent } from "./PlanTemplate";
-import { FREE_PLAN } from "../../constantsEx/env";
 
 
 const { height, width } = Dimensions.get("window");

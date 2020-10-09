@@ -31,10 +31,6 @@ const PlanTemplate = (props) => {
           <PlanTemplateContent {...props} />
         </Block>
       </LinearGradient>
-
-      <Spinner
-        visible={productState.isProcessing}
-      />
     </ScrollView>
   );
 }
@@ -114,6 +110,10 @@ export const PlanTemplateContent = (props) => {
           <Text color="#F69896" size={12} bold center onPress={handleOpenWithWebBrowser}>プライバシーポリシー</Text>
         </Block>
       </Block>
+
+      <Spinner
+        visible={productState.isProcessing}
+      />
     </Block>
   );
 }
