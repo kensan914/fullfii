@@ -94,9 +94,12 @@ const NotificationReducer = (prevState, action) => {
       }
 
     case "SET_WS":
-      /** set ws
+      /** set ws。 もしwsにすでにwsオブジェクトがあれば, closeし上書きする。 
        * @param {Object} action [type, ws] */
 
+      if (prevState.ws !== null) {
+        closeWsSafely(prevState.ws);
+      }
       return {
         ...prevState,
         ws: action.ws,

@@ -19,7 +19,7 @@ export default SignUp;
 const requestSignUp = (username, email, password, gender, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage) => {
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "signup/");
-  
+
   axios
     .post(url, {
       username: username,

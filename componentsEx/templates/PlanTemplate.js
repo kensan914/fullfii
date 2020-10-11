@@ -9,14 +9,14 @@ import { FREE_PLAN, USER_POLICY_URL } from "../../constantsEx/env";
 import { HeaderHeight } from "../../constantsEx/utils";
 import { useProductDispatch, useProductState } from "../contexts/ProductContext";
 import { useProfileDispatch } from "../contexts/ProfileContext";
-import { useAuthState } from "../contexts/AuthContext";
+import { useAuthDispatch, useAuthState } from "../contexts/AuthContext";
+import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 
 
 const { width, height } = Dimensions.get("screen");
 
 const PlanTemplate = (props) => {
-  const productState = useProductState();
-
   return (
     <ScrollView bounces={false}>
 
@@ -42,9 +42,15 @@ export const PlanTemplateContent = (props) => {
   const { requestSubscription, getPurchases, plan, handleSelectedPlan } = props;
 
   const productState = useProductState();
+  const dispatches = {
+    authDispatch: useAuthDispatch(),
+    profileDispatch: useProfileDispatch(),
+    notificationDispatch: useNotificationDispatch(),
+    chatDispatch: useChatDispatch(),
+  }
   const productDispatch = useProductDispatch();
-  const profileDispatch = useProfileDispatch();
   const token = useAuthState().token;
+  const chatState = useChatState();
 
   const handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
@@ -99,8 +105,9 @@ export const PlanTemplateContent = (props) => {
       <Block flex={0.2}>
         <Block style={{ padding: 10 }}>
           <Text color="lightcoral" size={12} bold center onPress={() => {
-            if (plan === FREE_PLAN.productId) {
-              getPurchases(token, productDispatch, profileDispatch, handleSelectedPlan);
+            // typeof plan === "undefined"は、サインアップ時の対処
+            if (plan === FREE_PLAN.productId || typeof plan === "undefined") {
+              getPurchases(token, dispatches, productDispatch, chatState, handleSelectedPlan);
             } else alert("すでに購入したプランが適用されています。");
           }}>購入を復元する</Text>
         </Block>

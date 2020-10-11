@@ -8,7 +8,7 @@ import BirthdayPicker from "../atoms/BirthdayPicker";
 import { TouchableWithoutFeedback } from "react-native";
 import { useAuthState } from "../contexts/AuthContext";
 import { startUpLogind } from "../../screensEx/Manager";
-import { requestSubscription, requestPurchase, getPurchases } from "../../screensEx/Plan";
+import { requestSubscription, getPurchases } from "../../screensEx/Plan";
 import { PlanTemplateContent } from "./PlanTemplate";
 
 
@@ -160,7 +160,7 @@ const SignUpTemplate = (props) => {
     return (
       <Block flex middle style={styles.signupContainer}>
         <KeyboardAvoidingView behavior="padding" enabled>
-          <PlanTemplateContent requestSubscription={requestSubscription} requestPurchase={requestPurchase} getPurchases={getPurchases} handleSelectedPlan={handleSelectedPlan} />
+          <PlanTemplateContent requestSubscription={requestSubscription} getPurchases={getPurchases} handleSelectedPlan={handleSelectedPlan} />
         </KeyboardAvoidingView>
       </Block>
     );

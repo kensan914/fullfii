@@ -9,6 +9,7 @@ import { useProfileState } from "../componentsEx/contexts/ProfileContext";
 import { BASE_URL, PRODUCT_ID_LIST } from "../constantsEx/env";
 import { URLJoin } from "../componentsEx/tools/support";
 import authAxios from "../componentsEx/tools/authAxios";
+import { startUpLogind } from "./Manager";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -35,13 +36,13 @@ export const requestSubscription = async (productID, productDispatch, handleSele
   try {
     productDispatch({ type: "START_PURCHASE" });
     await RNIap.requestSubscription(productID);
-    handleSelectedPlan && handleSelectedPlan();
+    // handleSelectedPlan && handleSelectedPlan();
   } catch (err) {
     console.warn(err.code, err.message);
   }
 }
 
-const getPurchases = async (token, productDispatch, profileDispatch, handleSelectedPlan) => {
+export const getPurchases = async (token, dispatches, productDispatch, chatState, handleSelectedPlan) => {
   try {
     productDispatch({ type: "START_PURCHASE" });
     const purchases = await RNIap.getAvailablePurchases();
@@ -60,7 +61,10 @@ const getPurchases = async (token, productDispatch, profileDispatch, handleSelec
       })
       .then(res => {
         productDispatch({ type: "SET_WILL_ALERT", text: "復元完了" });
-        productDispatch({ type: "SUCCESS_RESTORE", profile: res.data["profile"], profileDispatch: profileDispatch });
+        productDispatch({
+          type: "SUCCESS_RESTORE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: token,
+          authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(token, dispatches, chatState),
+        });
         handleSelectedPlan && handleSelectedPlan();
       })
       .catch(err => {
