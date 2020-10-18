@@ -10,6 +10,7 @@ import Avatar from "../atoms/Avatar";
 import { useChatDispatch } from "../contexts/ChatContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
 import { useAuthState } from "../contexts/AuthContext";
+import { ProfileMenuButton } from "./ProfileMenuButton";
 
 
 const { height, width } = Dimensions.get("window");
@@ -38,12 +39,16 @@ const Header = (props) => {
       <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
     );
     switch (name) {
+      case "Profile":
+        if (scene.route.params && scene.route.params.item) {
+          if (!scene.route.params.item.me) return (
+            <ProfileMenuButton key="ProfileMenuButton" navigation={navigation} user={scene.route.params.item} />
+          );
+        }
       case "Home":
       case "Talk":
       case "Notification":
-      case "Profile":
         return (
-          // <ChatButton key="chat-search" navigation={navigation} isWhite={white} />,
           <ProPlanButton key="Plan" navigation={navigation} isWhite={white} />
         );
       default:

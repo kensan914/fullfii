@@ -5,7 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { withNavigation } from "@react-navigation/compat";
 
 import { HeaderHeight } from "../../constantsEx/utils";
-import { Icon, Hr } from "../../componentsEx";
+import Icon  from "../../componentsEx/atoms/Icon";
+import Hr from "../../componentsEx/atoms/Hr";
 import { ConsultantProfile, profileImageHeight, profileContentBR, sendTalkRequest } from "../organisms/Profile";
 import { useProfileState } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
@@ -173,5 +174,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     alignSelf: "center",
     bottom: theme.SIZES.BASE * 2,
-  }
+  },
 });

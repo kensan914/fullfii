@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Dimensions, FlatList, ActivityIndicator } from "react-native";
 import { Block, theme } from "galio-framework";
-import { ConsultantCard } from "../../componentsEx";
+import ConsultantCard from "../molecules/Card";
 
 const { width, height } = Dimensions.get("screen");
 

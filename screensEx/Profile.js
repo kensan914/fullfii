@@ -1,4 +1,5 @@
 import React from "react";
+import Toast from "react-native-toast-message";
 
 import ProfileTemplate from "../componentsEx/templates/ProfileTemplate";
 import authAxios from "../componentsEx/tools/authAxios";
@@ -28,7 +29,7 @@ export const requestGetProfile = (token, profileDispatch) => {
 
 export const requestGetProfileParams = (token, profileDispatch) => {
   const url = URLJoin(BASE_URL, "profile-params/");
-  
+
   authAxios(token)
     .get(url)
     .then(res => {
@@ -36,5 +37,31 @@ export const requestGetProfileParams = (token, profileDispatch) => {
     })
     .catch(err => {
       console.log(err.response);
+    });
+}
+
+export const requestPatchBlock = (token, user, setIsShowSpinner) => {
+  setIsShowSpinner(true);
+
+  const url = URLJoin(BASE_URL, "users/", user.id, "block/");
+
+  authAxios(token)
+    .patch(url)
+    .then(res => {
+      Toast.show({
+        text1: `${user.name}さんをブロックしました。`,
+      });
+    })
+    .catch(err => {
+      if (err.response.data.type === "have_already_blocked") {
+        Toast.show({
+          type: "error",
+          text1: err.response.data.message,
+        });
+      }
+      console.log(err.response);
+    })
+    .finally(() => {
+      setIsShowSpinner(false);
     });
 }

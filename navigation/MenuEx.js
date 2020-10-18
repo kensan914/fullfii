@@ -3,14 +3,11 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   StyleSheet,
-  Dimensions,
-  Image,
 } from "react-native";
 import { Block, Text, theme } from "galio-framework";
 import { useSafeArea } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { Drawer as DrawerCustomItem, Hr, Icon } from "../componentsEx";
+import DrawerCustomItem from "../componentsEx/organisms//Drawer";
 import { LinearGradient } from "expo-linear-gradient";
 import Avatar from "../componentsEx/atoms/Avatar";
 

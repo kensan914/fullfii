@@ -1,13 +1,13 @@
-import React from 'react';
-import { StyleSheet, Dimensions, FlatList, TouchableOpacity } from 'react-native';
-import { Block, Text } from 'galio-framework';
+import React from "react";
+import { StyleSheet, Dimensions, FlatList, TouchableOpacity } from "react-native";
+import { Block, Text } from "galio-framework";
 
-import { Hr } from '../../componentsEx';
-import Avatar from '../../componentsEx/atoms/Avatar';
-import { cvtListDate } from '../../componentsEx/tools/support';
+import Hr from "../../componentsEx/atoms/Hr";
+import Avatar from "../../componentsEx/atoms/Avatar";
+import { cvtListDate } from "../../componentsEx/tools/support";
 
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get("screen");
 
 const NotificationTemplate = (props) => {
   const { navigation, notifications } = props;

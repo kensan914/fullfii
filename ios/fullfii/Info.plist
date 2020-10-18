@@ -56,7 +56,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Give fullfii periences permission to save photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give fullfii periences permission to access your photos</string>
+	<string>アカウント画像をアップロードするために写真を使用します</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>Allow fullfii to access your reminders</string>
 	<key>UIAppFonts</key>

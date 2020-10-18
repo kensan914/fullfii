@@ -3,13 +3,13 @@ import { StyleSheet, Dimensions, ScrollView, TouchableOpacity, Switch } from "re
 import { Block, theme, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
-import { Hr, Icon } from "../componentsEx";
+import Icon from "../componentsEx/atoms/Icon";
+import Hr from "../componentsEx/atoms/Hr";
 import { useAuthDispatch, useAuthState } from "../componentsEx/contexts/AuthContext";
 import { alertModal, URLJoin } from "../componentsEx/tools/support";
 import { useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
 import { useChatDispatch } from "../componentsEx/contexts/ChatContext";
-import { BASE_URL, USER_POLICY_URL } from "../constantsEx/env"
-import { GOOGLE_FORM_URL } from "../constantsEx/env"
+import { BASE_URL, USER_POLICY_URL, VERSION, GOOGLE_FORM_URL } from "../constantsEx/env"
 import { useProfileDispatch, useProfileState } from "../componentsEx/contexts/ProfileContext";
 import { requestPatchProfile } from "./ProfileInput";
 import authAxios from "../componentsEx/tools/authAxios";
@@ -101,7 +101,7 @@ const Settings = (props) => {
         }} />
 
         <SettingsTitle title="Fullfiiについて" />
-        <SettingsLabel title="バージョン" content="1.0.0" />
+        <SettingsLabel title="バージョン" content={VERSION} />
         <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
         <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowser} />
         <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
