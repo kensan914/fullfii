@@ -21,32 +21,39 @@ const SignUpTemplate = (props) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [birthday, setBirthday] = useState();
+  const [passwordAgain, setPasswordAgain] = useState("");
+
+  // const [birthday, setBirthday] = useState();
   const [isAgreedUserpolicy, setIsAgreedUserpolicy] = useState(false);
 
-  const genderEnum = { "MALE": "male", "FEMALE": "female" };
-  const [gender, setGender] = useState("");
+  // const genderEnum = { "MALE": "male", "FEMALE": "female" };
+  // const [gender, setGender] = useState("");
 
-  const [isOpenBirthdayPicker, setIsOpenBirthdayPicker] = useState(false);
-  const toggleIsOpenBirthdayPicker = (value) => {
-    Keyboard.dismiss();
-    initActive();
-    setIsOpenBirthdayPicker(value);
-  }
+  // const [isOpenBirthdayPicker, setIsOpenBirthdayPicker] = useState(false);
+  // const toggleIsOpenBirthdayPicker = (value) => {
+  //   Keyboard.dismiss();
+  //   initActive();
+  //   setIsOpenBirthdayPicker(value);
+  // }
 
   const errorMessagesInit = {
     username: "",
     email: "",
     password: "",
-    gender: "",
-    birthday: "",
+    passwordAgain: "",
+    // gender: "",
+    // birthday: "",
     error: "", // common error message
   };
   const [errorMessages, setErrorMessages] = useState(errorMessagesInit);
 
-  const submitButtonParams = getSubmitButtonParams(username && email && password && birthday && isAgreedUserpolicy && gender);
+  const submitButtonParams = getSubmitButtonParams(username && email && password && passwordAgain && isAgreedUserpolicy);
   const submitSignUp = () => {
-    requestSignUp(username, email, password, gender, birthday, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage);
+    if (password === passwordAgain) {
+      requestSignUp(username, email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage);
+    } else {
+      setErrorMessages(Object.assign(errorMessagesInit, { passwordAgain: ["新しいパスワードと再入力パスワードが一致しません。"] }))
+    }
   }
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,9 +97,10 @@ const SignUpTemplate = (props) => {
               }
 
               <EmailInput active={active} setEmail={setEmail} toggleActive={toggleActive} errorMessages={errorMessages} />
-              <PasswordInput active={active} setPassword={setPassword} toggleActive={toggleActive} errorMessages={errorMessages} />
+              <PasswordInput activeCustom={active.password} setPassword={setPassword} toggleActiveCustom={(val) => toggleActive("password", val)} errorMessageCustom={errorMessages.password} />
+              <PasswordInput activeCustom={active.passwordAgain} setPassword={setPasswordAgain} toggleActiveCustom={(val) => toggleActive("passwordAgain", val)} errorMessageCustom={errorMessages.passwordAgain} placeholder="再入力パスワード" />
 
-              <Block>
+              {/* <Block>
                 <Button shadowless color="transparent" style={{ position: "absolute" }} onPress={() => toggleIsOpenBirthdayPicker(true)} />
                 <Input
                   defaultValue={typeof birthday === "undefined" ? null : `${birthday.getFullYear()}年${birthday.getMonth() + 1}月${birthday.getDate()}日`}
@@ -109,16 +117,16 @@ const SignUpTemplate = (props) => {
               {Array.isArray(errorMessages.birthday) &&
                 errorMessages.birthday.map((message, index) => <BottomMessage message={message} error key={index} />)
               }
-              <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={toggleIsOpenBirthdayPicker} />
+              <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={toggleIsOpenBirthdayPicker} /> */}
             </Block>
 
-            <Block style={{ marginVertical: 20, flexDirection: "row", width: width / 3, minWidth: "80%", justifyContent: "space-evenly", alignItems: "center" }}>
+            {/* <Block style={{ marginVertical: 20, flexDirection: "row", width: width / 3, minWidth: "80%", justifyContent: "space-evenly", alignItems: "center" }}>
               <GenderRadioButton label="女性" genderKey="FEMALE" gender={gender} setGender={setGender} genderEnum={genderEnum} />
               <GenderRadioButton label="男性" genderKey="MALE" gender={gender} setGender={setGender} genderEnum={genderEnum} />
             </Block>
             {Array.isArray(errorMessages.gender) &&
               errorMessages.gender.map((message, index) => <BottomMessage message={message} error key={index} />)
-            }
+            } */}
 
             <Block style={{ marginTop: 10, flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
               <Checkbox
@@ -195,19 +203,19 @@ const ToSignInButton = (props) => {
   );
 }
 
-const GenderRadioButton = (props) => {
-  const { label, genderKey, gender, setGender, genderEnum } = props;
-  return (
-    <TouchableWithoutFeedback onPress={() => setGender(genderEnum[genderKey])}>
-      <Block row style={{ justifyContent: "center", alignItems: "center" }}>
-        <Block style={{ height: 20, width: 20, borderRadius: 10, borderWidth: 1, borderColor: "lightgray", justifyContent: "center", alignItems: "center" }}>
-          <Block style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: gender === genderEnum[genderKey] ? "#F69896" : "white" }} />
-        </Block>
-        <Text color="gray" style={{ marginLeft: 5 }}>{label}</Text>
-      </Block>
-    </TouchableWithoutFeedback>
-  );
-}
+// const GenderRadioButton = (props) => {
+//   const { label, genderKey, gender, setGender, genderEnum } = props;
+//   return (
+//     <TouchableWithoutFeedback onPress={() => setGender(genderEnum[genderKey])}>
+//       <Block row style={{ justifyContent: "center", alignItems: "center" }}>
+//         <Block style={{ height: 20, width: 20, borderRadius: 10, borderWidth: 1, borderColor: "lightgray", justifyContent: "center", alignItems: "center" }}>
+//           <Block style={{ height: 14, width: 14, borderRadius: 7, backgroundColor: gender === genderEnum[genderKey] ? "#F69896" : "white" }} />
+//         </Block>
+//         <Text color="gray" style={{ marginLeft: 5 }}>{label}</Text>
+//       </Block>
+//     </TouchableWithoutFeedback>
+//   );
+// }
 
 
 const styles = StyleSheet.create({

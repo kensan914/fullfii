@@ -11,7 +11,7 @@ import { ConsultantProfile, profileImageHeight, profileContentBR, sendTalkReques
 import { useProfileState } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
-import { checkSubscribePlan } from "../modules/support";
+import { checkProfileIsBuried, checkSubscribePlan } from "../modules/support";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -105,7 +105,9 @@ const ProfileTemplate = (props) => {
           </Button> :
           (!chatState.includedUserIDs.includes(user.id) &&
             <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
-              checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
+              checkProfileIsBuried(profileState.profile, () => {
+                checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
+              }, "リクエストを送信することができません。");
             }}>リクエストを送る</Button>)
       }
     </Block >

@@ -6,7 +6,7 @@ import * as WebBrowser from "expo-web-browser";
 import Icon from "../components/atoms/Icon";
 import Hr from "../components/atoms/Hr";
 import { useAuthDispatch, useAuthState } from "../components/contexts/AuthContext";
-import { alertModal, URLJoin } from "../components/modules/support";
+import { alertModal, checkProfileIsBuried, URLJoin } from "../components/modules/support";
 import { useNotificationDispatch } from "../components/contexts/NotificationContext";
 import { useChatDispatch } from "../components/contexts/ChatContext";
 import { BASE_URL, USER_POLICY_URL, VERSION, GOOGLE_FORM_URL } from "../constants/env"
@@ -42,29 +42,29 @@ const Settings = (props) => {
       <ScrollView>
         <SettingsTitle title="アカウント" />
         <SettingsSwitch title="異性との相談を許可" value={canTalkHeterosexual} onChange={(value) => {
-          setCanTalkHeterosexual(value);
-          if (profileState.profile.canTalkHeterosexual !== value) {
-            alertModal({
-              mainText: value ? "異性との相談を許可しますか？" : "異性との相談を制限しますか？",
-              subText: value ? "異性のユーザの端末にあなたが表示されるようになり、リクエストが届く可能性があります。" : "異性のユーザの端末にあなたが表示されることはなくなります。",
-              cancelButton: "キャンセル",
-              okButton: value ? "許可する" : "制限する",
-              onPress: () => {
-                // request patch canTalkHeterosexual
-                requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, () => {
-                  setCanTalkHeterosexual(value);
-                }, () => {
-                  alertModal("変更に失敗しました。");
+          checkProfileIsBuried(profileState.profile, () => {
+            setCanTalkHeterosexual(value);
+            if (profileState.profile.canTalkHeterosexual !== value) {
+              alertModal({
+                mainText: value ? "異性との相談を許可しますか？" : "異性との相談を制限しますか？",
+                subText: value ? "異性のユーザの端末にあなたが表示されるようになり、リクエストが届く可能性があります。" : "異性のユーザの端末にあなたが表示されることはなくなります。",
+                cancelButton: "キャンセル",
+                okButton: value ? "許可する" : "制限する",
+                onPress: () => {
+                  // request patch canTalkHeterosexual
+                  requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, () => {
+                    setCanTalkHeterosexual(value);
+                  }, () => {
+                    alertModal("変更に失敗しました。");
+                    setCanTalkHeterosexual(!value);
+                  })
+                },
+                cancelOnPress: () => {
                   setCanTalkHeterosexual(!value);
-                })
-              },
-              cancelOnPress: () => {
-                setCanTalkHeterosexual(!value);
-              },
-            });
-          } else {
-
-          }
+                },
+              });
+            }
+          }, "この設定を変更することはできません。");
         }} />
         <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
         <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
