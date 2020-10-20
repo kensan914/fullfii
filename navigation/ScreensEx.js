@@ -5,28 +5,29 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Text, Block } from "galio-framework";
+import Toast from "react-native-toast-message";
 
-import { Icon, Header } from "../componentsEx";
-import { materialTheme } from "../constantsEx";
-
-import HomeScreen from "../screensEx/Home";
-import ProfileScreen from "../screensEx/Profile";
-import ChatScreen from "../screensEx/Chat";
-import PlanScreen from "../screensEx/Plan";
-import ProfileEditorScreen from "../screensEx/ProfileEditor";
-import ProfileInputScreen from "../screensEx/ProfileInput";
-import TalkScreen from "../screensEx/Talk";
-import NotificationScreen from "../screensEx/Notification";
-import SettingsScreen from "../screensEx/Settings";
-import SignUpScreen from "../screensEx/SignUp";
-import SignInScreen from "../screensEx/SignIn";
-
+import Icon from "../components/atoms/Icon";
+import Header from "../components/organisms/Header";
+import materialTheme from "../constants/Theme";
+import HomeScreen from "../screens/Home";
+import ProfileScreen from "../screens/Profile";
+import ChatScreen from "../screens/Chat";
+import PlanScreen from "../screens/Plan";
+import ProfileEditorScreen from "../screens/ProfileEditor";
+import ProfileInputScreen from "../screens/ProfileInput";
+import TalkScreen from "../screens/Talk";
+import NotificationScreen from "../screens/Notification";
+import SettingsScreen from "../screens/Settings";
+import SettingsInputScreen from "../screens/SettingsInput";
+import SignUpScreen from "../screens/SignUp";
+import SignInScreen from "../screens/SignIn";
 import CustomDrawerContent from "./MenuEx";
-import { useAuthState } from "../componentsEx/contexts/AuthContext";
-import { useProfileState } from "../componentsEx/contexts/ProfileContext";
-import { useNotificationState, useNotificationDispatch } from "../componentsEx/contexts/NotificationContext";
-import { cvtBadgeCount } from "../componentsEx/tools/support";
-import { useChatState } from "../componentsEx/contexts/ChatContext";
+import { useAuthState } from "../components/contexts/AuthContext";
+import { useProfileState } from "../components/contexts/ProfileContext";
+import { useNotificationState } from "../components/contexts/NotificationContext";
+import { cvtBadgeCount } from "../components/modules/support";
+import { useChatState } from "../components/contexts/ChatContext";
 
 const { width } = Dimensions.get("screen");
 
@@ -152,7 +153,7 @@ const HomeStack = (props) => {
       />
       <Stack.Screen
         name="SettingsInput"
-        component={SettingsScreen}
+        component={SettingsInputScreen}
         options={({ route }) => ({
           header: ({ navigation, scene }) => {
             const name = typeof route.params.screen === "undefined" ? "SettingsInput" : route.params.screen;
@@ -300,63 +301,66 @@ const AppStack = (props) => {
   const profileState = useProfileState();
 
   return (
-    <Stack.Navigator mode="card" headerMode="" >
-      {authState.status === "Authenticated" ?
-        <Stack.Screen name="Authenticated" >
-          {() => (
-            <Drawer.Navigator
-              style={{ flex: 1 }}
-              drawerContent={props => (
-                <CustomDrawerContent {...props} profile={profileState.profile} />
-              )}
-              drawerStyle={{
-                backgroundColor: "white",
-                width: width * 0.8
-              }}
-              drawerContentOptions={{
-                activeTintColor: "white",
-                inactiveTintColor: "#000",
-                activeBackgroundColor: materialTheme.COLORS.ACTIVE,
-                inactiveBackgroundColor: "transparent",
-                itemStyle: {
-                  width: width * 0.74,
-                  paddingHorizontal: 12,
-                  // paddingVertical: 4,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  // alignItems: "center",
-                  overflow: "hidden"
-                },
-                labelStyle: {
-                  fontSize: 18,
-                  fontWeight: "normal"
-                }
-              }}
-              initialRouteName="Home"
-            >
-              <Drawer.Screen
-                name="Home"
-                component={HomeStack}
-                options={{
-                  drawerIcon: ({ focused }) => (
-                    <Icon
-                      size={16}
-                      name="shop"
-                      family="GalioExtra"
-                      color={focused ? "white" : materialTheme.COLORS.MUTED}
-                    />
-                  ),
+    <>
+      <Stack.Navigator mode="card" headerMode="" >
+        {authState.status === "Authenticated" ?
+          <Stack.Screen name="Authenticated" >
+            {() => (
+              <Drawer.Navigator
+                style={{ flex: 1 }}
+                drawerContent={props => (
+                  <CustomDrawerContent {...props} profile={profileState.profile} />
+                )}
+                drawerStyle={{
+                  backgroundColor: "white",
+                  width: width * 0.8
                 }}
-              />
-            </Drawer.Navigator>
-          )}
-        </Stack.Screen> :
-        <>
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="SignIn" component={SignInScreen} />
-        </>
-      }
-    </Stack.Navigator>
+                drawerContentOptions={{
+                  activeTintColor: "white",
+                  inactiveTintColor: "#000",
+                  activeBackgroundColor: materialTheme.COLORS.ACTIVE,
+                  inactiveBackgroundColor: "transparent",
+                  itemStyle: {
+                    width: width * 0.74,
+                    paddingHorizontal: 12,
+                    // paddingVertical: 4,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    // alignItems: "center",
+                    overflow: "hidden"
+                  },
+                  labelStyle: {
+                    fontSize: 18,
+                    fontWeight: "normal"
+                  }
+                }}
+                initialRouteName="Home"
+              >
+                <Drawer.Screen
+                  name="Home"
+                  component={HomeStack}
+                  options={{
+                    drawerIcon: ({ focused }) => (
+                      <Icon
+                        size={16}
+                        name="shop"
+                        family="GalioExtra"
+                        color={focused ? "white" : materialTheme.COLORS.MUTED}
+                      />
+                    ),
+                  }}
+                />
+              </Drawer.Navigator>
+            )}
+          </Stack.Screen> :
+          <>
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+          </>
+        }
+      </Stack.Navigator>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+    </>
   );
 }
 
