@@ -79,7 +79,7 @@ export default class Search extends React.Component {
         iconContent={iconSearch}
         defaultValue={search}
         style={[styles.search, this.state.active ? styles.shadow : null]}
-        placeholder="What are you looking for?"
+        placeholder="聞き手をみつける"
         onFocus={() => this.setState({ active: true })}
         onBlur={() => this.setState({ active: false })}
         onChangeText={this.handleSearchChange}

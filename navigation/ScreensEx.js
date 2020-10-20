@@ -7,27 +7,27 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { Text, Block } from "galio-framework";
 import Toast from "react-native-toast-message";
 
-import Icon from "../componentsEx/atoms/Icon";
-import Header from "../componentsEx/organisms/Header";
-import { materialTheme } from "../constantsEx";
-import HomeScreen from "../screensEx/Home";
-import ProfileScreen from "../screensEx/Profile";
-import ChatScreen from "../screensEx/Chat";
-import PlanScreen from "../screensEx/Plan";
-import ProfileEditorScreen from "../screensEx/ProfileEditor";
-import ProfileInputScreen from "../screensEx/ProfileInput";
-import TalkScreen from "../screensEx/Talk";
-import NotificationScreen from "../screensEx/Notification";
-import SettingsScreen from "../screensEx/Settings";
-import SettingsInputScreen from "../screensEx/SettingsInput";
-import SignUpScreen from "../screensEx/SignUp";
-import SignInScreen from "../screensEx/SignIn";
+import Icon from "../components/atoms/Icon";
+import Header from "../components/organisms/Header";
+import materialTheme from "../constants/Theme";
+import HomeScreen from "../screens/Home";
+import ProfileScreen from "../screens/Profile";
+import ChatScreen from "../screens/Chat";
+import PlanScreen from "../screens/Plan";
+import ProfileEditorScreen from "../screens/ProfileEditor";
+import ProfileInputScreen from "../screens/ProfileInput";
+import TalkScreen from "../screens/Talk";
+import NotificationScreen from "../screens/Notification";
+import SettingsScreen from "../screens/Settings";
+import SettingsInputScreen from "../screens/SettingsInput";
+import SignUpScreen from "../screens/SignUp";
+import SignInScreen from "../screens/SignIn";
 import CustomDrawerContent from "./MenuEx";
-import { useAuthState } from "../componentsEx/contexts/AuthContext";
-import { useProfileState } from "../componentsEx/contexts/ProfileContext";
-import { useNotificationState } from "../componentsEx/contexts/NotificationContext";
-import { cvtBadgeCount } from "../componentsEx/tools/support";
-import { useChatState } from "../componentsEx/contexts/ChatContext";
+import { useAuthState } from "../components/contexts/AuthContext";
+import { useProfileState } from "../components/contexts/ProfileContext";
+import { useNotificationState } from "../components/contexts/NotificationContext";
+import { cvtBadgeCount } from "../components/modules/support";
+import { useChatState } from "../components/contexts/ChatContext";
 
 const { width } = Dimensions.get("screen");
 
