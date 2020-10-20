@@ -1,1126 +1,367 @@
 import React from "react";
-import { Easing, Dimensions } from "react-native";
+import { Dimensions, TouchableOpacity } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { Text, Block } from "galio-framework";
+import Toast from "react-native-toast-message";
 
-import { Icon, Header } from "../components/";
-import { Images, materialTheme } from "../constants/";
-
-// screens
-import OnboardingScreen from "../screens/Onboarding";
+import Icon from "../components/atoms/Icon";
+import Header from "../components/organisms/Header";
+import materialTheme from "../constants/Theme";
 import HomeScreen from "../screens/Home";
-import WomanScreen from "../screens/Woman";
-import ManScreen from "../screens/Man";
-import KidsScreen from "../screens/Kids";
-import NewCollectionScreen from "../screens/NewCollection";
-import DealsScreen from "../screens/Deals";
-
-import CategoriesScreen from "../screens/Categories";
-import CategoryScreen from "../screens/Category";
-import ProductScreen from "../screens/Product";
-import GalleryScreen from "../screens/Gallery";
-import ChatScreen from "../screens/Chat";
-
-import CartScreen from "../screens/Cart";
-import SignInScreen from "../screens/SignIn";
-import SignUpScreen from "../screens/SignUp";
-
-import SearchScreen from "../screens/Search";
-import ComponentsScreen from "../screens/Components";
-
 import ProfileScreen from "../screens/Profile";
+import ChatScreen from "../screens/Chat";
+import PlanScreen from "../screens/Plan";
+import ProfileEditorScreen from "../screens/ProfileEditor";
+import ProfileInputScreen from "../screens/ProfileInput";
+import TalkScreen from "../screens/Talk";
+import NotificationScreen from "../screens/Notification";
 import SettingsScreen from "../screens/Settings";
-import NotificationsScreen from "../screens/Notifications";
-import PrivacyScreen from "../screens/Privacy";
-import AboutScreen from "../screens/About";
-import AgreementScreen from "../screens/Agreement";
-
+import SettingsInputScreen from "../screens/SettingsInput";
+import SignUpScreen from "../screens/SignUp";
+import SignInScreen from "../screens/SignIn";
 import CustomDrawerContent from "./Menu";
-import { tabs } from "../constants/";
+import { useAuthState } from "../components/contexts/AuthContext";
+import { useProfileState } from "../components/contexts/ProfileContext";
+import { useNotificationState } from "../components/contexts/NotificationContext";
+import { cvtBadgeCount } from "../components/modules/support";
+import { useChatState } from "../components/contexts/ChatContext";
 
 const { width } = Dimensions.get("screen");
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 
-const profile = {
-  avatar: Images.Profile,
-  name: "Rachel Brown",
-  type: "Seller",
-  plan: "Pro",
-  rating: 4.8
-};
 
-function ProfileStack(props) {
+const HomeStack = (props) => {
+  const profileState = useProfileState();
+  const chatState = useChatState();
+
   return (
-    <Stack.Navigator initialRouteName="Profile" mode="card" headerMode="screen">
+    <Stack.Navigator mode="card" headerMode="screen" >
+      <Stack.Screen
+        name="Home"
+        component={BottomTabNavigator}
+        options={({ route, navigation }) => {
+          return {
+            header: ({ navigation, scene }) => {
+              const name = route.state
+                ? route.state.routes[route.state.index].name
+                : "Home";
+              return (
+                < Header
+                  name={name}
+                  navigation={navigation}
+                  scene={scene}
+                  profile={profileState.profile}
+                />);
+            }
+          }
+        }}
+      />
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
+              back
+              name="Profile"
+              white
               transparent
-              title="Profile"
-              scene={scene}
               navigation={navigation}
+              scene={scene}
+              profile={profileState.profile}
             />
           ),
           headerTransparent: true
         }}
       />
       <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
+        name="ProfileEditor"
+        component={ProfileEditorScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
               back
-              title="Rachel Brown"
-              scene={scene}
+              name="ProfileEditor"
               navigation={navigation}
+              scene={scene}
+              profile={profileState.profile}
             />
           )
         }}
       />
       <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Cart" scene={scene} navigation={navigation} />
-          )
+        name="ProfileInput"
+        component={ProfileInputScreen}
+        options={({ route }) => ({
+          header: ({ navigation, scene }) => {
+            const name = route.params.screen;
+            return (
+              <Header
+                back
+                name={name}
+                navigation={navigation}
+                scene={scene}
+                profile={profileState.profile}
+              />);
+          }
+        })}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={({ route, navigation }) => {
+          return {
+            header: ({ navigation, scene }) => {
+              const roomID = route.params.roomID;
+              const talkObj = chatState.talkCollection[roomID];
+              const title = talkObj ? talkObj.user.name : "";
+              return (
+                <Header
+                  title={title}
+                  name={"Chat"}
+                  talkObj={talkObj}
+                  back
+                  navigation={navigation}
+                  scene={scene}
+                  profile={profileState.profile}
+                />
+              );
+            },
+          }
         }}
       />
-    </Stack.Navigator>
-  );
-}
-
-function SettingsStack(props) {
-  return (
-    <Stack.Navigator
-      initialRouteName="Settings"
-      mode="card"
-      headerMode="screen"
-    >
       <Stack.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          header: ({ navigation, scene }) => (
-            <Header title="Settings" scene={scene} navigation={navigation} />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Agreement"
-        component={AgreementScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Agreement"
-              scene={scene}
-              navigation={navigation}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Privacy"
-        component={PrivacyScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Privacy"
-              scene={scene}
-              navigation={navigation}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="About"
-        component={AboutScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="About us"
-              scene={scene}
-              navigation={navigation}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Notifications Settings"
-              scene={scene}
-              navigation={navigation}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function ComponentsStack(props) {
-  return (
-    <Stack.Navigator initialRouteName="Components" mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Components"
-        component={ComponentsScreen}
-        options={{
-          header: ({ navigation }) => (
-            <Header title="Components" navigation={navigation} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-export default function OnboardingStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="none">
-      <Stack.Screen
-        name="Onboarding"
-        component={OnboardingScreen}
-        option={{
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen name="App" component={AppStack} />
-    </Stack.Navigator>
-  );
-}
-
-function WomanStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Woman"
-        component={WomanScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="Woman"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
           header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
             return (
-              <Header
+              < Header
                 back
-                title={title}
+                name={"Settings"}
                 navigation={navigation}
                 scene={scene}
-              />
-            );
+                profile={profileState.profile}
+              />);
           }
         }}
       />
       <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function ManStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Man"
-        component={ManScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="Man"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
+        name="SettingsInput"
+        component={SettingsInputScreen}
+        options={({ route }) => ({
           header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
+            const name = typeof route.params.screen === "undefined" ? "SettingsInput" : route.params.screen;
             return (
-              <Header
+              < Header
                 back
-                title={title}
+                name={name}
                 navigation={navigation}
                 scene={scene}
-              />
-            );
+                profile={profileState.profile}
+              />);
           }
-        }}
+        })}
       />
       <Stack.Screen
-        name="Product"
-        component={ProductScreen}
+        name="Plan"
+        component={PlanScreen}
         options={{
           header: ({ navigation, scene }) => (
             <Header
               back
-              white
-              transparent
-              title=""
+              name="Plan"
               navigation={navigation}
               scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
+              profile={profileState.profile}
             />
           )
         }}
       />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
+    </Stack.Navigator >
   );
 }
 
-function KidsStack(props) {
+const HomeTabNavigator = () => {
+  const Tab = createMaterialTopTabNavigator();
   return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Kids"
-        component={KidsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="Kids"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
-          header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
-            return (
-              <Header
-                back
-                title={title}
-                navigation={navigation}
-                scene={scene}
-              />
-            );
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarLabel: ({ focused, color, size }) => {
+          let iconName;
+          let title;
+          if (route.name === "Work") {
+            iconName = focused ? "shopping-bag" : "shopping-bag";
+            title = "仕事";
+          } else if (route.name === "Child") {
+            iconName = focused ? "child" : "child";
+            title = "子供";
+          } else if (route.name === "Family") {
+            iconName = focused ? "users" : "users";
+            title = "家庭";
+          } else if (route.name === "Love") {
+            iconName = focused ? "heart" : "heart";
+            title = "恋愛";
           }
-        }}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function NewCollectionStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="NewCollection"
-        component={NewCollectionScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="New Collection"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
-          header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
-            return (
-              <Header
-                back
-                title={title}
-                navigation={navigation}
-                scene={scene}
-              />
-            );
-          }
-        }}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function HomeStack(props) {
-  return (
-    <Stack.Navigator mode="card" headerMode="screen">
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              search
-              options
-              title="Home"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              tabs={tabs.deals}
-              title="Best Deals"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Categories"
-        component={CategoriesScreen}
-        options={{
-          header: ({ navigation, scene, route }) => (
-            <Header
-              back
-              tabs={tabs.categories}
-              tabIndex={tabs.categories[1].id}
-              title="Categories"
-              navigation={navigation}
-              route={route}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
-          header: ({ navigation, scene }) => {
-            const { params } = scene.descriptor;
-            const title = (params && params.headerTitle) || "Category";
-            return (
-              <Header
-                back
-                title={title}
-                navigation={navigation}
-                scene={scene}
-              />
-            );
-          }
-        }}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Gallery"
-        component={GalleryScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              white
-              transparent
-              title=""
-              navigation={navigation}
-              scene={scene}
-            />
-          ),
-          headerTransparent: true
-        }}
-      />
-      <Stack.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Rachel Brown"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header
-              back
-              title="Shopping Cart"
-              navigation={navigation}
-              scene={scene}
-            />
-          )
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={{
-          header: ({ navigation, scene }) => (
-            <Header back title="Search" navigation={navigation} scene={scene} />
-          )
-        }}
-      />
-    </Stack.Navigator>
-  );
-}
-
-function AppStack(props) {
-  return (
-    <Drawer.Navigator
-      style={{ flex: 1 }}
-      drawerContent={props => (
-        <CustomDrawerContent {...props} profile={profile} />
-      )}
-      drawerStyle={{
-        backgroundColor: "white",
-        width: width * 0.8
-      }}
-      drawerContentOptions={{
-        activeTintColor: "white",
-        inactiveTintColor: "#000",
-        activeBackgroundColor: materialTheme.COLORS.ACTIVE,
-        inactiveBackgroundColor: "transparent",
-        itemStyle: {
-          width: width * 0.74,
-          paddingHorizontal: 12,
-          // paddingVertical: 4,
-          justifyContent: "center",
-          alignContent: "center",
-          // alignItems: 'center',
-          overflow: "hidden"
+          return (
+            <Text size={size} color={color} >
+              <Icon family="font-awesome" name={iconName} size={size} color={color} /> {title}
+            </Text>
+          );
         },
-        labelStyle: {
-          fontSize: 18,
-          fontWeight: "normal"
+      })}
+      tabBarOptions={{
+        activeTintColor: "#F69896",
+        inactiveTintColor: "gray",
+        indicatorStyle: {
+          backgroundColor: "#F69896",
+        },
+        style: {
+          backgroundColor: "white",
+          borderTopColor: "silver",
+          borderTopWidth: 0.5,
+          shadowColor: "black",
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 6,
+          shadowOpacity: 0.2,
+        },
+        scrollEnabled: true,
+        showIcon: true,
+        tabStyle: {
+          width: width / 3.7,
         }
-      }}
-      initialRouteName="Home"
-    >
-      <Drawer.Screen
-        name="Home"
-        component={HomeStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="shop"
-              family="GalioExtra"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Woman"
-        component={WomanStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="md-woman"
-              family="ionicon"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-              style={{ marginLeft: 4, marginRight: 4 }}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Man"
-        component={ManStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="man"
-              family="entypo"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Kids"
-        component={KidsStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="baby"
-              family="GalioExtra"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="New Collection"
-        component={NewCollectionStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="grid-on"
-              family="material"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Profile"
-        component={ProfileStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="circle-10"
-              family="GalioExtra"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Settings"
-        component={SettingsStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="gears"
-              family="font-awesome"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-              style={{ marginRight: -3 }}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Components"
-        component={ComponentsStack}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="md-switch"
-              family="ionicon"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-              style={{ marginRight: 2, marginLeft: 2 }}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Sign In"
-        component={SignInScreen}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="ios-log-in"
-              family="ionicon"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-      <Drawer.Screen
-        name="Sign Up"
-        component={SignUpScreen}
-        options={{
-          drawerIcon: ({ focused }) => (
-            <Icon
-              size={16}
-              name="md-person-add"
-              family="ionicon"
-              color={focused ? "white" : materialTheme.COLORS.MUTED}
-            />
-          )
-        }}
-      />
-    </Drawer.Navigator>
+      }}>
+      <Tab.Screen name="Work" component={HomeScreen} />
+      <Tab.Screen name="Child" component={HomeScreen} />
+      <Tab.Screen name="Family" component={HomeScreen} />
+      <Tab.Screen name="Love" component={HomeScreen} />
+    </Tab.Navigator>
   );
 }
+
+const BottomTabNavigator = () => {
+  const Tab = createBottomTabNavigator();
+  const notificationState = useNotificationState();
+  const chatState = useChatState();
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          let badgeCount;
+          if (route.name === "Home") {
+            iconName = focused ? "home" : "home";
+          } else if (route.name === "Talk") {
+            iconName = focused ? "comments" : "comments-o";
+            badgeCount = cvtBadgeCount(chatState.totalUnreadNum);
+          } else if (route.name === "Notification") {
+            iconName = focused ? "bell" : "bell-o";
+            badgeCount = cvtBadgeCount(notificationState.unreadNum);
+          }
+          return (
+            <Block style={{ position: "relative", height: 40, width: 40, justifyContent: "center", alignItems: "center" }}>
+              <Icon family="font-awesome" name={iconName} size={size} color={color} />
+              {(typeof badgeCount !== "undefined" && badgeCount !== null) &&
+                <Block style={{ position: "absolute", backgroundColor: "#F69896", right: 0, top: 0, height: 18, minWidth: 18, borderRadius: 9, borderColor: "white", borderWidth: 1, justifyContent: "center", alignItems: "center" }}>
+                  <Text size={13} color="white" style={{ paddingHorizontal: 3 }}>{badgeCount}</Text>
+                </Block>
+              }
+            </Block>
+          );
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: "#F69896",
+        inactiveTintColor: "gray",
+        showLabel: false,
+      }}
+    >
+      <Tab.Screen name="Home" component={HomeTabNavigator} />
+      <Tab.Screen name="Talk" component={TalkScreen} />
+      <Tab.Screen name="Notification" options={{
+        tabBarButton: (props) => <TouchableOpacity activeOpacity={1} {...props} onPress={() => {
+          // additional processing
+          props.onPress();
+        }} />
+      }} >
+        {() => <NotificationScreen notificationState={notificationState} />}
+      </Tab.Screen>
+    </Tab.Navigator>
+  );
+}
+
+const AppStack = (props) => {
+  const authState = useAuthState();
+  const profileState = useProfileState();
+
+  return (
+    <>
+      <Stack.Navigator mode="card" headerMode="" >
+        {authState.status === "Authenticated" ?
+          <Stack.Screen name="Authenticated" >
+            {() => (
+              <Drawer.Navigator
+                style={{ flex: 1 }}
+                drawerContent={props => (
+                  <CustomDrawerContent {...props} profile={profileState.profile} />
+                )}
+                drawerStyle={{
+                  backgroundColor: "white",
+                  width: width * 0.8
+                }}
+                drawerContentOptions={{
+                  activeTintColor: "white",
+                  inactiveTintColor: "#000",
+                  activeBackgroundColor: materialTheme.COLORS.ACTIVE,
+                  inactiveBackgroundColor: "transparent",
+                  itemStyle: {
+                    width: width * 0.74,
+                    paddingHorizontal: 12,
+                    // paddingVertical: 4,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    // alignItems: "center",
+                    overflow: "hidden"
+                  },
+                  labelStyle: {
+                    fontSize: 18,
+                    fontWeight: "normal"
+                  }
+                }}
+                initialRouteName="Home"
+              >
+                <Drawer.Screen
+                  name="Home"
+                  component={HomeStack}
+                  options={{
+                    drawerIcon: ({ focused }) => (
+                      <Icon
+                        size={16}
+                        name="shop"
+                        family="GalioExtra"
+                        color={focused ? "white" : materialTheme.COLORS.MUTED}
+                      />
+                    ),
+                  }}
+                />
+              </Drawer.Navigator>
+            )}
+          </Stack.Screen> :
+          <>
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+          </>
+        }
+      </Stack.Navigator>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+    </>
+  );
+}
+
+export default AppStack;

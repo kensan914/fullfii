@@ -3,77 +3,75 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   StyleSheet,
-  Dimensions,
-  Image,
-  TouchableOpacity,
-  ListView
 } from "react-native";
 import { Block, Text, theme } from "galio-framework";
 import { useSafeArea } from "react-native-safe-area-context";
 
-import { Icon, Drawer as DrawerCustomItem } from "../components/";
-import { Images, materialTheme } from "../constants/";
+import DrawerCustomItem from "../components/organisms/Drawer";
+import { LinearGradient } from "expo-linear-gradient";
+import Avatar from "../components/atoms/Avatar";
 
-const { width } = Dimensions.get("screen");
 
-const profile = {
-  avatar: Images.Profile,
-  name: "Rachel Brown",
-  type: "Seller",
-  plan: "Pro",
-  rating: 4.8
-};
-
-function CustomDrawerContent({
+const CustomDrawerContent = ({
   drawerPosition,
   navigation,
   profile,
   focused,
   state,
   ...rest
-}) {
+}) => {
   const insets = useSafeArea();
   const screens = [
-    "Home",
-    "Woman",
-    "Man",
-    "Kids",
-    "New Collection",
     "Profile",
     "Settings",
-    "Components"
   ];
+
   return (
     <Block
       style={styles.container}
       forceInset={{ top: "always", horizontal: "never" }}
     >
-      <Block flex={0.23} style={styles.header}>
-        <TouchableWithoutFeedback
-          onPress={() => navigation.navigate("Profile")}
-        >
+      <LinearGradient
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        colors={["#ffcccc", "lightcoral"]}
+        style={[styles.header, { flex: 0.23 }]}>
+        <TouchableWithoutFeedback onPress={() => navigation.navigate("Profile", { item: profile })}>
           <Block style={styles.profile}>
-            <Image source={{ uri: profile.avatar }} style={styles.avatar} />
-            <Text h5 color={"white"}>
+            <Block style={styles.avatarContainer} >
+              {profile.image
+                ? <Avatar image={profile.image} size={60} style={styles.avatar} />
+                : <Avatar nonAvatar size={60} style={styles.avatar} />
+              }
+            </Block>
+            <Text h5 color={"white"} bold>
               {profile.name}
             </Text>
           </Block>
         </TouchableWithoutFeedback>
-        <Block row>
-          <Block middle style={styles.pro}>
-            <Text size={16} color="white">
-              {profile.plan}
-            </Text>
-          </Block>
-          <Text size={16} muted style={styles.seller}>
-            {profile.type}
-          </Text>
-          <Text size={16} color={materialTheme.COLORS.WARNING}>
-            {profile.rating}{" "}
-            <Icon name="shape-star" family="GalioExtra" size={14} />
-          </Text>
+
+        <Block row style={{ alignItems: "center" }}>
+          {profile.plan ?
+            <Block middle style={styles.plan}>
+              <Text size={16} color="#F69896" bold>
+                {profile.plan.label}
+              </Text>
+            </Block>
+            : <></>
+          }
+          {profile.status &&
+            <>
+              <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
+                <Block style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: profile.status.color }} />
+              </Block>
+              <Text size={14} color="white">{profile.status.label}</Text>
+            </>
+          }
         </Block>
-      </Block>
+      </LinearGradient>
+
+      {/* <Hr h={20} color="white" /> */}
+
       <Block flex style={{ paddingLeft: 7, paddingRight: 14 }}>
         <ScrollView
           contentContainerStyle={[
@@ -88,26 +86,15 @@ function CustomDrawerContent({
           {screens.map((item, index) => {
             return (
               <DrawerCustomItem
-                title={item}
+                item={item}
                 key={index}
                 navigation={navigation}
                 focused={state.index === index ? true : false}
+                profile={profile}
               />
             );
           })}
         </ScrollView>
-      </Block>
-      <Block flex={0.25} style={{ paddingLeft: 7, paddingRight: 14 }}>
-        <DrawerCustomItem
-          title="Sign In"
-          navigation={navigation}
-          focused={state.index === 8 ? true : false}
-        />
-        <DrawerCustomItem
-          title="Sign Up"
-          navigation={navigation}
-          focused={state.index === 9 ? true : false}
-        />
       </Block>
     </Block>
   );
@@ -118,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    backgroundColor: "#4B1958",
+    backgroundColor: "#F69896",
     paddingHorizontal: 28,
     paddingBottom: theme.SIZES.BASE,
     paddingTop: theme.SIZES.BASE * 2,
@@ -131,22 +118,26 @@ const styles = StyleSheet.create({
   profile: {
     marginBottom: theme.SIZES.BASE / 2
   },
-  avatar: {
-    height: 40,
-    width: 40,
-    borderRadius: 20,
-    marginBottom: theme.SIZES.BASE
+  avatarContainer: {
+    position: "relative",
+    marginBottom: theme.SIZES.BASE,
+    backgroundColor: "white",
+    height: 64,
+    width: 64,
+    borderRadius: 32,
+    padding: 0,
   },
-  pro: {
-    backgroundColor: materialTheme.COLORS.LABEL,
+  avatar: {
+    position: "absolute",
+    top: 2,
+    left: 2,
+  },
+  plan: {
+    backgroundColor: "white",
     paddingHorizontal: 6,
     marginRight: 8,
     borderRadius: 4,
     height: 19,
-    width: 38
-  },
-  seller: {
-    marginRight: 16
   },
 });
 

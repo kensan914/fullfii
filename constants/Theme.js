@@ -1,4 +1,4 @@
-export default {
+const materialTheme = {
   COLORS: {
     DEFAULT: '#DCDCDC',
     PRIMARY: '#9C26B0',
@@ -24,4 +24,7 @@ export default {
   SIZES: {
     BLOCK_SHADOW_RADIUS: 2,
   }
-};
+}
+
+
+export default materialTheme;

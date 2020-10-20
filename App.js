@@ -1,43 +1,30 @@
-import React from 'react';
-import { Platform, StatusBar, Image } from 'react-native';
-import { AppLoading } from 'expo';
-import { Asset } from 'expo-asset';
-import { Block, GalioProvider } from 'galio-framework';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import { Platform, StatusBar, Image } from "react-native";
+// import { AppLoading } from "expo";
+import { Asset } from "expo-asset";
+import { GalioProvider } from "galio-framework";
+import { NavigationContainer } from "@react-navigation/native";
 
 // Before rendering any navigation stack
-import { enableScreens } from 'react-native-screens';
+import { enableScreens } from "react-native-screens";
 enableScreens();
 
-import Screens from './navigation/Screens';
-import { Images, materialTheme } from './constants/';
+import Screens from "./navigation/Screens";
+import materialTheme from "./constants/Theme";
+import { AuthProvider } from "./components/contexts/AuthContext";
+import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./components/modules/support";
+import { ProfileProvider } from "./components/contexts/ProfileContext";
+import { NotificationProvider } from "./components/contexts/NotificationContext";
+import { ChatProvider } from "./components/contexts/ChatContext";
+import Manager from "./screens/Manager";
+import { ProductProvider } from "./components/contexts/ProductContext";
 
 const assetImages = [
-  Images.Profile,
-  Images.Avatar,
-  Images.Onboarding,
-  Images.Products.Auto,
-  Images.Products.Motocycle,
-  Images.Products.Watches,
-  Images.Products.Makeup,
-  Images.Products.Accessories,
-  Images.Products.Fragrance,
-  Images.Products.BMW,
-  Images.Products.Mustang,
-  Images.Products['Harley-Davidson'],
 ];
-
-// cache product images
-// products.map(product => assetImages.push(product.image));
-
-// cache categories images
-// Object.keys(categories).map(key => {
-//   categories[key].map(category => assetImages.push(category.image));
-// });
 
 function cacheImages(images) {
   return images.map(image => {
-    if (typeof image === 'string') {
+    if (typeof image === "string") {
       return Image.prefetch(image);
     } else {
       return Asset.fromModule(image).downloadAsync();
@@ -51,26 +38,7 @@ export default class App extends React.Component {
   };
 
   render() {
-    if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
-      return (
-        <AppLoading
-          startAsync={this._loadResourcesAsync}
-          onError={this._handleLoadingError}
-          onFinish={this._handleFinishLoading}
-        />
-      );
-    } else {
-      return (
-        <NavigationContainer>
-          <GalioProvider theme={materialTheme}>
-            <Block flex>
-              {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-              <Screens />
-            </Block>
-          </GalioProvider>
-        </NavigationContainer>
-      );
-    }
+    return <RootNavigator />;
   }
 
   _loadResourcesAsync = async () => {
@@ -80,12 +48,56 @@ export default class App extends React.Component {
   };
 
   _handleLoadingError = error => {
-    // In this case, you might want to report the error to your error
-    // reporting service, for example Sentry
     console.warn(error);
   };
 
   _handleFinishLoading = () => {
     this.setState({ isLoadingComplete: true });
   };
+}
+
+
+const RootNavigator = () => {
+  const [token, setToken] = useState();
+  const [profile, setProfile] = useState();
+  const [notifications, setNotifications] = useState();
+
+  useEffect(() => {
+    asyncRemoveItem("profile");
+
+    const fetchData = async () => {
+      const _token = await asyncGetItem("token");
+      setToken(_token ? _token : null);
+      const _profile = await asyncGetJson("profile");
+      setProfile(_profile ? _profile : null);
+      const _notifications = await asyncGetJson("notifications");
+      setNotifications(_notifications ? _notifications : null);
+    }
+    fetchData();
+  }, []);
+
+  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined") {
+    return <></>; // AppLording
+  } else {
+    return (
+      <NavigationContainer>
+        <AuthProvider token={token}>
+          <ProfileProvider profile={profile} >
+            <NotificationProvider notifications={notifications} >
+              <ChatProvider >
+                <ProductProvider token={token}>
+                  <GalioProvider theme={materialTheme}>
+                    <Manager>
+                      {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                      <Screens />
+                    </Manager>
+                  </GalioProvider>
+                </ProductProvider>
+              </ChatProvider>
+            </NotificationProvider>
+          </ProfileProvider>
+        </AuthProvider>
+      </NavigationContainer>
+    );
+  }
 }
