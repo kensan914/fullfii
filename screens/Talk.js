@@ -1,9 +1,11 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
+import Toast from "react-native-toast-message";
+import { Dimensions } from "react-native";
 
 import TalkTemplate from "../components/templates/TalkTemplate";
 import { BASE_URL_WS, BASE_URL, REPORT_URL } from "../constants/env";
-import { URLJoin, asyncGetJson, initWs, closeWsSafely } from "../components/modules/support";
+import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
 import authAxios from "../components/modules/authAxios";
 
@@ -29,6 +31,11 @@ export const requestTalk = (user, token, chatDispatch) => {
     .post(url)
     .then(res => {
       chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
+      Toast.show({
+        text1: `${user.name}さんにリクエストを送りました。`,
+        text2: `${user.name}さんがリクエストに答えたらトークが開始されます。`,
+        topOffset: checkiPhoneX(Dimensions) ? 50 : 30,
+      });
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
-import { TouchableOpacity, StyleSheet, Platform, Dimensions } from "react-native";
+import { TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Block, NavBar, theme } from "galio-framework";
 
 import Icon from "../atoms/Icon";
@@ -11,10 +11,11 @@ import { useChatDispatch } from "../contexts/ChatContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { ProfileMenuButton } from "./ProfileMenuButton";
+import { checkiPhoneX } from "../modules/support";
 
 
 const { height, width } = Dimensions.get("window");
-const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
+
 
 const ProPlanButton = ({ isWhite, style, navigation }) => (
   <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Plan")}>
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
   navbar: {
     paddingVertical: 0,
     paddingBottom: theme.SIZES.BASE * 1.5,
-    paddingTop: iPhoneX ? theme.SIZES.BASE * 4 : theme.SIZES.BASE,
+    paddingTop: checkiPhoneX(Dimensions) ? theme.SIZES.BASE * 4 : theme.SIZES.BASE,
     zIndex: 5,
   },
   shadow: {

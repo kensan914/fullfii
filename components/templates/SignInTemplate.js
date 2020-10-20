@@ -42,7 +42,7 @@ const SignInTemplate = (props) => {
 
             <Block center>
               <EmailInput active={active} setEmail={setEmail} toggleActive={toggleActive} errorMessages={errorMessages} />
-              <PasswordInput active={active} setPassword={setPassword} toggleActive={toggleActive} errorMessages={errorMessages} />
+              <PasswordInput activeCustom={active.password} setPassword={setPassword} toggleActiveCustom={(val) => toggleActive("password", val)} errorMessageCustom={errorMessages.password} />
             </Block>
 
             <Block flex top style={{ marginTop: 20 }}>
