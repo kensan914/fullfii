@@ -7,7 +7,7 @@ import {
 import { Block, Text, theme } from "galio-framework";
 import { useSafeArea } from "react-native-safe-area-context";
 
-import DrawerCustomItem from "../components/organisms//Drawer";
+import DrawerCustomItem from "../components/organisms/Drawer";
 import { LinearGradient } from "expo-linear-gradient";
 import Avatar from "../components/atoms/Avatar";
 

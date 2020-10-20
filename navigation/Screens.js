@@ -22,7 +22,7 @@ import SettingsScreen from "../screens/Settings";
 import SettingsInputScreen from "../screens/SettingsInput";
 import SignUpScreen from "../screens/SignUp";
 import SignInScreen from "../screens/SignIn";
-import CustomDrawerContent from "./MenuEx";
+import CustomDrawerContent from "./Menu";
 import { useAuthState } from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useNotificationState } from "../components/contexts/NotificationContext";

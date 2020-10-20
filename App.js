@@ -9,7 +9,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { enableScreens } from "react-native-screens";
 enableScreens();
 
-import ScreensEx from "./navigation/ScreensEx";
+import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
 import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./components/modules/support";
@@ -89,7 +89,7 @@ const RootNavigator = () => {
                   <GalioProvider theme={materialTheme}>
                     <Manager>
                       {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                      <ScreensEx />
+                      <Screens />
                     </Manager>
                   </GalioProvider>
                 </ProductProvider>
