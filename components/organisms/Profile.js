@@ -147,7 +147,7 @@ export const ConsultantProfileEditor = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
-  const submit = () => {
+  const submitBirthday = () => {
     setIsLoading(true);
     requestPatchProfile(authState.token, { "birthday": `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}` }, profileDispatch, () => {
       setIsOpenBirthdayPicker(false);
@@ -158,12 +158,22 @@ export const ConsultantProfileEditor = (props) => {
   };
 
   useEffect(() => {
-    // set canSubmit
-    const prevBirthday = user.birthday;
-    if (prevBirthday.year !== birthday.getFullYear() || prevBirthday.month - 1 !== birthday.getMonth() || prevBirthday.day !== birthday.getDate()) {
-      setCanSubmit(true);
+    if (user.birthday) {
+      // set canSubmit
+      const prevBirthday = user.birthday;
+      if (prevBirthday.year !== birthday.getFullYear() || prevBirthday.month - 1 !== birthday.getMonth() || prevBirthday.day !== birthday.getDate()) {
+        setCanSubmit(true);
+      }
+      else setCanSubmit(false);
     }
-    else setCanSubmit(false);
+    // 初期user.birthdayがnullの時
+    else {
+      if (birthday) {
+        setCanSubmit(true);
+      } else {
+        setCanSubmit(false);
+      }
+    }
   }, [birthday]);
 
   return (
@@ -202,13 +212,33 @@ export const ConsultantProfileEditor = (props) => {
         </Block>
         <ProfileHr />
 
+        {!user.gender.key &&
+          <>
+            <Block style={styles.profileTextBlock}>
+              <Block style={{ marginBottom: 10, width: "100%", alignItems: "center", justifyContent: "space-between", flexDirection: "row" }}>
+                <Text size={16} bold >性別</Text>
+                <Text size={14} color="#F69896" style={{ marginRight: 5 }} >設定してください</Text>
+              </Block>
+              <EditorBlock onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.gender, screen: "InputGender" })} content={
+                <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>{user.gender.key ? user.gender.label : "-"}</Text>
+              } />
+            </Block>
+            <ProfileHr />
+          </>
+        }
+
         <Block style={styles.profileTextBlock}>
-          <Text size={16} bold style={{ marginBottom: 10 }}>生年月日</Text>
+          <Block style={{ marginBottom: 10, width: "100%", alignItems: "center", justifyContent: "space-between", flexDirection: "row" }}>
+            <Text size={16} bold>生年月日</Text>
+            {!user.birthday &&
+              <Text size={14} color="#F69896" style={{ marginRight: 5 }} >設定してください</Text>
+            }
+          </Block>
           <EditorBlock onPress={() => setIsOpenBirthdayPicker(true)} content={
-            <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>{user.birthday.text}</Text>
+            <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>{user.birthday ? user.birthday.text : "-"}</Text>
           } />
           <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={setIsOpenBirthdayPicker} colorScheme={colorScheme}
-            submit={submit} canSubmit={canSubmit} isLoading={isLoading} />
+            submit={submitBirthday} canSubmit={canSubmit} isLoading={isLoading} />
         </Block>
         <ProfileHr />
 

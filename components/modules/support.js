@@ -272,3 +272,19 @@ export const checkSubscribePlan = (profile, callback, alertText) => {
     alert(alertText);
   }
 }
+
+
+/**
+ * プロフィールの必須項目(gender, birthday)が埋まっているか判定し、OKならcallbackを実行。埋まってなければalertTextをアラートし加入を促す。
+ */
+export const checkProfileIsBuried = (profile, callback, alertText) => {
+  if (!profile.gender.key && !profile.birthday) {
+    alert(alertText + "プロフィールの以下の必須項目をが未記入です。\n\n・性別\n・生年月日");
+  } else if (!profile.gender.key) {
+    alert(alertText + "プロフィールの以下の必須項目をが未記入です。\n\n・性別");
+  } else if (!profile.birthday) {
+    alert(alertText + "プロフィールの以下の必須項目をが未記入です。\n\n・生年月日");
+  } else {
+    callback();
+  }
+}

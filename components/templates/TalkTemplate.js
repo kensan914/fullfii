@@ -4,7 +4,7 @@ import { Block, Text } from 'galio-framework';
 
 import Hr from '../../components/atoms/Hr';
 import Avatar from '../../components/atoms/Avatar';
-import { cvtListDate, cvtBadgeCount, alertModal, checkSubscribePlan } from '../modules/support';
+import { cvtListDate, cvtBadgeCount, alertModal, checkSubscribePlan, checkProfileIsBuried } from '../modules/support';
 import { useAuthState } from '../contexts/AuthContext';
 import { useChatDispatch, useChatState } from '../contexts/ChatContext';
 import { useProfileDispatch, useProfileState } from '../contexts/ProfileContext';
@@ -129,7 +129,9 @@ const SendInList = (props) => {
         cancelButton: "キャンセル",
         okButton: "開始する",
         onPress: () => {
-          checkSubscribePlan(profileState.profile, () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
+          checkProfileIsBuried(profileState.profile, () => {
+            checkSubscribePlan(profileState.profile, () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
+          }, "トークを開始することができません。");
         },
       });
     } else if (requestCancelTalk) {

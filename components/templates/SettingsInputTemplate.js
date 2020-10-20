@@ -68,9 +68,9 @@ const SettingsInputTemplate = (props) => {
 
           <Text color="gray" style={{ paddingHorizontal: 10, paddingVertical: 20 }}>パスワードを変更します。</Text>
 
-          <PasswordInput active={true} setPassword={setPrevPassword} errorMessages={{}} placeholder="現在のパスワード" />
-          <PasswordInput active={true} setPassword={setPassword} errorMessages={{}} placeholder="新しいパスワード" />
-          <PasswordInput active={true} setPassword={setPasswordAgain} errorMessages={{}} placeholder="再入力パスワード" />
+          <PasswordInput activeCustom={true} setPassword={setPrevPassword} errorMessageCustom={{}} placeholder="現在のパスワード" />
+          <PasswordInput activeCustom={true} setPassword={setPassword} errorMessageCustom={{}} placeholder="新しいパスワード" />
+          <PasswordInput activeCustom={true} setPassword={setPasswordAgain} errorMessageCustom={{}} placeholder="再入力パスワード" />
 
           {Array.isArray(errorMessages.password) &&
             errorMessages.password.map((message, index) => <BottomMessage message={message} error key={index} />)

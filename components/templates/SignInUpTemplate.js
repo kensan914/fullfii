@@ -23,6 +23,7 @@ const SignInUpTemplate = (props) => {
     username: false,
     email: false,
     password: false,
+    passwordAgain: false,
   });
   const toggleActive = (key, value) => {
     active[key] = value;
@@ -114,7 +115,7 @@ export const EmailInput = (props) => {
 }
 
 export const PasswordInput = (props) => {
-  const { active, setPassword, toggleActive, errorMessages, placeholder } = props;
+  const { activeCustom, setPassword, toggleActiveCustom, errorMessageCustom, placeholder } = props;
   return (
     <>
       <Input
@@ -126,17 +127,17 @@ export const PasswordInput = (props) => {
         viewPass
         placeholder={placeholder ? placeholder : "パスワード"}
         iconColor="#F69896"
-        style={[styles.input, active.password ? styles.inputActive : null]}
+        style={[styles.input, activeCustom ? styles.inputActive : null]}
         onChangeText={text => setPassword(text)}
-        onBlur={() => toggleActive && toggleActive("password", false)}
-        onFocus={() => toggleActive && toggleActive("password", true)}
+        onBlur={() => toggleActiveCustom && toggleActiveCustom(false)}
+        onFocus={() => toggleActiveCustom && toggleActiveCustom(true)}
         maxLength={30}
         textContentType={"oneTimeCode"}
       />
-      {(active.password && !Array.isArray(errorMessages.password)) && <BottomMessage message="8文字以上" />}
+      {(activeCustom && !Array.isArray(errorMessageCustom)) && <BottomMessage message="8文字以上" />}
       {
-        Array.isArray(errorMessages.password) &&
-        errorMessages.password.map((message, index) => <BottomMessage message={message} error key={index} />)
+        Array.isArray(errorMessageCustom) &&
+        errorMessageCustom.map((message, index) => <BottomMessage message={message} error key={index} />)
       }
     </>
   );

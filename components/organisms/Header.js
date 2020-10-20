@@ -96,6 +96,8 @@ const Header = (props) => {
         return "プロフィール編集";
       case "InputName":
         return "ユーザネーム";
+      case "InputGender":
+        return "性別";
       case "InputIntroduction":
         return "自己紹介";
       case "InputFeature":
