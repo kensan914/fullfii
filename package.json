@@ -13,6 +13,19 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "expo": "^37.0.12",
+    "expo-splash-screen": "^0.2.3",
+    "expo-updates": "~0.2.1",
+    "react": "~16.9.0",
+    "react-dom": "~16.9.0",
+    "react-native": "~0.61.5",
+    "react-native-gesture-handler": "~1.6.0",
+    "react-native-reanimated": "~1.7.0",
+    "react-native-screens": "~2.2.0",
+    "react-native-web": "~0.11.7",
+>>>>>>> e4886603b95ac717dc0ef9998c13de4222ed5c24
     "@react-native-community/datetimepicker": "2.2.2",
     "@react-native-community/masked-view": "0.1.6",
     "@react-navigation/bottom-tabs": "^5.8.0",
