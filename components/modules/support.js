@@ -1,6 +1,7 @@
 import { AsyncStorage, Alert } from "react-native";
 import { useRef, useEffect } from "react";
 import { FREE_PLAN } from "../../constants/env";
+import { Platform } from "react-native";
 
 
 // ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo" 
@@ -287,4 +288,14 @@ export const checkProfileIsBuried = (profile, callback, alertText) => {
   } else {
     callback();
   }
+}
+
+
+/**
+ * iPhoneX系か判定
+ */
+export const checkiPhoneX = (Dimensions) => {
+  const { height, width } = Dimensions.get("window");
+  const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
+  return iPhoneX;
 }

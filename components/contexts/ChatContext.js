@@ -140,6 +140,7 @@ const chatReducer = (prevState, action) => {
           talkCollection: _talkCollection,
           includedUserIDs: geneArrPushedWithoutDup(prevState.includedUserIDs, action.user.id),
           talkingRoomIDs: geneArrPushedWithoutDup(prevState.talkingRoomIDs, action.roomID),
+          totalUnreadNum: prevState.totalUnreadNum + _talkObj.unreadNum,
         };
       } else {
         // WSの重複を防ぐ
