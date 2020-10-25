@@ -14,6 +14,8 @@
 #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
 
+#import "RNSplashScreen.h" // 20/10/25
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSDictionary *launchOptions;
@@ -40,6 +42,7 @@
 
   [super application:application didFinishLaunchingWithOptions:launchOptions];
 
+  [RNSplashScreen show]; // 20/10/25
   return YES;
 }
 

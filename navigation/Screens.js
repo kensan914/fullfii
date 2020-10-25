@@ -20,6 +20,7 @@ import TalkScreen from "../screens/Talk";
 import NotificationScreen from "../screens/Notification";
 import SettingsScreen from "../screens/Settings";
 import SettingsInputScreen from "../screens/SettingsInput";
+import AppIntroScreen from "../screens/AppIntro";
 import SignUpScreen from "../screens/SignUp";
 import SignInScreen from "../screens/SignIn";
 import CustomDrawerContent from "./Menu";
@@ -302,8 +303,9 @@ const AppStack = (props) => {
 
   return (
     <>
-      <Stack.Navigator mode="card" headerMode="" >
-        {authState.status === "Authenticated" ?
+      {authState.status === "Authenticated" ?
+        <Stack.Navigator mode="card" headerMode="" >
+
           <Stack.Screen name="Authenticated" >
             {() => (
               <Drawer.Navigator
@@ -352,13 +354,16 @@ const AppStack = (props) => {
                 />
               </Drawer.Navigator>
             )}
-          </Stack.Screen> :
-          <>
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="SignIn" component={SignInScreen} />
-          </>
-        }
-      </Stack.Navigator>
+          </Stack.Screen>
+        </Stack.Navigator> :
+        <Stack.Navigator mode="card" headerMode="" screenOptions={{
+          gestureEnabled: false,
+        }} >
+          <Stack.Screen name="AppIntro" component={AppIntroScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="SignIn" component={SignInScreen} />
+        </Stack.Navigator>
+      }
       <Toast ref={(ref) => Toast.setRef(ref)} />
     </>
   );
