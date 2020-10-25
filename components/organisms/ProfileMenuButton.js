@@ -24,7 +24,7 @@ export const ProfileMenuButton = (props) => {
   return (
     <>
       <TouchableOpacity style={[styles.ProfileMenuButton, {}]} onPress={() => setIsOpen(true)}>
-        <Icon family="font-awesome" size={20} name="ellipsis-h" color="white" />
+        <Icon family="font-awesome" size={20} name="ban" color="white" />
         <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
           items={[
             {

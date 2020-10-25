@@ -41,7 +41,7 @@ export const TalkMenuButton = (props) => {
   return (
     <>
       <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
-        <Icon family="font-awesome" size={20} name="ellipsis-h" color="gray" />
+        <Icon family="font-awesome" size={20} name="sign-out-alt" color="gray" />
         <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
           items={[
             {
