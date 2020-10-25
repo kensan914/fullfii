@@ -4,6 +4,7 @@ import { Platform, StatusBar, Image } from "react-native";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
+import SplashScreen from "react-native-splash-screen";
 
 // Before rendering any navigation stack
 import { enableScreens } from "react-native-screens";
@@ -19,7 +20,10 @@ import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 
+
 const assetImages = [
+  require("./assets/images/top.jpg"),
+  require("./assets/images/logo.png"),
 ];
 
 function cacheImages(images) {
@@ -32,32 +36,27 @@ function cacheImages(images) {
   });
 }
 
-export default class App extends React.Component {
-  state = {
-    isLoadingComplete: false,
-  };
+const App = (props) => {
+  const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
 
-  render() {
-    return <RootNavigator />;
-  }
-
-  _loadResourcesAsync = async () => {
+  const loadResourcesAsync = async () => {
     return Promise.all([
       ...cacheImages(assetImages),
     ]);
   };
 
-  _handleLoadingError = error => {
-    console.warn(error);
-  };
+  useEffect(() => {
+    loadResourcesAsync()
+      .then((val) => {
+        setIsFinishLoadingResources(true);
+      });
+  }, []);
 
-  _handleFinishLoading = () => {
-    this.setState({ isLoadingComplete: true });
-  };
+  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} />;
 }
 
 
-const RootNavigator = () => {
+const RootNavigator = (props) => {
   const [token, setToken] = useState();
   const [profile, setProfile] = useState();
   const [notifications, setNotifications] = useState();
@@ -76,9 +75,11 @@ const RootNavigator = () => {
     fetchData();
   }, []);
 
-  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined") {
+  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {
     return <></>; // AppLording
   } else {
+    SplashScreen.hide();
+
     return (
       <NavigationContainer>
         <AuthProvider token={token}>
@@ -101,3 +102,6 @@ const RootNavigator = () => {
     );
   }
 }
+
+
+export default App;

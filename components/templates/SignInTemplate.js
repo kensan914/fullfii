@@ -36,7 +36,7 @@ const SignInTemplate = (props) => {
       <Block flex middle>
         <KeyboardAvoidingView behavior="padding" enabled>
           <Block flex={0.1} style={{ alignItems: "center" }}>
-            <Text size={26} bold color="#F69896">アカウントを作成</Text>
+            <Text size={26} bold color="#F69896">ログイン</Text>
           </Block>
           <Block flex={0.7} center space="between">
 
