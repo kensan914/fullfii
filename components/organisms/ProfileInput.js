@@ -21,7 +21,6 @@ export const InputBlock = (props) => {
     case "InputFeature":
     case "InputGenreOfWorries":
     case "InputScaleOfWorries":
-    case "InputWorriesToSympathize":
       return <CheckBoxInputBlock {...props} />;
     case "InputGender":
       return <RadioInputBlock {...props} />;
@@ -83,6 +82,7 @@ const TextInputBlock = (props) => {
         style={{ height: 350, borderColor: "silver", borderWidth: 1, padding: 10, marginVertical: 10, borderRadius: 10, backgroundColor: "white" }}
         maxLength={maxLength}
         value={value}
+        placeholder="（例）最近結婚して専業主婦になったのですが、夫の転勤で地方で新しく暮らすことになり、周りに悩みを話せる人がいないです...友達はみんな働いているので気楽に電話もできません。どなたか雑談程度で話せる方いないでしょうか？？"
         onChangeText={text => setValue(text)}
       />
   } else {
@@ -126,9 +126,6 @@ const CheckBoxInputBlock = (props) => {
         break;
       case "InputScaleOfWorries":
         checkBoxItemsOriginal = profileState.profileParams.scaleOfWorries;
-        break;
-      case "InputWorriesToSympathize":
-        checkBoxItemsOriginal = profileState.profileParams.worriesToSympathize;
         break;
       default:
         break;
@@ -195,9 +192,6 @@ export const SubmitProfileButton = (props) => {
       break;
     case "InputScaleOfWorries":
       data = { scale_of_worries: value };
-      break;
-    case "InputWorriesToSympathize":
-      data = { worries_to_sympathize: value };
       break;
     case "InputGender":
       data = { gender: value };

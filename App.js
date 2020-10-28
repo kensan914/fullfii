@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Platform, StatusBar, Image } from "react-native";
-// import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
+import SplashScreen from "react-native-splash-screen";
 
 // Before rendering any navigation stack
 import { enableScreens } from "react-native-screens";
@@ -19,8 +19,11 @@ import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 
-const assetImages = [
-];
+
+const assetImages = {
+  top: require("./assets/images/top.jpg"),
+  logo: require("./assets/images/logo.png"),
+};
 
 function cacheImages(images) {
   return images.map(image => {
@@ -32,32 +35,33 @@ function cacheImages(images) {
   });
 }
 
-export default class App extends React.Component {
-  state = {
-    isLoadingComplete: false,
-  };
+const App = (props) => {
+  const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
+  const [assets, setAssets] = useState({});
 
-  render() {
-    return <RootNavigator />;
-  }
-
-  _loadResourcesAsync = async () => {
+  const loadResourcesAsync = async () => {
     return Promise.all([
-      ...cacheImages(assetImages),
+      ...cacheImages(Object.values(assetImages)),
     ]);
   };
 
-  _handleLoadingError = error => {
-    console.warn(error);
-  };
+  useEffect(() => {
+    loadResourcesAsync()
+      .then((assetList) => {
+        const downloadedAssets = {};
+        assetList.forEach(elm => {
+          downloadedAssets[elm.name] = elm;
+        });
+        setAssets(downloadedAssets);
+        setIsFinishLoadingResources(true);
+      });
+  }, []);
 
-  _handleFinishLoading = () => {
-    this.setState({ isLoadingComplete: true });
-  };
+  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} assets={assets} />;
 }
 
 
-const RootNavigator = () => {
+const RootNavigator = (props) => {
   const [token, setToken] = useState();
   const [profile, setProfile] = useState();
   const [notifications, setNotifications] = useState();
@@ -76,9 +80,13 @@ const RootNavigator = () => {
     fetchData();
   }, []);
 
-  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined") {
+  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {
     return <></>; // AppLording
   } else {
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 150);
+
     return (
       <NavigationContainer>
         <AuthProvider token={token}>
@@ -89,7 +97,7 @@ const RootNavigator = () => {
                   <GalioProvider theme={materialTheme}>
                     <Manager>
                       {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                      <Screens />
+                      <Screens {...props} />
                     </Manager>
                   </GalioProvider>
                 </ProductProvider>
@@ -101,3 +109,6 @@ const RootNavigator = () => {
     );
   }
 }
+
+
+export default App;
