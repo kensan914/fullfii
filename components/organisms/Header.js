@@ -107,8 +107,6 @@ const Header = (props) => {
         return "話したい悩みのジャンル";
       case "InputScaleOfWorries":
         return "話せる悩みの大きさ";
-      case "InputWorriesToSympathize":
-        return "共感できる悩み";
       case "InputPrivacyName":
         return "プライバシーネーム";
       case "InputEmail":

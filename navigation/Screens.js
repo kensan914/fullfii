@@ -29,6 +29,7 @@ import { useProfileState } from "../components/contexts/ProfileContext";
 import { useNotificationState } from "../components/contexts/NotificationContext";
 import { cvtBadgeCount } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
+import { useNavigation } from "@react-navigation/native";
 
 const { width } = Dimensions.get("screen");
 
@@ -190,6 +191,8 @@ const HomeStack = (props) => {
 
 const HomeTabNavigator = () => {
   const Tab = createMaterialTopTabNavigator();
+  const profileState = useProfileState();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -237,10 +240,27 @@ const HomeTabNavigator = () => {
           width: width / 3.7,
         }
       }}>
-      <Tab.Screen name="Work" component={HomeScreen} />
-      <Tab.Screen name="Child" component={HomeScreen} />
-      <Tab.Screen name="Family" component={HomeScreen} />
-      <Tab.Screen name="Love" component={HomeScreen} />
+      <Tab.Screen
+        name="Top"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: ({ focused, color, size }) => (
+            <Text size={size} color={color} bold={focused}>TOP</Text>
+          )
+        }} />
+      {profileState.profile.genreOfWorries.length > 0 &&
+        profileState.profile.genreOfWorries.map((genreOfWorry) => (
+          <Tab.Screen
+            key={genreOfWorry.key}
+            name={genreOfWorry.value}
+            component={HomeScreen}
+            options={{
+              tabBarLabel: ({ focused, color, size }) => (
+                <Text size={size} color={color} bold={focused}>{genreOfWorry.label}</Text>
+              )
+            }} />
+        ))
+      }
     </Tab.Navigator>
   );
 }
@@ -359,7 +379,13 @@ const AppStack = (props) => {
         <Stack.Navigator mode="card" headerMode="" screenOptions={{
           gestureEnabled: false,
         }} >
-          <Stack.Screen name="AppIntro" component={AppIntroScreen} />
+          <Stack.Screen name="AppIntro">
+            {() => {
+              const navigation = useNavigation();
+              return <AppIntroScreen {...props} navigation={navigation} />
+            }}
+          </Stack.Screen>
+          {/* <Stack.Screen name="" component={AppIntroScreen} /> */}
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
         </Stack.Navigator>
