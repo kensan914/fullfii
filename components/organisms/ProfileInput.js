@@ -21,7 +21,6 @@ export const InputBlock = (props) => {
     case "InputFeature":
     case "InputGenreOfWorries":
     case "InputScaleOfWorries":
-    case "InputWorriesToSympathize":
       return <CheckBoxInputBlock {...props} />;
     case "InputGender":
       return <RadioInputBlock {...props} />;
@@ -128,9 +127,6 @@ const CheckBoxInputBlock = (props) => {
       case "InputScaleOfWorries":
         checkBoxItemsOriginal = profileState.profileParams.scaleOfWorries;
         break;
-      case "InputWorriesToSympathize":
-        checkBoxItemsOriginal = profileState.profileParams.worriesToSympathize;
-        break;
       default:
         break;
     }
@@ -196,9 +192,6 @@ export const SubmitProfileButton = (props) => {
       break;
     case "InputScaleOfWorries":
       data = { scale_of_worries: value };
-      break;
-    case "InputWorriesToSympathize":
-      data = { worries_to_sympathize: value };
       break;
     case "InputGender":
       data = { gender: value };

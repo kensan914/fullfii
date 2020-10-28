@@ -5,12 +5,14 @@ import { View, SafeAreaView, Text, Image, StyleSheet, StatusBar, TouchableOpacit
 import AppIntroSlider from "react-native-app-intro-slider";
 import materialTheme from "../../constants/Theme";
 import { LinearGradient } from "expo-linear-gradient";
+import { Asset } from "expo-asset";
 
 
 const { width, height } = Dimensions.get("screen");
 
 const AppIntroTemplate = (props) => {
-  const { navigation } = props;
+  const { navigation, assets } = props;
+  const data = getData(assets);
 
   const _renderItem = ({ item, index }) => {
     if (index === 0) {
@@ -39,8 +41,17 @@ const AppIntroTemplate = (props) => {
             },
           ]}>
           <Text style={styles.title}>{item.title}</Text>
-          <Image source={item.image} style={styles.image} resizeMode="contain" />
           <Text style={styles.text}>{item.text}</Text>
+          <View style={styles.imageContainer}>
+            <Image source={item.image} style={styles.image} resizeMode="contain" />
+            {item.speechBubble &&
+              <Image source={item.speechBubble.image} style={[
+                styles.speechBubble,
+                item.speechBubble.direction === "right" ? { right: -10 } : {},
+                item.speechBubble.direction === "left" ? { left: -10 } : {},
+              ]} resizeMode="contain" />
+            }
+          </View>
         </View>
       );
   };
@@ -97,35 +108,59 @@ const AppIntroTemplate = (props) => {
 
 export default AppIntroTemplate;
 
-const data = [
+
+const getData = (assets) => [
   {
     title: "Fullfiiへようこそ",
-    bgImage: require("../../assets/images/top.jpg"),
-    brandLogo: require("../../assets/images/logo.png"),
+    bgImage: assets.top,
+    brandLogo: assets.logo,
   },
   {
-    title: "相談したい相手を\n選びましょう",
-    text: "",
+    title: "Fullfiiの使いかた！",
+    text: "全部で5STEP！",
+    image: require("../../assets/images/intro0.png"),
+    bg: materialTheme.COLORS.FULLFII,
+  },
+  {
+    title: "STEP 1",
+    text: "マイページを埋めよう！",
     image: require("../../assets/images/intro1.png"),
-    bg: materialTheme.COLORS.FULLFII,
+    bg: "mediumturquoise",
+    speechBubble: { image: require("../../assets/images/intro1-2.png"), direction: "right" }
   },
   {
-    title: "悩みの共通した相手へ\nトークのリクエスト",
-    text: "",
+    title: "STEP 2",
+    text: "話したい相手を探そう！",
     image: require("../../assets/images/intro2.png"),
-    bg: materialTheme.COLORS.FULLFII,
+    bg: "darkkhaki",
+    speechBubble: { image: require("../../assets/images/intro2-2.png"), direction: "right" }
   },
   {
-    title: "リクエストが承認されたら\nトークを開始しましょう",
-    text: "",
+    title: "STEP 3",
+    text: "見つけたらリクエストを送ろう！",
     image: require("../../assets/images/intro3.png"),
-    bg: materialTheme.COLORS.FULLFII,
+    bg: "skyblue",
+    speechBubble: { image: require("../../assets/images/intro3-2.png"), direction: "left" }
   },
   {
-    title: "最後に話してくれた相手へ\n感謝の気持を送りましょう",
-    text: "",
-    image: require("../../assets/images/intro4.png"),
-    bg: materialTheme.COLORS.FULLFII,
+    title: "STEP 4",
+    text: "承認されたら話してみよう！",
+    image: require("../../assets/images/intro0.png"),
+    bg: "sandybrown",
+    speechBubble: { image: require("../../assets/images/intro4-2.png"), direction: "left" }
+  },
+  {
+    title: "STEP 5",
+    text: "相談終了後、感謝を送ろう！",
+    image: require("../../assets/images/intro5.png"),
+    bg: "mediumseagreen",
+    speechBubble: { image: require("../../assets/images/intro5-2.png"), direction: "right" }
+  },
+  {
+    title: "STEP 6",
+    text: "以上です！会員登録に進みます！",
+    image: require("../../assets/images/intro6.png"),
+    bg: "mediumslateblue",
   },
 ];
 
@@ -151,12 +186,23 @@ const styles = StyleSheet.create({
   brandLogo: {
     width: width / 4,
     height: width / 4,
-    borderRadius:  width / 11,
+    borderRadius: width / 11,
+  },
+  imageContainer: {
+    width: 320,
+    height: 320,
+    marginVertical: 32,
   },
   image: {
     width: 320,
     height: 320,
-    marginVertical: 32,
+    position: "absolute",
+  },
+  speechBubble: {
+    width: 200,
+    height: 200,
+    top: -50,
+    position: "absolute",
   },
   topText: {
     fontSize: 30,
@@ -168,6 +214,7 @@ const styles = StyleSheet.create({
   text: {
     color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
+    fontSize: 18,
   },
   topTitle: {
     fontSize: 40,
@@ -176,9 +223,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     color: "white",
     textAlign: "center",
+    fontWeight: "bold",
   },
   paginationContainer: {
     position: "absolute",

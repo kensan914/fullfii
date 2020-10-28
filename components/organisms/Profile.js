@@ -97,8 +97,6 @@ export const ConsultantProfile = (props) => {
       <ProfileHr />
       <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} />
       <ProfileHr />
-      <Catalogue title="共感できる悩み" items={user.worriesToSympathize} />
-      <ProfileHr />
     </Block>
   );
 }
@@ -260,8 +258,6 @@ export const ConsultantProfileEditor = (props) => {
         <Catalogue title="話したい悩みのジャンル" items={user.genreOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.genreOfWorries, screen: "InputGenreOfWorries" })} />
         <ProfileHr />
         <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.scaleOfWorries, screen: "InputScaleOfWorries" })} />
-        <ProfileHr />
-        <Catalogue title="共感できる悩み" items={user.worriesToSympathize} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.worriesToSympathize, screen: "InputWorriesToSympathize" })} />
       </Block >
     </ScrollView>
   );

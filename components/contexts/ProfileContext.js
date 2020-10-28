@@ -14,7 +14,6 @@ const initProfile = {
   features: {},
   genreOfWorries: {},
   scaleOfWorries: {},
-  worriesToSympathize: {},
   all: true,
   me: true,
   birthday: { text: "", year: 0, month: 0, day: 0, },

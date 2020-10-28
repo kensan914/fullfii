@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Platform, StatusBar, Image } from "react-native";
-// import { AppLoading } from "expo";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
@@ -21,10 +20,10 @@ import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 
 
-const assetImages = [
-  require("./assets/images/top.jpg"),
-  require("./assets/images/logo.png"),
-];
+const assetImages = {
+  top: require("./assets/images/top.jpg"),
+  logo: require("./assets/images/logo.png"),
+};
 
 function cacheImages(images) {
   return images.map(image => {
@@ -38,21 +37,27 @@ function cacheImages(images) {
 
 const App = (props) => {
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
+  const [assets, setAssets] = useState({});
 
   const loadResourcesAsync = async () => {
     return Promise.all([
-      ...cacheImages(assetImages),
+      ...cacheImages(Object.values(assetImages)),
     ]);
   };
 
   useEffect(() => {
     loadResourcesAsync()
-      .then((val) => {
+      .then((assetList) => {
+        const downloadedAssets = {};
+        assetList.forEach(elm => {
+          downloadedAssets[elm.name] = elm;
+        });
+        setAssets(downloadedAssets);
         setIsFinishLoadingResources(true);
       });
   }, []);
 
-  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} />;
+  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} assets={assets} />;
 }
 
 
@@ -78,7 +83,9 @@ const RootNavigator = (props) => {
   if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {
     return <></>; // AppLording
   } else {
-    SplashScreen.hide();
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 150);
 
     return (
       <NavigationContainer>
@@ -90,7 +97,7 @@ const RootNavigator = (props) => {
                   <GalioProvider theme={materialTheme}>
                     <Manager>
                       {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                      <Screens />
+                      <Screens {...props} />
                     </Manager>
                   </GalioProvider>
                 </ProductProvider>

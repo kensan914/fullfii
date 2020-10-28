@@ -41,7 +41,8 @@ export default Home;
 
 
 export const requestGetUsers = (token, appendUsers, page, genre) => {
-  const url = URLJoin(BASE_URL, "users/", `?page=${page > 0 ? page : 1}`, `?genre=${genre}`);
+  genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : []
+  const url = URLJoin(BASE_URL, "users/", `?page=${page > 0 ? page : 1}`, ...genreQueryParam);
 
   authAxios(token)
     .get(url)
