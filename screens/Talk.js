@@ -5,9 +5,10 @@ import { Dimensions } from "react-native";
 
 import TalkTemplate from "../components/templates/TalkTemplate";
 import { BASE_URL_WS, BASE_URL, REPORT_URL } from "../constants/env";
-import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX } from "../components/modules/support";
+import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX, showToast, exeIntroStep } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
 import authAxios from "../components/modules/authAxios";
+import { requestPatchProfile } from "./ProfileInput";
 
 
 const Talk = (props) => {
@@ -24,18 +25,18 @@ export default Talk;
 
 /** 
  * request talk. */
-export const requestTalk = (user, token, chatDispatch) => {
+export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
   const url = URLJoin(BASE_URL, "users/", user.id, "talk-request/");
 
   authAxios(token)
     .post(url)
     .then(res => {
       chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
-      Toast.show({
+      showToast({
         text1: `${user.name}さんにリクエストを送りました。`,
         text2: `${user.name}さんがリクエストに答えたらトークが開始されます。`,
-        topOffset: checkiPhoneX(Dimensions) ? 50 : 30,
       });
+      exeIntroStep(3, profileDispatch, profileState, requestPatchProfile, token);
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {
@@ -199,7 +200,7 @@ export const requestEndTalk = (roomID, token, setIsOpenEndTalk, navigation, chat
 
 /** 
  *  close talk request. */
-export const requestCloseTalk = (roomID, token, navigation, chatDispatch, hasThunks = false) => {
+export const requestCloseTalk = (roomID, token, navigation, chatDispatch, profileDispatch, profileState, hasThunks = false) => {
   const url = URLJoin(BASE_URL, "rooms/", roomID, "close/");
 
   authAxios(token)
@@ -216,6 +217,9 @@ export const requestCloseTalk = (roomID, token, navigation, chatDispatch, hasThu
         navigation.navigate("Home");
         chatDispatch({ type: "CLOSE_TALK", roomID: roomID });
       }
+    })
+    .finally(() => {
+      exeIntroStep(4, profileDispatch, profileState, requestPatchProfile, token);
     });
 }
 

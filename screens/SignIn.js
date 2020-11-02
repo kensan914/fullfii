@@ -16,7 +16,7 @@ const SignIn = (props) => {
 export default SignIn;
 
 
-export const requestSignIn = (email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, dontComplete = false, goNextPage = null) => {
+export const requestSignIn = (email, password, dispatches, states, setErrorMessages, errorMessagesInit, setIsLoading, dontComplete = false, goNextPage = null) => {
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "login/");
   axios
@@ -32,7 +32,7 @@ export const requestSignIn = (email, password, dispatches, chatState, setErrorMe
       }
       // 単独signin
       else {
-        dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches, chatState) });
+        dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches, states) });
       }
     })
     .catch(err => {

@@ -67,8 +67,6 @@ const RootNavigator = (props) => {
   const [notifications, setNotifications] = useState();
 
   useEffect(() => {
-    asyncRemoveItem("profile");
-
     const fetchData = async () => {
       const _token = await asyncGetItem("token");
       setToken(_token ? _token : null);

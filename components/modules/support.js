@@ -1,8 +1,9 @@
 import { AsyncStorage, Alert } from "react-native";
-import { useRef, useEffect } from "react";
 import { FREE_PLAN } from "../../constants/env";
 import { Platform } from "react-native";
-
+import Toast from "react-native-toast-message";
+import { Dimensions } from "react-native";
+import { INTRO_STEP_TEXT } from "../../constants/introStep";
 
 // ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo" 
 export const URLJoin = (...args) => {
@@ -298,4 +299,37 @@ export const checkiPhoneX = (Dimensions) => {
   const { height, width } = Dimensions.get("window");
   const iPhoneX = () => Platform.OS === "ios" && (height === 812 || width === 812 || height === 896 || width === 896);
   return iPhoneX;
+}
+
+/**
+ * custom Toast.show()
+ */
+export const showToast = (settings) => {
+  Toast.show({
+    ...settings,
+    topOffset: checkiPhoneX(Dimensions) ? 50 : 30,
+  });
+}
+
+
+/**
+ * イントロステップが未実行なのを確認し、を実行
+ * イントロが発生する箇所で毎回実行(イントロが完了していたとしても)
+ */
+export const exeIntroStep = (stepNum, profileDispatch, profileState, requestPatchProfile, token) => {
+  if (!profileState.profile.introStep[stepNum]) {
+    showToast({
+      text1: INTRO_STEP_TEXT[stepNum].text1,
+      text2: INTRO_STEP_TEXT[stepNum].text2,
+      type: "info",
+      autoHide: false,
+    });
+    profileDispatch({
+      type: "TAKE_INTRO_STEP", stepNum: stepNum, requestPatchIntroStep: (newIntroStep) => {
+        requestPatchProfile(token, {
+          intro_step: newIntroStep,
+        }, profileDispatch, profileState, () => { }, () => { });
+      }
+    });
+  }
 }

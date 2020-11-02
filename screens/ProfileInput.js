@@ -1,8 +1,9 @@
-import React from 'react';
-import ProfileInputTemplate from '../components/templates/ProfileInputTemplate';
-import authAxios from '../components/modules/authAxios';
-import { URLJoin } from "../components/modules/support";
+import React from "react";
+import ProfileInputTemplate from "../components/templates/ProfileInputTemplate";
+import authAxios from "../components/modules/authAxios";
+import { exeIntroStep, URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
+
 
 const ProfileInput = (props) => {
   return (
@@ -13,7 +14,7 @@ const ProfileInput = (props) => {
 export default ProfileInput;
 
 
-export const requestPatchProfile = (token, data, profileDispatch, successSubmit, errorSubmit) => {
+export const requestPatchProfile = (token, data, profileDispatch, profileState, successSubmit, errorSubmit) => {
   const url = URLJoin(BASE_URL, "me/");
 
   authAxios(token)
@@ -21,6 +22,9 @@ export const requestPatchProfile = (token, data, profileDispatch, successSubmit,
     .then(res => {
       profileDispatch({type: "SET_ALL", profile: res.data});
       successSubmit && successSubmit();
+      if (Object.keys(data).indexOf("intro_step") == -1) {
+        exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
+      }
     })
     .catch(err => {
       console.log(err.response);

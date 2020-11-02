@@ -4,13 +4,14 @@ import { Block, Input, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import { HeaderHeight } from "../../constants/utils";
-import { useAuthDispatch } from "../contexts/AuthContext";
-import { useProfileDispatch } from "../contexts/ProfileContext";
-import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useAuthDispatch, useAuthState } from "../contexts/AuthContext";
+import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
+import { useNotificationDispatch, useNotificationState } from "../contexts/NotificationContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { USER_POLICY_URL } from "../../constants/env";
 import SignInTemplate from "./SignInTemplate";
 import SignUpTemplate from "./SignUpTemplate";
+import { useProductDispatch, useProductState } from "../contexts/ProductContext";
 
 
 const { height, width } = Dimensions.get("window");
@@ -34,13 +35,20 @@ const SignInUpTemplate = (props) => {
     setActive({ username: false, email: false, password: false, });
   }
 
-  const chatState = useChatState();
   const dispatches = {
     authDispatch: useAuthDispatch(),
     profileDispatch: useProfileDispatch(),
     notificationDispatch: useNotificationDispatch(),
     chatDispatch: useChatDispatch(),
+    productDispatch: useProductDispatch(),
   }
+  const states = {
+    authState: useAuthState(),
+    profileState: useProfileState(),
+    notificationState: useNotificationState(),
+    chatState: useChatState(),
+    productState: useProductState(),
+  };
 
   const getSubmitButtonParams = (evaluationFormula) => {
     const submitButtonParams = {};
@@ -60,14 +68,14 @@ const SignInUpTemplate = (props) => {
   if (signup) {
     return (
       <SignUpTemplate requestSignUp={requestSignUp} navigation={navigation} active={active} toggleActive={toggleActive} getSubmitButtonParams={getSubmitButtonParams}
-        isLoading={isLoading} setIsLoading={setIsLoading} chatState={chatState} dispatches={dispatches} handleOpenWithWebBrowser={handleOpenWithWebBrowser}
+        isLoading={isLoading} setIsLoading={setIsLoading} states={states} dispatches={dispatches} handleOpenWithWebBrowser={handleOpenWithWebBrowser}
         BottomMessage={BottomMessage} EmailInput={EmailInput} PasswordInput={PasswordInput} initActive={initActive} />
     );
   }
   else if (signin) {
     return (
       <SignInTemplate requestSignIn={requestSignIn} navigation={navigation} active={active} toggleActive={toggleActive} getSubmitButtonParams={getSubmitButtonParams}
-        isLoading={isLoading} setIsLoading={setIsLoading} chatState={chatState} dispatches={dispatches}
+        isLoading={isLoading} setIsLoading={setIsLoading} states={states} dispatches={dispatches}
         BottomMessage={BottomMessage} EmailInput={EmailInput} PasswordInput={PasswordInput} />
     );
   }

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { TextInput } from "react-native";
-import { Block, Input, Text, Checkbox } from "galio-framework";
+import { Block, Input, Text, Checkbox, theme } from "galio-framework";
 import SubmitButton from "../atoms/SubmitButton";
 import { TouchableWithoutFeedback } from "react-native";
 import { useProfileState } from "../contexts/ProfileContext";
+import { alertModal } from "../modules/support";
+import { StyleSheet } from "react-native";
+import { Dimensions } from "react-native";
+
+
+const { width, height } = Dimensions.get("screen");
 
 
 export const InputBlock = (props) => {
@@ -53,8 +59,8 @@ const RadioInputBlock = (props) => {
 
   return (
     <>
-      <Text color="dimgray" style={{paddingHorizontal: 20, marginBottom: 10}} >性別は公開されます。</Text>
-      <Text color="red" style={{paddingHorizontal: 20, marginBottom: 10}} >性別は一度しか変更できません。</Text>
+      <Text color="dimgray" style={{ paddingHorizontal: 20, marginBottom: 10 }} >性別は公開されます。</Text>
+      <Text color="red" style={{ paddingHorizontal: 20, marginBottom: 10 }} >性別は一度しか変更できません。</Text>
       <Block style={{ marginTop: 20, alignItems: "center", justifyContent: "space-evenly", flexDirection: "row" }}>
         <GenderRadioButton label="女性" genderKey="FEMALE" gender={value} setGender={setValue} genderEnum={genderEnum} setCanSubmit={setCanSubmit} />
         <GenderRadioButton label="男性" genderKey="MALE" gender={value} setGender={setValue} genderEnum={genderEnum} setCanSubmit={setCanSubmit} />
@@ -173,7 +179,7 @@ const CheckBoxInputBlock = (props) => {
 
 
 export const SubmitProfileButton = (props) => {
-  const { screen, value, canSubmit, token, profileDispatch, requestPatchProfile, navigation, setValidationText } = props;
+  const { screen, value, canSubmit, token, profileDispatch, profileState, requestPatchProfile, navigation, setValidationText } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   let data;
@@ -202,7 +208,7 @@ export const SubmitProfileButton = (props) => {
 
   const submit = () => {
     setIsLoading(true);
-    requestPatchProfile(token, data, profileDispatch, successSubmit, errorSubmit);
+    requestPatchProfile(token, data, profileDispatch, profileState, successSubmit, errorSubmit);
   }
 
   const successSubmit = () => {
@@ -215,5 +221,36 @@ export const SubmitProfileButton = (props) => {
     setIsLoading(false);
   }
 
-  return <SubmitButton canSubmit={canSubmit} isLoading={isLoading} submit={submit} />
+  return (
+    <Block style={styles.submitButtonWrapper}>
+      <SubmitButton style={styles.submitButton} canSubmit={canSubmit} isLoading={isLoading} submit={() => {
+        if (screen === "InputGender") {
+          alertModal({
+            mainText: "性別は一度しか変更できません。",
+            subText: `あなたは${value == "male" ? "男性" : "女性"}で間違いありませんか?`,
+            cancelButton: "キャンセル",
+            okButton: "OK",
+            onPress: () => {
+              submit();
+            },
+            cancelOnPress: () => { },
+          });
+        } else {
+          submit();
+        }
+      }} />
+    </Block>
+  );
 }
+
+
+const styles = StyleSheet.create({
+  submitButtonWrapper: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: theme.SIZES.BASE * 2,
+  },
+  submitButton: {
+    width: width - 30,
+  }
+});

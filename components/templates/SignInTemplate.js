@@ -9,7 +9,7 @@ import { HeaderHeight } from "../../constants/utils";
 const { height, width } = Dimensions.get("window");
 
 const SignInTemplate = (props) => {
-  const { requestSignIn, navigation, active, toggleActive, getSubmitButtonParams, isLoading, setIsLoading, chatState, dispatches,
+  const { requestSignIn, navigation, active, toggleActive, getSubmitButtonParams, isLoading, setIsLoading, states, dispatches,
     BottomMessage, EmailInput, PasswordInput } = props;
 
   const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ const SignInTemplate = (props) => {
 
   const submitButtonParams = getSubmitButtonParams(email && password);
   const submitSignIn = () => {
-    requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading);
+    requestSignIn(email, password, dispatches, states, setErrorMessages, errorMessagesInit, setIsLoading);
   }
 
   return (

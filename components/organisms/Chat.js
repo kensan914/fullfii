@@ -13,7 +13,7 @@ import { TouchableOpacity } from "react-native";
 import { useAuthState } from "../contexts/AuthContext";
 import { requestCloseTalk, requestEndTalk } from "../../screens/Talk";
 import { useChatDispatch } from "../contexts/ChatContext";
-import { useProfileDispatch } from "../contexts/ProfileContext";
+import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -41,7 +41,7 @@ export const TalkMenuButton = (props) => {
   return (
     <>
       <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
-        <Icon family="font-awesome" size={20} name="sign-out-alt" color="gray" />
+        <Icon family="font-awesome" size={20} name="sign-out" color="gray" />
         <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
           items={[
             {
@@ -117,6 +117,8 @@ export const EndTalkScreen = (props) => {
   const scrollView = useRef(null);
 
   const chatDispatch = useChatDispatch();
+  const profileDispatch = useProfileDispatch();
+  const profileState = useProfileState();
 
   const goNextPage = () => {
     scrollView.current.scrollTo({ y: 0, x: width * currentPage, animated: true });
@@ -132,7 +134,7 @@ export const EndTalkScreen = (props) => {
         animation.current.play();
         setTimeout(() => {
           // goNextPage();
-          requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, true);
+          requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, profileDispatch, profileState, true);
         }, 800);
       }
     }
@@ -140,7 +142,7 @@ export const EndTalkScreen = (props) => {
       if (!pushed) {
         pushed = true;
         // goNextPage();
-        requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch);
+        requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, profileDispatch, profileState);
       }
     }
 
