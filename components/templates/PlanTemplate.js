@@ -8,9 +8,9 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { FREE_PLAN, USER_POLICY_URL } from "../../constants/env";
 import { HeaderHeight } from "../../constants/utils";
 import { useProductDispatch, useProductState } from "../contexts/ProductContext";
-import { useProfileDispatch } from "../contexts/ProfileContext";
+import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 import { useAuthDispatch, useAuthState } from "../contexts/AuthContext";
-import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useNotificationDispatch, useNotificationState } from "../contexts/NotificationContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 
 
@@ -41,22 +41,28 @@ export default PlanTemplate;
 export const PlanTemplateContent = (props) => {
   const { requestSubscription, getPurchases, plan, handleSelectedPlan } = props;
 
-  const productState = useProductState();
   const dispatches = {
     authDispatch: useAuthDispatch(),
     profileDispatch: useProfileDispatch(),
     notificationDispatch: useNotificationDispatch(),
     chatDispatch: useChatDispatch(),
+    productDispatch: useProductDispatch(),
   }
-  const productDispatch = useProductDispatch();
+  const states = {
+    authState: useAuthState(),
+    profileState: useProfileState(),
+    notificationState: useNotificationState(),
+    chatState: useChatState(),
+    productState: useProductState(),
+  }
+
   const token = useAuthState().token;
-  const chatState = useChatState();
 
   const handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
-  let plans = productState.products;
+  let plans = states.productState.products;
   if (plan === FREE_PLAN.productId) plans = plans.concat([FREE_PLAN]);
 
   if (typeof plan === "undefined") plans = plans.concat([{
@@ -81,7 +87,7 @@ export const PlanTemplateContent = (props) => {
                 onPress={() => {
                   if (_plan.productId === "skip") {
                     handleSelectedPlan();
-                  } else if (plan !== _plan.productId) requestSubscription(_plan.productId, productDispatch, handleSelectedPlan);
+                  } else if (plan !== _plan.productId) requestSubscription(_plan.productId, dispatches.productDispatch, handleSelectedPlan);
                 }}>
 
                 <Block style={{ flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
@@ -107,7 +113,7 @@ export const PlanTemplateContent = (props) => {
           <Text color="lightcoral" size={12} bold center onPress={() => {
             // typeof plan === "undefined"は、サインアップ時の対処
             if (plan === FREE_PLAN.productId || typeof plan === "undefined") {
-              getPurchases(token, dispatches, productDispatch, chatState, handleSelectedPlan);
+              getPurchases(token, dispatches, states, handleSelectedPlan);
             } else alert("すでに購入したプランが適用されています。");
           }}>購入を復元する</Text>
         </Block>
@@ -119,7 +125,7 @@ export const PlanTemplateContent = (props) => {
       </Block>
 
       <Spinner
-        visible={productState.isProcessing}
+        visible={states.productState.isProcessing}
       />
     </Block>
   );

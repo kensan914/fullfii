@@ -16,7 +16,7 @@ const SignUp = (props) => {
 export default SignUp;
 
 
-const requestSignUp = (username, email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage) => {
+const requestSignUp = (username, email, password, dispatches, states, setErrorMessages, errorMessagesInit, setIsLoading, goNextPage) => {
   setIsLoading(true);
   const url = URLJoin(BASE_URL, "signup/");
 
@@ -29,7 +29,7 @@ const requestSignUp = (username, email, password, dispatches, chatState, setErro
       // birthday: `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}`, // YYYY-MM-DD
     })
     .then(res => {
-      requestSignIn(email, password, dispatches, chatState, setErrorMessages, errorMessagesInit, setIsLoading, true, goNextPage);
+      requestSignIn(email, password, dispatches, states, setErrorMessages, errorMessagesInit, setIsLoading, true, goNextPage);
     })
     .catch(err => {
       console.log(err.response);

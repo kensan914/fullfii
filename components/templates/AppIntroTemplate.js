@@ -27,7 +27,6 @@ const AppIntroTemplate = (props) => {
               style={[styles.topWrapper]} />
             <Image source={item.brandLogo} style={styles.brandLogo} resizeMode="contain" />
             <Text style={styles.topTitle}>{item.title}</Text>
-            <Text style={styles.topText}>{item.text}</Text>
           </ImageBackground>
         </View>
       );
@@ -40,8 +39,8 @@ const AppIntroTemplate = (props) => {
               backgroundColor: item.bg,
             },
           ]}>
+          <Text style={styles.subTitle}>{item.subTitle}</Text>
           <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.text}>{item.text}</Text>
           <View style={styles.imageContainer}>
             <Image source={item.image} style={styles.image} resizeMode="contain" />
             {item.speechBubble &&
@@ -112,55 +111,52 @@ export default AppIntroTemplate;
 const getData = (assets) => [
   {
     title: "Fullfiiへようこそ",
-    bgImage: assets.top,
-    brandLogo: assets.logo,
+    // bgImage: assets.top,
+    // brandLogo: assets.logo,
+    // bgImage: require("../../assets/images/top.jpg"),
+    bgImage: null,
+    brandLogo: require("../../assets/images/logo.png"),
   },
   {
+    subTitle: "全部で5STEP！",
     title: "Fullfiiの使いかた！",
-    text: "全部で5STEP！",
     image: require("../../assets/images/intro0.png"),
     bg: materialTheme.COLORS.FULLFII,
   },
   {
-    title: "STEP 1",
-    text: "マイページを埋めよう！",
+    subTitle: "STEP 1",
+    title: "マイページを埋めよう！",
     image: require("../../assets/images/intro1.png"),
     bg: "mediumturquoise",
     speechBubble: { image: require("../../assets/images/intro1-2.png"), direction: "right" }
   },
   {
-    title: "STEP 2",
-    text: "話したい相手を探そう！",
+    subTitle: "STEP 2",
+    title: "話したい相手を探そう！",
     image: require("../../assets/images/intro2.png"),
-    bg: "darkkhaki",
+    bg: "mediumseagreen",
     speechBubble: { image: require("../../assets/images/intro2-2.png"), direction: "right" }
   },
   {
-    title: "STEP 3",
-    text: "見つけたらリクエストを送ろう！",
+    subTitle: "STEP 3",
+    title: "見つけたらリクエストを\n送ろう！",
     image: require("../../assets/images/intro3.png"),
     bg: "skyblue",
     speechBubble: { image: require("../../assets/images/intro3-2.png"), direction: "left" }
   },
   {
-    title: "STEP 4",
-    text: "承認されたら話してみよう！",
+    subTitle: "STEP 4",
+    title: "承認されたら\n話してみよう！",
     image: require("../../assets/images/intro0.png"),
     bg: "sandybrown",
     speechBubble: { image: require("../../assets/images/intro4-2.png"), direction: "left" }
   },
   {
-    title: "STEP 5",
-    text: "相談終了後、感謝を送ろう！",
+    subTitle: "STEP 5",
+    title: "相談終了後\n感謝を送ろう！",
     image: require("../../assets/images/intro5.png"),
-    bg: "mediumseagreen",
-    speechBubble: { image: require("../../assets/images/intro5-2.png"), direction: "right" }
-  },
-  {
-    title: "STEP 6",
-    text: "以上です！会員登録に進みます！",
-    image: require("../../assets/images/intro6.png"),
     bg: "mediumslateblue",
+    speechBubble: { image: require("../../assets/images/intro5-2.png"), direction: "right" }
   },
 ];
 
@@ -211,10 +207,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontWeight: "bold",
   },
-  text: {
+  subTitle: {
     color: "rgba(255, 255, 255, 0.8)",
     textAlign: "center",
     fontSize: 18,
+    marginBottom: 10,
   },
   topTitle: {
     fontSize: 40,

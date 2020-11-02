@@ -147,7 +147,7 @@ export const ConsultantProfileEditor = (props) => {
 
   const submitBirthday = () => {
     setIsLoading(true);
-    requestPatchProfile(authState.token, { "birthday": `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}` }, profileDispatch, () => {
+    requestPatchProfile(authState.token, { "birthday": `${birthday.getFullYear()}-${birthday.getMonth() + 1}-${birthday.getDate()}` }, profileDispatch, profileState, () => {
       setIsOpenBirthdayPicker(false);
       setIsLoading(false);
     }, (err) => {
@@ -351,7 +351,7 @@ export const Catalogue = (props) => {
   );
 }
 
-export const sendTalkRequest = (user, navigation, token, chatDispatch) => {
+export const sendTalkRequest = (user, navigation, token, chatDispatch, profileDispatch, profileState) => {
   let alertTitle;
   let alertText;
   switch (user.status.key) {
@@ -376,7 +376,7 @@ export const sendTalkRequest = (user, navigation, token, chatDispatch) => {
     cancelButton: "キャンセル",
     okButton: "送信する",
     onPress: () => {
-      requestTalk(user, token, chatDispatch);
+      requestTalk(user, token, chatDispatch, profileDispatch, profileState);
       navigation.navigate("Home");
     },
   });

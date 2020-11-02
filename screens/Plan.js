@@ -42,8 +42,9 @@ export const requestSubscription = async (productID, productDispatch, handleSele
   }
 }
 
-export const getPurchases = async (token, dispatches, productDispatch, chatState, handleSelectedPlan) => {
+export const getPurchases = async (token, dispatches, states, handleSelectedPlan) => {
   try {
+    const { productDispatch } = dispatches;
     productDispatch({ type: "START_PURCHASE" });
     const purchases = await RNIap.getAvailablePurchases();
 
@@ -63,7 +64,7 @@ export const getPurchases = async (token, dispatches, productDispatch, chatState
         productDispatch({ type: "SET_WILL_ALERT", text: "復元完了" });
         productDispatch({
           type: "SUCCESS_RESTORE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: token,
-          authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(token, dispatches, chatState),
+          authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(token, dispatches, states),
         });
         handleSelectedPlan && handleSelectedPlan();
       })
