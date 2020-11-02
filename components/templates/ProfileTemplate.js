@@ -5,10 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { withNavigation } from "@react-navigation/compat";
 
 import { HeaderHeight } from "../../constants/utils";
-import Icon  from "../../components/atoms/Icon";
+import Icon from "../../components/atoms/Icon";
 import Hr from "../../components/atoms/Hr";
 import { ConsultantProfile, profileImageHeight, profileContentBR, sendTalkRequest } from "../organisms/Profile";
-import { useProfileState } from "../contexts/ProfileContext";
+import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { checkProfileIsBuried, checkSubscribePlan } from "../modules/support";
@@ -22,6 +22,7 @@ const ProfileTemplate = (props) => {
   const [profileTitleHeight, setProfileTitleHeight] = useState(0);
 
   const profileState = useProfileState();
+  const profileDispatch = useProfileDispatch();
   const user = item.me ? profileState.profile : item;
   const authState = useAuthState();
   const chatDispatch = useChatDispatch();
@@ -98,17 +99,16 @@ const ProfileTemplate = (props) => {
           </Block>
         </ScrollView>
       </Block >
-      {
-        user.me ?
-          <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
-            <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
-          </Button> :
-          (!chatState.includedUserIDs.includes(user.id) &&
-            <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
-              checkProfileIsBuried(profileState.profile, () => {
-                checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
-              }, "リクエストを送信することができません。");
-            }}>リクエストを送る</Button>)
+      {user.me ?
+        <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
+          <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
+        </Button> :
+        (!chatState.includedUserIDs.includes(user.id) &&
+          <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
+            checkProfileIsBuried(profileState.profile, () => {
+              checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch, profileDispatch, profileState), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
+            }, "リクエストを送信することができません。");
+          }}>リクエストを送る</Button>)
       }
     </Block >
   );

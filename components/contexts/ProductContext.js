@@ -5,12 +5,12 @@ import RNIap, {
   purchaseUpdatedListener,
 } from "react-native-iap";
 import authAxios from "../modules/authAxios";
-import { URLJoin } from "../modules/support";
-import { useProfileDispatch } from "./ProfileContext";
+import { showToast, URLJoin } from "../modules/support";
+import { useProfileDispatch, useProfileState } from "./ProfileContext";
 import { startUpLogind } from "../../screens/Manager";
 import { useChatDispatch, useChatState } from "./ChatContext";
 import { useAuthDispatch, useAuthState } from "./AuthContext";
-import { useNotificationDispatch } from "./NotificationContext";
+import { useNotificationDispatch, useNotificationState } from "./NotificationContext";
 
 
 const productReducer = (prevState, action) => {
@@ -93,17 +93,21 @@ export const ProductProvider = ({ children, token }) => {
     isProcessing: false,
     willAlertText: "",
   });
-  const profileDispatch = useProfileDispatch();
 
   const dispatches = {
     authDispatch: useAuthDispatch(),
     profileDispatch: useProfileDispatch(),
     notificationDispatch: useNotificationDispatch(),
     chatDispatch: useChatDispatch(),
+    productDispatch: productDispatch,
   }
-  const authState = useAuthState();
-  const chatState = useChatState();
-  const profileState = useProductState();
+  const states = {
+    authState: useAuthState(),
+    profileState: useProfileState(),
+    notificationState: useNotificationState(),
+    chatState: useChatState(),
+    productState: productState,
+  };
 
   const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState();
   const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState();
@@ -139,7 +143,7 @@ export const ProductProvider = ({ children, token }) => {
 
           const receipt = purchase.transactionReceipt;
           if (receipt) {
-            requestPostPurchase(purchase, authState.token)
+            requestPostPurchase(purchase, states.authState.token)
               .then(async (res) => {
                 // これを怠ると、Androidでは購入したものが返金され、以下のことを成功させるまでアプリを再起動するたびに購入イベントが再表示されます。
                 // また、これを行わない限り、ユーザーは消耗品を再度購入することはできません。
@@ -153,8 +157,8 @@ export const ProductProvider = ({ children, token }) => {
                 }
                 await RNIap.finishTransaction(purchase);
                 productDispatch({
-                  type: "SUCCESS_PURCHASE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: authState.token,
-                  authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(authState.token, dispatches, chatState),
+                  type: "SUCCESS_PURCHASE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: states.authState.token,
+                  authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(states.authState.token, dispatches, states),
                 });
               })
               .catch(async (err) => {
@@ -187,7 +191,7 @@ export const ProductProvider = ({ children, token }) => {
         });
       });
     });
-  }, [authState]);
+  }, [states.authState]);
 
   useEffect(() => {
     if (!productState.isProcessing) {

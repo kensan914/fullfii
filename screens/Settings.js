@@ -52,7 +52,7 @@ const Settings = (props) => {
                 okButton: value ? "許可する" : "制限する",
                 onPress: () => {
                   // request patch canTalkHeterosexual
-                  requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, () => {
+                  requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, profileState, () => {
                     setCanTalkHeterosexual(value);
                   }, () => {
                     alertModal("変更に失敗しました。");
@@ -76,7 +76,7 @@ const Settings = (props) => {
             cancelButton: "キャンセル",
             okButton: "ログアウト",
             onPress: () => {
-              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch });
+              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch, profileDispatch: profileDispatch });
             },
           });
         }} />
@@ -93,7 +93,7 @@ const Settings = (props) => {
                 cancelButton: "キャンセル",
                 okButton: "削除する",
                 onPress: () => {
-                  requestDeleteAccount(authState.token, notificationDispatch, chatDispatch, authDispatch);
+                  requestDeleteAccount(authState.token, notificationDispatch, chatDispatch, authDispatch, profileDispatch);
                 },
               });
             },
@@ -203,13 +203,13 @@ const SettingsButton = (props) => {
 }
 
 
-const requestDeleteAccount = (token, notificationDispatch, chatDispatch, authDispatch) => {
+const requestDeleteAccount = (token, notificationDispatch, chatDispatch, authDispatch, profileDispatch) => {
   const url = URLJoin(BASE_URL, "me/");
 
   authAxios(token)
     .delete(url)
     .then(res => {
-      authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch });
+      authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch, profileDispatch: profileDispatch });
     })
     .catch(err => {
       console.log(err);

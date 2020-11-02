@@ -1,9 +1,8 @@
 import React from "react";
-import Toast from "react-native-toast-message";
 
 import ProfileTemplate from "../components/templates/ProfileTemplate";
 import authAxios from "../components/modules/authAxios";
-import { URLJoin } from "../components/modules/support";
+import { showToast, URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 
 
@@ -48,13 +47,13 @@ export const requestPatchBlock = (token, user, setIsShowSpinner) => {
   authAxios(token)
     .patch(url)
     .then(res => {
-      Toast.show({
+      showToast({
         text1: `${user.name}さんをブロックしました。`,
       });
     })
     .catch(err => {
       if (err.response.data.type === "have_already_blocked") {
-        Toast.show({
+        showToast({
           type: "error",
           text1: err.response.data.message,
         });
