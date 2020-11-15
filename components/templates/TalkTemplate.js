@@ -125,7 +125,7 @@ const SendInList = (props) => {
     if (initConnectWsChat) {
       alertModal({
         mainText: `${item.user.name}さんとトークを開始しますか？`,
-        subText: "トーク開始から24時間後に自動で会話内容は削除されます。",
+        subText: "トーク開始から2週間後に自動で会話内容は削除されます。",
         cancelButton: "キャンセル",
         okButton: "開始する",
         onPress: () => {

@@ -18,6 +18,7 @@ import { NotificationProvider } from "./components/contexts/NotificationContext"
 import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
+import { logEvent } from "./components/modules/firebase";
 
 
 const assetImages = {
@@ -76,6 +77,9 @@ const RootNavigator = (props) => {
       setNotifications(_notifications ? _notifications : null);
     }
     fetchData();
+
+    // send event to firebase
+    logEvent("sample_event");
   }, []);
 
   if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {

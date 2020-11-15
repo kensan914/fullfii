@@ -35,6 +35,9 @@ target 'fullfii' do
   pod 'DoubleConversion', :podspec => "#{rnPrefix}/third-party-podspecs/DoubleConversion.podspec"
   pod 'glog', :podspec => "#{rnPrefix}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
+  pod 'RNFBApp', :path => "../node_modules/@react-native-firebase/app"
+  pod 'RNFBAnalytics', :path => "../node_modules/@react-native-firebase/analytics"
+  pod 'Firebase/Analytics'  # https://firebase.google.com/docs/ios/setup
 
   # Other native modules
 
