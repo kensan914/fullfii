@@ -16,6 +16,8 @@
 
 #import "RNSplashScreen.h" // 20/10/25
 
+#import <Firebase.h>
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSDictionary *launchOptions;
@@ -43,6 +45,9 @@
   [super application:application didFinishLaunchingWithOptions:launchOptions];
 
   [RNSplashScreen show]; // 20/10/25
+  if ([FIRApp defaultApp] == nil) {  // 20/11/3
+    [FIRApp configure];
+  }
   return YES;
 }
 
