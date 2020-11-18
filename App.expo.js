@@ -3,7 +3,7 @@ import { Platform, StatusBar, Image } from "react-native";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
-import SplashScreen from "react-native-splash-screen";
+// import SplashScreen from "react-native-splash-screen";
 
 // Before rendering any navigation stack
 import { enableScreens } from "react-native-screens";
@@ -18,7 +18,7 @@ import { NotificationProvider } from "./components/contexts/NotificationContext"
 import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
-import { logEvent } from "./components/modules/firebase";
+// import { logEvent } from "./components/modules/firebase";
 
 
 const assetImages = {
@@ -38,7 +38,7 @@ function cacheImages(images) {
 
 const App = (props) => {
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
-  const [assets, setAssets] = useState({});
+  const [assets, setAssets] = useState();
 
   const loadResourcesAsync = async () => {
     return Promise.all([
@@ -57,8 +57,8 @@ const App = (props) => {
         setIsFinishLoadingResources(true);
       });
   }, []);
-
-  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} assets={assets} />;
+  // setIsFinishLoadingResources(true);
+  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} />;
 }
 
 
@@ -79,15 +79,14 @@ const RootNavigator = (props) => {
     fetchData();
 
     // send event to firebase
-    logEvent("sample_event");
+    // logEvent("sample_event");
   }, []);
-
   if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {
     return <></>; // AppLording
   } else {
-    setTimeout(() => {
-      SplashScreen.hide();
-    }, 150);
+    // setTimeout(() => {
+    //   SplashScreen.hide();
+    // }, 150);
 
     return (
       <NavigationContainer>

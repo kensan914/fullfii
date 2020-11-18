@@ -28,6 +28,7 @@
 		AA6F3144E26E4CCAAF3258C5 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 770827D8915D47138857F06A /* SimpleLineIcons.ttf */; };
 		B75A6D2065A54A019C07D60B /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B4D2ADCDFFF244E6AD830DF0 /* FontAwesome.ttf */; };
 		BAB2FD8AE367483BA5BDC836 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B6DABBCFBEF44A66B9064FA0 /* Feather.ttf */; };
+		C93A251925507AB800FF0C02 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C93A251825507AB800FF0C02 /* GoogleService-Info.plist */; };
 		C98513E82521020500CEBECA /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C98513E72521020500CEBECA /* StoreKit.framework */; };
 		C9D725CE251D568D00B675E6 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D725CD251D568D00B675E6 /* File.swift */; };
 		D8373A74406D450BB5FA6B55 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E68009ECCED4047BEE6DB5E /* Foundation.ttf */; };
@@ -62,6 +63,7 @@
 		B6DABBCFBEF44A66B9064FA0 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		C1C2213543A44F339BA4D352 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		C4F54F13AD5D4A82BBB9B212 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
+		C93A251825507AB800FF0C02 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C98513E72521020500CEBECA /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		C9D725CC251D568D00B675E6 /* fullfii-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fullfii-Bridging-Header.h"; sourceTree = "<group>"; };
 		C9D725CD251D568D00B675E6 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
@@ -88,6 +90,7 @@
 		13B07FAE1A68108700A75B9A /* fullfii */ = {
 			isa = PBXGroup;
 			children = (
+				C93A251825507AB800FF0C02 /* GoogleService-Info.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -260,6 +263,7 @@
 				9F7C90F5B03747C8862AC77F /* Octicons.ttf in Resources */,
 				AA6F3144E26E4CCAAF3258C5 /* SimpleLineIcons.ttf in Resources */,
 				A740EE621D91458285734B5A /* Zocial.ttf in Resources */,
+				C93A251925507AB800FF0C02 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,6 +307,7 @@
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Octicons.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Zocial.ttf",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -322,6 +327,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Octicons.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SimpleLineIcons.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Zocial.ttf",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -404,13 +410,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = fullfii/fullfii.entitlements;
-				CURRENT_PROJECT_VERSION = 1.0.10;
+				CURRENT_PROJECT_VERSION = 1.0.13;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 9PV69CABG3;
 				INFOPLIST_FILE = fullfii/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.9;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -432,12 +438,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = fullfii/fullfii.entitlements;
-				CURRENT_PROJECT_VERSION = 1.0.10;
+				CURRENT_PROJECT_VERSION = 1.0.13;
 				DEVELOPMENT_TEAM = 9PV69CABG3;
 				INFOPLIST_FILE = fullfii/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.9;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

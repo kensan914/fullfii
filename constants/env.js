@@ -11,7 +11,7 @@ export const USER_POLICY_URL = "https://fullfii.com/terms-of-service/";
 export const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScaGHQYXpvYtPPSIKqVgPdSgM5QY_dzOQeTG6j8Jz16bJWV3A/viewform?usp=sf_link";
 export const REPORT_URL = "https://docs.google.com/forms/d/e/1FAIpQLScuWE_hUXY8GN2Nu4CpMa7rNsUTtVRfcL0_avj5h69XwwjD8g/viewform";
 
-export const VERSION = "1.0.4"
+export const VERSION = "1.0.4";
 
 export const PRODUCT_ID_LIST = [
     "com.fullfii.fullfii.normal_plan",
