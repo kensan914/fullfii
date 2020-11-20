@@ -19,7 +19,10 @@ import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 import { logEvent } from "./components/modules/firebase";
+import { LogBox } from "react-native";
 
+
+LogBox.ignoreAllLogs(true);
 
 const assetImages = {
   top: require("./assets/images/top.jpg"),
