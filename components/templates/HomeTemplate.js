@@ -8,7 +8,7 @@ const { width, height } = Dimensions.get("screen");
 
 const HomeTemplate = (props) => {
   const numColumns = 2;
-  const { data, appendUsers, requestGetUsers, token, page, isLoading, setIsLoading, isFinished, genre } = props;
+  const { data, appendUsers, token, page, isLoading, setIsLoading, isFinished, genre } = props;
 
   return (
     <Block flex center style={styles.home}>
@@ -53,3 +53,17 @@ const styles = StyleSheet.create({
     flex: 0.5,
   }
 });
+
+
+const requestGetUsers = (token, appendUsers, page, genre) => {
+  const genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : []
+  const url = URLJoin(BASE_URL, "users/", `?page=${page > 0 ? page : 1}`, ...genreQueryParam);
+
+  authAxios(token)
+    .get(url)
+    .then(res => {
+      appendUsers(res.data);
+    })
+    .catch(err => {
+    });
+}

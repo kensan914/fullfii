@@ -108,7 +108,11 @@ const ProfileTemplate = (props) => {
             checkProfileIsBuried(profileState.profile, () => {
               checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch, profileDispatch, profileState), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
             }, "リクエストを送信することができません。");
-          }}>リクエストを送る</Button>)
+          }}>
+            <Text color="white" size={16}>
+              <Icon name="mail-forward" family="font-awesome" color="white" size={16} />{" "}リクエストを送る
+            </Text>
+          </Button>)
       }
     </Block >
   );

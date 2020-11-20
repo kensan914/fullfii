@@ -12,6 +12,7 @@ import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext"
 import { useAuthDispatch, useAuthState } from "../contexts/AuthContext";
 import { useNotificationDispatch, useNotificationState } from "../contexts/NotificationContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
+import useAllContext from "../contexts/ContextUtils";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -41,21 +42,7 @@ export default PlanTemplate;
 export const PlanTemplateContent = (props) => {
   const { requestSubscription, getPurchases, plan, handleSelectedPlan } = props;
 
-  const dispatches = {
-    authDispatch: useAuthDispatch(),
-    profileDispatch: useProfileDispatch(),
-    notificationDispatch: useNotificationDispatch(),
-    chatDispatch: useChatDispatch(),
-    productDispatch: useProductDispatch(),
-  }
-  const states = {
-    authState: useAuthState(),
-    profileState: useProfileState(),
-    notificationState: useNotificationState(),
-    chatState: useChatState(),
-    productState: useProductState(),
-  }
-
+  const [states, dispatches] = useAllContext();
   const token = useAuthState().token;
 
   const handleOpenWithWebBrowser = () => {

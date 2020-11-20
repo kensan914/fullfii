@@ -1,16 +1,14 @@
-import React from 'react';
-import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
-import { Block, Text } from 'galio-framework';
+import React from "react";
+import { StyleSheet, Dimensions, ScrollView, TouchableOpacity } from "react-native";
+import { Block, Text } from "galio-framework";
 
-import Hr from '../../components/atoms/Hr';
-import Avatar from '../../components/atoms/Avatar';
-import { cvtListDate, cvtBadgeCount, alertModal, checkSubscribePlan, checkProfileIsBuried } from '../modules/support';
-import { useAuthState } from '../contexts/AuthContext';
-import { useChatDispatch, useChatState } from '../contexts/ChatContext';
-import { useProfileDispatch, useProfileState } from '../contexts/ProfileContext';
+import Hr from "../../components/atoms/Hr";
+import Avatar from "../../components/atoms/Avatar";
+import { cvtListDate, cvtBadgeCount, alertModal, checkSubscribePlan, checkProfileIsBuried } from "../modules/support";
+import useAllContext from "../contexts/ContextUtils";
 
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get("screen");
 
 const TalkTemplate = (props) => {
   const { navigation, sendCollection, inCollection, talkCollection, initConnectWsChat, requestCancelTalk } = props;
@@ -106,11 +104,8 @@ const TalkList = (props) => {
 
 const SendInList = (props) => {
   const { collection, initConnectWsChat, requestCancelTalk, navigation } = props;
-  const authState = useAuthState();
-  const chatState = useChatState();
-  const chatDispatch = useChatDispatch();
-  const profileDispatch = useProfileDispatch();
-  const profileState = useProfileState();
+
+  const [states, dispatches] = useAllContext();
 
   const list = Object.values(collection)
     .sort((a, b) => {
@@ -129,8 +124,8 @@ const SendInList = (props) => {
         cancelButton: "キャンセル",
         okButton: "開始する",
         onPress: () => {
-          checkProfileIsBuried(profileState.profile, () => {
-            checkSubscribePlan(profileState.profile, () => initConnectWsChat(item.roomID, authState.token, chatState, chatDispatch, profileDispatch), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
+          checkProfileIsBuried(states.profileState.profile, () => {
+            checkSubscribePlan(states.profileState.profile, () => initConnectWsChat(item.roomID, states.authState.token, states, dispatches), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
           }, "トークを開始することができません。");
         },
       });
@@ -140,7 +135,7 @@ const SendInList = (props) => {
         subText: `${item.user.name}さんの端末からもこのリクエストは削除されます。`,
         cancelButton: "やめる",
         okButton: "キャンセルする",
-        onPress: () => requestCancelTalk(item.roomID, authState.token, chatDispatch),
+        onPress: () => requestCancelTalk(item.roomID, states.authState.token, dispatches.chatDispatch),
       });
     }
   }

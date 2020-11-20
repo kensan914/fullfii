@@ -1,5 +1,5 @@
-// const DEBUG = true;
-const DEBUG = false;
+const DEBUG = true;
+// const DEBUG = false;
 
 const BASE_HOST = DEBUG ? "192.168.11.17:8080" : "fullfii.com";
 const URL_SCHEME_HTTP = DEBUG ? "http" : "https";
@@ -22,3 +22,4 @@ export const FREE_PLAN = {
     title: "未加入",
     description: "",
 };
+Object.freeze(FREE_PLAN);

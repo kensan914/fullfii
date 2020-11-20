@@ -12,7 +12,7 @@ import { useChatDispatch } from "../components/contexts/ChatContext";
 import { BASE_URL, USER_POLICY_URL, VERSION, GOOGLE_FORM_URL } from "../constants/env"
 import { useProfileDispatch, useProfileState } from "../components/contexts/ProfileContext";
 import { requestPatchProfile } from "./ProfileInput";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 
 
 const { width, height } = Dimensions.get("screen");

@@ -1,6 +1,6 @@
 import React from "react";
 import { ProfileTabNavigator, ConsultantProfileEditor } from "../components/organisms/Profile";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 

@@ -1,7 +1,7 @@
 import React from "react";
 
 import ProfileTemplate from "../components/templates/ProfileTemplate";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { showToast, URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 

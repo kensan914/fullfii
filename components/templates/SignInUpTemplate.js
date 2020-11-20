@@ -12,6 +12,7 @@ import { USER_POLICY_URL } from "../../constants/env";
 import SignInTemplate from "./SignInTemplate";
 import SignUpTemplate from "./SignUpTemplate";
 import { useProductDispatch, useProductState } from "../contexts/ProductContext";
+import useAllContext from "../contexts/ContextUtils";
 
 
 const { height, width } = Dimensions.get("window");
@@ -35,20 +36,21 @@ const SignInUpTemplate = (props) => {
     setActive({ username: false, email: false, password: false, });
   }
 
-  const dispatches = {
-    authDispatch: useAuthDispatch(),
-    profileDispatch: useProfileDispatch(),
-    notificationDispatch: useNotificationDispatch(),
-    chatDispatch: useChatDispatch(),
-    productDispatch: useProductDispatch(),
-  }
-  const states = {
-    authState: useAuthState(),
-    profileState: useProfileState(),
-    notificationState: useNotificationState(),
-    chatState: useChatState(),
-    productState: useProductState(),
-  };
+  // const dispatches = {
+  //   authDispatch: useAuthDispatch(),
+  //   profileDispatch: useProfileDispatch(),
+  //   notificationDispatch: useNotificationDispatch(),
+  //   chatDispatch: useChatDispatch(),
+  //   productDispatch: useProductDispatch(),
+  // }
+  // const states = {
+  //   authState: useAuthState(),
+  //   profileState: useProfileState(),
+  //   notificationState: useNotificationState(),
+  //   chatState: useChatState(),
+  //   productState: useProductState(),
+  // };
+  const [states, dispatches] = useAllContext();
 
   const getSubmitButtonParams = (evaluationFormula) => {
     const submitButtonParams = {};

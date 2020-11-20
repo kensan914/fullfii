@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Block, NavBar, theme } from "galio-framework";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
@@ -36,7 +37,9 @@ const Header = (props) => {
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
-    if (scene.route.name === "Chat" && talkObj) return (
+    // const routeName = getFocusedRouteNameFromRoute(scene.route);
+    const routeName = scene.route.name;
+    if (routeName === "Chat" && talkObj) return (
       <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
     );
     switch (name) {
@@ -120,15 +123,21 @@ const Header = (props) => {
       case "Settings":
       case "SettingsInput":
         return "設定";
+      case "Worry":
+        return "相談募集";
+      case "WorryPost":
+        return "相談募集";
       default:
         return name;
     }
   }
 
-  const noShadow = ["Home", "Profile"].includes(name);
+  const hasShadow = !["Home", "Profile", "Worry"].includes(name);
+  const hasBorder = ["Home", "Worry"].includes(name);
   const headerStyles = [
-    !noShadow ? styles.shadow : null,
+    hasShadow ? styles.shadow : null,
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,
+    hasBorder ? { borderBottomColor: "silver", borderBottomWidth: 0.5, } : null,
   ];
 
   return (

@@ -4,6 +4,7 @@ import { Platform } from "react-native";
 import Toast from "react-native-toast-message";
 import { Dimensions } from "react-native";
 import { INTRO_STEP_TEXT } from "../../constants/introStep";
+import { CODE } from "../../constants/statusCodes";
 
 // ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo" 
 export const URLJoin = (...args) => {
@@ -222,7 +223,7 @@ export const geneArrPushedWithoutDup = (arr, val) => {
   else return arr;
 }
 
-export const initWs = (wsSettings) => {
+export const initWs = (wsSettings, dispatches) => {
   // Object.keys(webSetting) >>> [url, onopen, onmessage, onclose, registerWs]
   const connectIntervalTime = 2000;
 
@@ -239,12 +240,17 @@ export const initWs = (wsSettings) => {
     } : (e) => { };
     ws.onclose = wsSettings.onclose ? (e) => {
       if (!e.wasClean) {
-        connectInterval = setTimeout(() => {
-          if (!ws || ws.readyState == WebSocket.CLOSED) {
-            // alert("再接続中...");
-            connect(true); // isReconnect = true
-          }
-        }, connectIntervalTime);
+        if (e.code === CODE.WS.UNAUTHORIZED) {
+          // ログアウト
+          dispatches.authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: dispatches.notificationDispatch, chatDispatch: dispatches.chatDispatch, profileDispatch: dispatches.profileDispatch });
+        } else {
+          connectInterval = setTimeout(() => {
+            if (!ws || ws.readyState == WebSocket.CLOSED) {
+              // alert("再接続中...");
+              connect(true); // isReconnect = true
+            }
+          }, connectIntervalTime);
+        }
       }
       wsSettings.onclose(e, ws);
     } : (e) => { };
@@ -332,4 +338,19 @@ export const exeIntroStep = (stepNum, profileDispatch, profileState, requestPatc
       }
     });
   }
+}
+
+
+/** オブジェクトに不正なkeyが含まれていないか判定
+ * @param {array} correctKeys
+ * @param {Object} targetObj
+ * @param {function} discoverIncorrectCallback (incorrectkey{string}) => {}
+ * */
+export const checkCorrectKey = (correctKeys, targetObj, discoverIncorrectCallback) => {
+  const targetObjKeys = Object.keys(targetObj);
+  targetObjKeys.forEach(targetObjKey => {
+    if (!correctKeys.includes(targetObjKey)) {
+      discoverIncorrectCallback(targetObjKey);
+    }
+  })
 }

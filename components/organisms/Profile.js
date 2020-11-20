@@ -3,6 +3,8 @@ import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator
 import { Appearance } from 'react-native-appearance';
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
 import { getPermissionAsync, onLoad, pickImage } from '../modules/imagePicker';
@@ -43,9 +45,11 @@ export const ProfileTabNavigator = (props) => {
       screenOptions={({ route }) => ({
         tabBarLabel: ({ focused, color, size }) => {
           let title;
-          if (route.name === "Consultant") {
+          // const routeName = getFocusedRouteNameFromRoute(route);
+          const routeName = route.name;
+          if (routeName === "Consultant") {
             title = "聞き手";
-          } else if (route.name === "Client") {
+          } else if (routeName === "Client") {
             title = "相談者";
           }
           return (
