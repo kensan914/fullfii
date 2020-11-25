@@ -29,9 +29,7 @@ export const connectWsNotification = (token, states, dispatches) => {
     },
     onmessage: (e, ws, isReconnect) => {
       const data = JSON.parse(e.data);
-      console.log("ddddd");
-      console.log({...data});
-      
+
       if (data.type === "auth") {
         dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
         // get newest notifications
@@ -59,9 +57,10 @@ export const connectWsNotification = (token, states, dispatches) => {
 
         if (data.notification.type === "talk_request") {
           // チャットリクエスト通知
-          dispatches.chatDispatch({ type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date });
+          dispatches.chatDispatch({ type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date, worriedUserID: data.worried_user_id });
         } else if (data.notification.type === "talk_response") {
           // チャットレスポンス通知
+          // initConnectWsChat(data.room_id, token, states, dispatches, data.worried_user_id !== data.notification.subject.id);
           initConnectWsChat(data.room_id, token, states, dispatches);
         } else if (data.notification.type === "cancel_talk_request_to_res") {
           // レスポンスユーザへのキャンセルトークリクエスト通知

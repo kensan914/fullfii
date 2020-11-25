@@ -26,13 +26,14 @@ import SignUpScreen from "../screens/SignUp";
 import SignInScreen from "../screens/SignIn";
 import WorryScreen from "../screens/Worry";
 import WorryPostScreen from "../screens/WorryPost";
+import WorryListScreen from "../screens/WorryList";
 import CustomDrawerContent from "./Menu";
 import { useAuthState } from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useNotificationState } from "../components/contexts/NotificationContext";
 import { cvtBadgeCount } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
-import WorryPostButton from "../components/atoms/WorryPostButton";
+
 
 const { width } = Dimensions.get("screen");
 
@@ -210,7 +211,7 @@ const HomeStack = (props) => {
           header: ({ navigation, scene }) => (
             <Header
               back
-              name="Worry"
+              name="WorryPost"
               navigation={navigation}
               scene={scene}
               profile={profileState.profile}
@@ -296,7 +297,6 @@ const HomeTabNavigator = () => {
           ))
         }
       </Tab.Navigator>
-      <WorryPostButton />
     </>
   );
 }
@@ -316,6 +316,8 @@ const BottomTabNavigator = () => {
           const routeName = route.name;
           if (routeName === "Home") {
             iconName = focused ? "home" : "home";
+          } else if (routeName === "WorryList") {
+            iconName = "list-ul";
           } else if (routeName === "Talk") {
             iconName = focused ? "comments" : "comments-o";
             badgeCount = cvtBadgeCount(chatState.totalUnreadNum);
@@ -342,6 +344,7 @@ const BottomTabNavigator = () => {
       }}
     >
       <Tab.Screen name="Home" component={HomeTabNavigator} />
+      <Tab.Screen name="WorryList" component={WorryListScreen} />
       <Tab.Screen name="Talk" component={TalkScreen} />
       <Tab.Screen name="Notification" options={{
         tabBarButton: (props) => <TouchableOpacity activeOpacity={1} {...props} onPress={() => {

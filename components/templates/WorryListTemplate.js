@@ -12,11 +12,11 @@ const WorryListTemplate = (props) => {
   const { worries, setWorries, token, genre } = props;
 
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isRefreshingRef = useRef(false);
 
-  const genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : []
+  const genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : [];
   const urlExcludePage = URLJoin(BASE_URL, "worries/", ...genreQueryParam);
   const { isLoading, resData, request } = useAxios(
     URLJoin(urlExcludePage, `?page=${page}`),

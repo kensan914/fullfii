@@ -78,8 +78,8 @@ export const TalkMenuButton = (props) => {
 export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
   setCanPressBackdrop(false);
   alertModal({
-    mainText: "トークを終了しますか？",
-    subText: "あなたの端末と相手の端末から全ての会話内容が削除されます。",
+    mainText: "トークを終了します。",
+    subText: "本当によろしいですか？",
     cancelButton: "キャンセル",
     okButton: "終了する",
     onPress: () => {
@@ -94,8 +94,8 @@ export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispat
 const handleReport = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
   setCanPressBackdrop(false);
   alertModal({
-    mainText: "通報しますか？",
-    subText: "トークは終了され、あなたの端末と相手の端末から全ての会話内容が削除されます。",
+    mainText: "通報します。",
+    subText: "トークは終了され、通報ページに移動します。よろしいですか？",
     cancelButton: "キャンセル",
     okButton: "通報する",
     onPress: () => {

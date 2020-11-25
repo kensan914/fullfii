@@ -25,25 +25,6 @@ const WorryCard = (props) => {
   const avatarFlex = 0.2;
   const contentsFlex = 0.8;
 
-  // const titleContents = (
-  //   <>
-  //     <Block flex={0.8}>
-  //       <TouchableOpacity activeOpacity={.9} onPress={() => handleNavigateProfile(worry)}>
-  //         {/* user name */}
-  //         <Text size={14} color="dimgray" bold numberOfLines={1} ellipsizeMode="tail">
-  //           {worry.user.name} {" "}
-  //         </Text>
-  //       </TouchableOpacity>
-  //       {/* gender and age */}
-  //       <Text size={12} color="darkgray" >{worry.user.gender.label}{" "}{worry.user.age}{"歳"}</Text>
-  //     </Block>
-  //     {/* time */}
-  //     < Block flex={0.2} style={styles.timeContainer} >
-  //       <Text size={12} color="gray">{cvtListDate(new Date(worry.time))}</Text>
-  //     </Block >
-  //   </>
-  // );
-
   return (
     <>
       <Block flex style={[styles.worryCard]}>
@@ -59,10 +40,10 @@ const WorryCard = (props) => {
             {/* title */}
             <Block style={[styles.titleContainer]} >
               <Block flex={0.8} style={{}}>
-                <TouchableOpacity activeOpacity={.9} onPress={() => handleNavigateProfile(worry)}>
+                <TouchableOpacity style={styles.userName} activeOpacity={.9} onPress={() => handleNavigateProfile(worry)}>
                   {/* user name */}
-                  <Text size={14} color="dimgray" bold numberOfLines={1} ellipsizeMode="tail">
-                    {worry.user.name} {" "}
+                  <Text size={isDetail ? 15 : 14} color="dimgray" bold numberOfLines={1} ellipsizeMode="tail">
+                    {worry.user.name}
                   </Text>
                 </TouchableOpacity>
                 {/* gender and age */}
@@ -79,7 +60,7 @@ const WorryCard = (props) => {
 
             {!isDetail &&
               // message when list
-              <Block>
+              <Block style={styles.listMessage}>
                 <Text size={13} color="#333333" style={{ lineHeight: 16 }}>{worry.message}</Text>
               </Block>
             }
@@ -117,7 +98,7 @@ const styles = StyleSheet.create({
     width: width,
     backgroundColor: "white",
     alignItems: "flex-start",
-    paddingVertical: 6,
+    paddingVertical: 12,
   },
   avatarContainer: {
   },
@@ -129,7 +110,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   timeContainer: {
-    alignItems: "flex-end"
+    alignItems: "flex-end",
   },
   detailMessage: {
     paddingHorizontal: 14,
@@ -139,5 +120,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     paddingTop: 12,
-  }
+  },
+  listMessage: {
+    paddingTop: 6,
+    paddingBottom: 4,
+  },
+  userName: {
+    marginBottom: 3,
+  },
 });

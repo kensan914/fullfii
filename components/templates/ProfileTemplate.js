@@ -3,6 +3,7 @@ import { StyleSheet, Dimensions, ScrollView, Image, Platform } from "react-nativ
 import { Block, Text, theme, Button } from "galio-framework";
 import { LinearGradient } from "expo-linear-gradient";
 import { withNavigation } from "@react-navigation/compat";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { HeaderHeight } from "../../constants/utils";
 import Icon from "../../components/atoms/Icon";
@@ -12,6 +13,8 @@ import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext"
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { checkProfileIsBuried, checkSubscribePlan } from "../modules/support";
+import { MenuModal } from "../molecules/Menu";
+import useAllContext from "../contexts/ContextUtils";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -20,101 +23,127 @@ const ProfileTemplate = (props) => {
   const { navigation } = props;
   const { item } = props.route.params;
   const [profileTitleHeight, setProfileTitleHeight] = useState(0);
+  const [isOpenRequestMenu, setIsOpenRequestMenu] = useState(false);
 
   const profileState = useProfileState();
-  const profileDispatch = useProfileDispatch();
   const user = item.me ? profileState.profile : item;
-  const authState = useAuthState();
-  const chatDispatch = useChatDispatch();
   const chatState = useChatState();
+
+  const [states, dispatches] = useAllContext();
 
   const paramsTitleSize = user.me ? 12 : 12;
   return (
-    <Block flex style={styles.profile}>
-      <Block flex style={styles.profileDetails}>
-        <ScrollView vertical={true} showsVerticalScrollIndicator={false}>
+    <>
+      <Block flex style={styles.profile}>
+        <Block flex style={styles.profileDetails}>
+          <ScrollView vertical={true} showsVerticalScrollIndicator={false}>
 
-          <Block flex style={styles.profileImageContainer}>
-            {user.image
-              ? <Image source={{ uri: user.image }} style={styles.profileImage} />
-              : <LinearGradient
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
-                colors={["#ffcccc", "lightcoral"]}
-                style={[styles.profileImage, { justifyContent: "center", alignItems: "center" }]}>
-                <Icon family="font-awesome" size={250} name="user-circle-o" color="whitesmoke" />
-              </LinearGradient>}
-          </Block>
+            <Block flex style={styles.profileImageContainer}>
+              {user.image
+                ? <Image source={{ uri: user.image }} style={styles.profileImage} />
+                : <LinearGradient
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  colors={["#ffcccc", "lightcoral"]}
+                  style={[styles.profileImage, { justifyContent: "center", alignItems: "center" }]}>
+                  <Icon family="font-awesome" size={250} name="user-circle-o" color="whitesmoke" />
+                </LinearGradient>}
+            </Block>
 
-          <Block style={styles.scrollContent}>
+            <Block style={styles.scrollContent}>
 
-            <Block style={styles.profileWrapper}>
-              <Block style={[styles.profileTitle, { top: -1 * profileTitleHeight, }]}
-                onLayout={(e) => {
-                  setProfileTitleHeight(e.nativeEvent.layout.height);
-                }}>
-                <Text bold color="white" size={28} style={{ paddingBottom: 8 }}>{user.name}</Text>
+              <Block style={styles.profileWrapper}>
+                <Block style={[styles.profileTitle, { top: -1 * profileTitleHeight, }]}
+                  onLayout={(e) => {
+                    setProfileTitleHeight(e.nativeEvent.layout.height);
+                  }}>
+                  <Text bold color="white" size={28} style={{ paddingBottom: 8 }}>{user.name}</Text>
 
-                <Block row style={{ justifyContent: "space-between" }}>
-                  <Block row style={{ marginBottom: 7 }} >
-                    <Text size={15} style={{ marginRight: 10 }} color="white" >{user.gender.label}{"  "}{user.age}歳</Text>
-                    {user.status &&
+                  <Block row style={{ justifyContent: "space-between" }}>
+                    <Block row style={{ marginBottom: 7 }} >
+                      <Text size={15} style={{ marginRight: 10 }} color="white" >{user.gender.label}{"  "}{user.age}歳</Text>
+
+                      {/* FULL-47: ユーザステータス表示の一時的停止 */}
+                      {/* {user.status &&
                       <>
                         <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
                           <Block style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: user.status.color }} />
                         </Block>
                         <Text size={16} color="white">{user.status.label}</Text>
                       </>
-                    }
-                  </Block>
-                </Block>
-
-                {user.image
-                  ? <LinearGradient colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]} style={[styles.gradient, { height: profileTitleHeight + 10 }]} />
-                  : <Block style={[styles.gradient, { height: 10, backgroundColor: "lightcoral" }]} />
-                }
-              </Block>
-
-              <Block style={styles.profileContent}>
-                <Block flex row space="around" style={{ padding: theme.SIZES.BASE, marginBottom: 8 }}>
-                  <Block middle flex>
-                    <Text bold size={user.me ? 16 : 18} color="#333333">{user.numOfThunks}</Text>
-                    <Text muted size={paramsTitleSize}>
-                      <Icon name="heart" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}ありがとう
-                    </Text>
-                  </Block>
-                  {user.me && (
-                    <Block middle flex>
-                      <Text bold size={16} color="#333333">{user.plan ? user.plan.label : ""}</Text>
-                      <Text muted size={paramsTitleSize}>
-                        <Icon name="id-card-o" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}プラン
-                        </Text>
+                    } */}
                     </Block>
-                  )}
+                  </Block>
+
+                  {user.image
+                    ? <LinearGradient colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]} style={[styles.gradient, { height: profileTitleHeight + 10 }]} />
+                    : <Block style={[styles.gradient, { height: 10, backgroundColor: "lightcoral" }]} />
+                  }
                 </Block>
-                <Hr h={15} color="whitesmoke" />
-                <ConsultantProfile user={user} />
+
+                <Block style={styles.profileContent}>
+                  <Block flex row space="around" style={{ padding: theme.SIZES.BASE, marginBottom: 8 }}>
+                    <Block middle flex>
+                      <Text bold size={user.me ? 16 : 18} color="#333333">{user.numOfThunks}</Text>
+                      <Text muted size={paramsTitleSize}>
+                        <Icon name="heart" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}ありがとう
+                    </Text>
+                    </Block>
+                    {user.me && (
+                      <Block middle flex>
+                        <Text bold size={16} color="#333333">{user.plan ? user.plan.label : ""}</Text>
+                        <Text muted size={paramsTitleSize}>
+                          <Icon name="id-card-o" family="font-awesome" color="#F69896" size={paramsTitleSize} />{" "}プラン
+                        </Text>
+                      </Block>
+                    )}
+                  </Block>
+                  <Hr h={15} color="whitesmoke" />
+                  <ConsultantProfile user={user} />
+                </Block>
               </Block>
             </Block>
-          </Block>
-        </ScrollView>
-      </Block >
-      {user.me ?
-        <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
-          <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
-        </Button> :
-        (!chatState.includedUserIDs.includes(user.id) &&
-          <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
-            checkProfileIsBuried(profileState.profile, () => {
-              checkSubscribePlan(profileState.profile, () => sendTalkRequest(user, navigation, authState.token, chatDispatch, profileDispatch, profileState), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
-            }, "リクエストを送信することができません。");
-          }}>
-            <Text color="white" size={16}>
-              <Icon name="mail-forward" family="font-awesome" color="white" size={16} />{" "}リクエストを送る
+          </ScrollView>
+        </Block >
+        {user.me ?
+          <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => navigation.navigate("ProfileEditor")} >
+            <Text color="white" size={16}><Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する</Text>
+          </Button> :
+          (!chatState.includedUserIDs.includes(user.id) &&
+            <Button round color="lightcoral" opacity={0.9} style={styles.bottomButton} onPress={() => {
+              checkProfileIsBuried(profileState.profile, () => {
+                checkSubscribePlan(profileState.profile, () => {
+                  setIsOpenRequestMenu(true);
+                }, "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
+              }, "リクエストを送信することができません。");
+            }}>
+              <Text color="white" size={16}>
+                <Icon name="mail-forward" family="font-awesome" color="white" size={16} />{" "}リクエストを送る
             </Text>
-          </Button>)
-      }
-    </Block >
+            </Button>)
+        }
+      </Block >
+
+      {/* requestMenu */}
+      <MenuModal isOpen={isOpenRequestMenu} setIsOpen={setIsOpenRequestMenu}
+        items={[
+          {
+            title: "話を聞いてほしい",
+            icon: <Icon name="volume-up" family="font-awesome" color="dimgray" size={20} />,
+            onPress: () => {
+              sendTalkRequest(true, user, navigation, states, dispatches, setIsOpenRequestMenu);
+            }
+          },
+          {
+            title: "話聞くよ",
+            icon: <><Icon name="volume-off" family="font-awesome" color="dimgray" size={20} />{"  "}</>,
+            onPress: () => {
+              sendTalkRequest(false, user, navigation, states, dispatches, setIsOpenRequestMenu);
+            }
+          },
+        ]}
+      />
+    </>
   );
 }
 

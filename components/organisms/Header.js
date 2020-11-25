@@ -50,6 +50,7 @@ const Header = (props) => {
           );
         }
       case "Home":
+      case "WorryList":
       case "Talk":
       case "Notification":
         return (
@@ -103,7 +104,7 @@ const Header = (props) => {
       case "InputGender":
         return "性別";
       case "InputIntroduction":
-        return "自己紹介";
+        return "今悩んでいること";
       case "InputFeature":
         return "特徴";
       case "InputGenreOfWorries":
@@ -123,10 +124,12 @@ const Header = (props) => {
       case "Settings":
       case "SettingsInput":
         return "設定";
+      case "WorryList":
+        return "つぶやき";
       case "Worry":
-        return "相談募集";
+        return "つぶやき";
       case "WorryPost":
-        return "相談募集";
+        return "つぶやく";
       default:
         return name;
     }

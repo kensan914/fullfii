@@ -3,7 +3,7 @@ import * as WebBrowser from "expo-web-browser";
 
 import TalkTemplate from "../components/templates/TalkTemplate";
 import { BASE_URL_WS, BASE_URL, REPORT_URL } from "../constants/env";
-import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX, showToast, exeIntroStep } from "../components/modules/support";
+import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX, showToast, exeIntroStep, cvtKeyFromSnakeToCamel } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
 import authAxios from "../components/modules/axios";
 import { requestPatchProfile } from "./ProfileInput";
@@ -23,18 +23,21 @@ export default Talk;
 
 /** 
  * request talk. */
-export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
+// export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
+export const requestTalk = (isWorried, user, states, dispatches, navigation, setIsOpenRequestMenu) => {
   const url = URLJoin(BASE_URL, "users/", user.id, "talk-request/");
 
-  authAxios(token)
-    .post(url)
+  authAxios(states.authState.token)
+    .post(url, { is_worried: isWorried })
     .then(res => {
-      chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
+      dispatches.chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()), worriedUserID: res.data.worried_user_id });
       showToast({
         text1: `${user.name}さんにリクエストを送りました。`,
         text2: `${user.name}さんがリクエストに答えたらトークが開始されます。`,
       });
-      exeIntroStep(3, profileDispatch, profileState, requestPatchProfile, token);
+      setIsOpenRequestMenu(false);
+      navigation.navigate("Home");
+      exeIntroStep(3, dispatches.profileDispatch, states.profileState, requestPatchProfile, states.authState.token);
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {
@@ -91,7 +94,7 @@ const _connectWsChat = (roomID, token, states, dispatches, init, callbackSuccess
         default:
           break;
       }
-      handleChatMessage(data, states, dispatches.chatDispatch, token);
+      handleChatMessage(data, states.chatState, dispatches.chatDispatch, token);
     },
     onclose: (e, ws) => {
     },
@@ -100,9 +103,9 @@ const _connectWsChat = (roomID, token, states, dispatches, init, callbackSuccess
   initWs(wsSettings, dispatches);
 }
 
-export const initConnectWsChat = (roomID, token, states, dispatches) => {
+export const initConnectWsChat = (roomID, token, states, dispatches, isWorried = null) => {
   _connectWsChat(roomID, token, states, dispatches, true, (data, ws) => {
-    dispatches.chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+    dispatches.chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws, isWorried: isWorried });
   });
 }
 
@@ -237,19 +240,20 @@ export const resumeTalk = (token, states, dispatches) => {
   requestGetTalkInfo(token, async res => {
     const sendObjects = res.data["send_objects"];
     const inObjects = res.data["in_objects"];
-    const talkingRoomIDs = res.data["talking_room_ids"];
+    const talkingRooms = res.data["talking_rooms"].map(talkingRoom => cvtKeyFromSnakeToCamel(talkingRoom));
+    const talkingRoomIDs = talkingRooms.map(talkingRoom => talkingRoom.roomID);
     const endRoomIDs = res.data["end_room_ids"];
     const endTimeOutRoomIDs = res.data["end_time_out_room_ids"];
     dispatches.chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: sendObjects, inObjects: inObjects });
 
-    let willConnectRoomIDs = [].concat(talkingRoomIDs);
+    let willConnectRooms = [].concat(talkingRooms);
     const talkCollection = await asyncGetJson("talkCollection");
     // resume talks that has already started
     if (talkCollection) {
       const roomIDs = Object.keys(talkCollection);
       roomIDs.forEach(roomID => {
         if (talkingRoomIDs.includes(roomID)) {
-          willConnectRoomIDs = willConnectRoomIDs.filter(elm => elm !== roomID);
+          willConnectRooms = willConnectRooms.filter(room => room.roomID !== roomID);
           restartWsChat(roomID, token, states, dispatches, talkCollection);
         }
         else if (endRoomIDs.includes(roomID)) {
@@ -260,9 +264,10 @@ export const resumeTalk = (token, states, dispatches) => {
         }
       });
     }
+
     // init talks other than that
-    willConnectRoomIDs.forEach(talkingRoomID => {
-      initConnectWsChat(talkingRoomID, token, states, dispatches);
+    willConnectRooms.forEach(talkingRoom => {
+      initConnectWsChat(talkingRoom.roomID, token, states, dispatches, talkingRoom.worriedUserID === states.profileState.profile.id);
     });
   })
 }

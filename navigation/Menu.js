@@ -59,14 +59,15 @@ const CustomDrawerContent = ({
             </Block>
             : <></>
           }
-          {profile.status &&
+          {/* FULL-47: ユーザステータス表示の一時的停止 */}
+          {/* {profile.status &&
             <>
               <Block style={{ justifyContent: "center", alignItems: "center", marginRight: 5 }}>
                 <Block style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: profile.status.color }} />
               </Block>
               <Text size={14} color="white">{profile.status.label}</Text>
             </>
-          }
+          } */}
         </Block>
       </LinearGradient>
 

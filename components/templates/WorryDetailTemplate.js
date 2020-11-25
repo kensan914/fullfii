@@ -5,12 +5,9 @@ import { Block, Button, Icon, Text, theme } from "galio-framework";
 
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
-import { useChatDispatch, useChatState } from "../contexts/ChatContext";
-import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 import { useAxios } from "../modules/axios";
-import { alertModal, checkProfileIsBuried, checkSubscribePlan, showToast, URLJoin } from "../modules/support";
+import { alertModal, showToast, URLJoin } from "../modules/support";
 import WorryCard from "../molecules/WorryCard";
-import { sendTalkRequest } from "../organisms/Profile";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -18,12 +15,7 @@ const { width, height } = Dimensions.get("screen");
 
 const WorryDetailTemplate = (props) => {
   const { worry } = props;
-  const chatState = useChatState();
   const authState = useAuthState();
-  const profileState = useProfileState();
-
-  const chatDispatch = useChatDispatch();
-  const profileDispatch = useProfileDispatch();
 
   const { isLoading, resData, request } = useAxios(URLJoin(BASE_URL, "worries/", worry.id), "delete", {
     thenCallback: res => {
@@ -49,7 +41,7 @@ const WorryDetailTemplate = (props) => {
         <Block style={styles.emptyBottom} />
       </ScrollView>
 
-      {worry.user.me ?
+      {worry.user.me &&
         <Button
           round
           color="lightcoral"
@@ -65,30 +57,14 @@ const WorryDetailTemplate = (props) => {
               onPress: () => {
                 request();
               },
-              cancelOnPress: () => { }, // 任意. キャンセルを押した際の付加処理
+              cancelOnPress: () => { },
             });
           }}
         >
           <Text color="white" size={16}>
             <Icon name="trash" family="font-awesome" color="white" size={16} />{" "}相談募集を削除する
           </Text>
-        </Button> :
-        (!chatState.includedUserIDs.includes(worry.user.id) &&
-          <Button
-            round
-            color="lightcoral"
-            opacity={0.9}
-            style={styles.bottomButton}
-            onPress={() => {
-              checkProfileIsBuried(profileState.profile, () => {
-                checkSubscribePlan(profileState.profile, () => sendTalkRequest(worry.user, props.navigation, authState.token, chatDispatch, profileDispatch, profileState), "現在プランに加入しておりません。リクエストを送るにはノーマルプランに加入してください。");
-              }, "リクエストを送信することができません。");
-            }}
-          >
-            <Text color="white" size={16}>
-              <Icon name="mail-forward" family="font-awesome" color="white" size={16} />{" "}リクエストを送る
-            </Text>
-          </Button>)
+        </Button>
       }
     </>
   );

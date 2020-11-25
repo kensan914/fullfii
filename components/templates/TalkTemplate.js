@@ -125,7 +125,10 @@ const SendInList = (props) => {
         okButton: "開始する",
         onPress: () => {
           checkProfileIsBuried(states.profileState.profile, () => {
-            checkSubscribePlan(states.profileState.profile, () => initConnectWsChat(item.roomID, states.authState.token, states, dispatches), "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
+            checkSubscribePlan(states.profileState.profile, () => {
+              // initConnectWsChat(item.roomID, states.authState.token, states, dispatches, item.worriedUserID !== item.user.id)
+              initConnectWsChat(item.roomID, states.authState.token, states, dispatches);
+            }, "現在プランに加入しておりません。トークを開始するにはノーマルプランに加入してください。");
           }, "トークを開始することができません。");
         },
       });
@@ -140,6 +143,27 @@ const SendInList = (props) => {
     }
   }
 
+  // sendInMessageの設定
+  const geneSendInMessage = (item) => {
+    if (item.worriedUserID === item.user.id) {
+      if (initConnectWsChat) {
+        // リクエスト受信 && 相手が相談者
+        return "「話を聞いてほしい」リクエストが届きました";
+      } else if (requestCancelTalk) {
+        // リクエスト送信 && 相手が相談者
+        return "「話聞くよ」リクエストを送信しています";
+      }
+    } else {
+      if (initConnectWsChat) {
+        // リクエスト受信 && 自分が相談者
+        return "「話聞くよ」リクエストが届きました";
+      } else if (requestCancelTalk) {
+        // リクエスト送信 && 自分が相談者
+        return "「話を聞いてほしい」リクエストを送信しています";
+      }
+    }
+  }
+
   return (
     list.map((item, index) => (
       <TouchableOpacity key={index} activeOpacity={.6} onPress={() => onPress(item)}>
@@ -149,6 +173,7 @@ const SendInList = (props) => {
           </TouchableOpacity>
           <Block flex={0.65}>
             <Text size={16} bold color="#F69896" style={{ marginBottom: 4 }}>{item.user.name}</Text>
+            <Text size={13} color="gray" numberOfLines={2} ellipsizeMode="tail">{geneSendInMessage(item)}</Text>
           </Block>
           <Block flex={0.15} style={{ height: 80 }}>
             <Text size={11} color="silver" style={{ marginTop: 16, alignSelf: "center" }}>{cvtListDate(item.date)}</Text>
