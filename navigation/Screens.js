@@ -317,7 +317,7 @@ const BottomTabNavigator = () => {
           if (routeName === "Home") {
             iconName = focused ? "home" : "home";
           } else if (routeName === "WorryList") {
-            iconName = "list-ul";
+            iconName = focused ? "commenting" : "commenting-o";
           } else if (routeName === "Talk") {
             iconName = focused ? "comments" : "comments-o";
             badgeCount = cvtBadgeCount(chatState.totalUnreadNum);

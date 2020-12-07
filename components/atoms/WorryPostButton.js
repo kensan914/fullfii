@@ -23,7 +23,7 @@ const WorryPostButton = (props) => {
       style={styles.worryPostButton}
       shadowless
       onPress={() => {
-        checkSubscribePlan(profileState.profile, () => props.navigation.navigate("WorryPost"), "現在プランに加入しておりません。相談募集を投稿するにはノーマルプランに加入してください。");
+        props.navigation.navigate("WorryPost");
       }}
     />
   );

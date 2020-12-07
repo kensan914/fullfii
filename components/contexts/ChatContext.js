@@ -95,7 +95,6 @@ const chatReducer = (prevState, action) => {
 
         // sendCollection・inCollectionから削除。初期メッセージ付与。
         let isWorried;
-        let isEmptySendInCollection;
         if (_sendCollection[action.roomID]) {
           isWorried = _sendCollection[action.roomID].worriedUserID !== action.user.id;
         } else if (_inCollection[action.roomID]) {

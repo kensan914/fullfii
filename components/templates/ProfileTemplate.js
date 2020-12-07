@@ -129,14 +129,14 @@ const ProfileTemplate = (props) => {
         items={[
           {
             title: "話を聞いてほしい",
-            icon: <Icon name="volume-up" family="font-awesome" color="dimgray" size={20} />,
+            icon: <><Icon name="hand-stop-o" family="font-awesome" color="dimgray" size={20} />{"  "}</>,
             onPress: () => {
               sendTalkRequest(true, user, navigation, states, dispatches, setIsOpenRequestMenu);
             }
           },
           {
             title: "話聞くよ",
-            icon: <><Icon name="volume-off" family="font-awesome" color="dimgray" size={20} />{"  "}</>,
+            icon: <><Icon name="handshake-o" family="font-awesome" color="dimgray" size={20} />{" "}</>,
             onPress: () => {
               sendTalkRequest(false, user, navigation, states, dispatches, setIsOpenRequestMenu);
             }

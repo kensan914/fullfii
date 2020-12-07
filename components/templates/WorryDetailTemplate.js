@@ -21,13 +21,13 @@ const WorryDetailTemplate = (props) => {
     thenCallback: res => {
       props.navigation.goBack();
       showToast({
-        text1: "相談募集を削除しました",
+        text1: "つぶやきを削除しました",
         type: "success",
       });
     },
     errorCallback: err => {
       showToast({
-        text1: "相談募集の削除に失敗しました",
+        text1: "つぶやきの削除に失敗しました",
         type: "error",
       });
     },
@@ -50,7 +50,7 @@ const WorryDetailTemplate = (props) => {
           loading={isLoading}
           onPress={() => {
             alertModal({
-              mainText: "相談募集を削除します。",
+              mainText: "つぶやきを削除します。",
               subText: "本当によろしいですか？",
               cancelButton: "キャンセル",
               okButton: "削除する",
@@ -62,7 +62,7 @@ const WorryDetailTemplate = (props) => {
           }}
         >
           <Text color="white" size={16}>
-            <Icon name="trash" family="font-awesome" color="white" size={16} />{" "}相談募集を削除する
+            <Icon name="trash" family="font-awesome" color="white" size={16} />{" "}つぶやきを削除する
           </Text>
         </Button>
       }

@@ -23,7 +23,7 @@ const WorryPostTemplate = (props) => {
     thenCallback: res => {
       props.navigation.goBack();
       showToast({
-        text1: "相談募集を投稿しました",
+        text1: "つぶやきを投稿しました",
         type: "success",
       });
     },

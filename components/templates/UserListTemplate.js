@@ -15,18 +15,17 @@ const UserListTemplate = (props) => {
 
   const { users, setUsers, token, genre } = props;
 
-  const [page, setPage] = useState(1);
+  const page = useRef(1);
   const [hasMore, setHasMore] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const isRefreshingRef = useRef(false);
 
-  const genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : []
+  const genreQueryParam = genre !== "top" ? [`?genre=${genre}`] : [];
   const urlExcludePage = URLJoin(BASE_URL, "users/", ...genreQueryParam);
   const { isLoading, resData, request } = useAxios(
-    URLJoin(urlExcludePage, `?page=${page}`),
+    URLJoin(urlExcludePage, `?page=${page.current}`),
     "get", {
     thenCallback: res => {
-      // const resDataHasMore = res.data.has_more;
       const resDataUsers = res.data;
 
       if (resDataUsers.length > 0) {
@@ -53,7 +52,7 @@ const UserListTemplate = (props) => {
       }
     },
     finallyCallback: () => {
-      setPage(page + 1);
+      page.current += 1;
       isRefreshingRef.current = false;
     },
     didRequestCallback: r => {
@@ -68,8 +67,8 @@ const UserListTemplate = (props) => {
 
   const handleRefresh = () => {
     setUsers([]);
-    setPage(1);
-    setHasMore(false);
+    page.current = 1;
+    setHasMore(true);
     isRefreshingRef.current = true;
     request({ url: URLJoin(urlExcludePage, `?page=${1}`), });
   }
@@ -94,7 +93,7 @@ const UserListTemplate = (props) => {
         keyExtractor={(item, index) => index.toString()}
         onEndReached={() => {
           if (hasMore && !isLoading) {
-            request({ url: URLJoin(urlExcludePage, `?page=${page}`), });
+            request({ url: URLJoin(urlExcludePage, `?page=${page.current}`), });
           }
         }}
         onEndReachedThreshold={0}
