@@ -4,7 +4,7 @@ import { Text, Button } from "galio-framework";
 
 
 const SubmitButton = (props) => {
-  const {canSubmit, isLoading, submit, style} = props;
+  const { canSubmit, isLoading, submit, style, children } = props;
 
   let color;
   let textColor;
@@ -19,8 +19,16 @@ const SubmitButton = (props) => {
   }
 
   return (
-    <Button round size="small" disabled={!canSubmit || isLoading} color={color} style={[styles.submitButton, { shadowColor: color }, style]} loading={isLoading} onPress={pressedFunc} >
-      <Text color={textColor} size={16}>決定</Text>
+    <Button
+      round
+      size="small"
+      disabled={!canSubmit || isLoading}
+      color={color}
+      style={[styles.submitButton, { shadowColor: color }, style]}
+      loading={isLoading}
+      onPress={pressedFunc}
+    >
+      <Text color={textColor} size={16}>{children ? children : "決定"}</Text>
     </Button>
   );
 }
@@ -33,5 +41,5 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 10,
     marginBottom: 20,
-  }
+  },
 });

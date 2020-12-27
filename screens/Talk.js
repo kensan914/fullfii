@@ -1,13 +1,11 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
-import Toast from "react-native-toast-message";
-import { Dimensions } from "react-native";
 
 import TalkTemplate from "../components/templates/TalkTemplate";
 import { BASE_URL_WS, BASE_URL, REPORT_URL } from "../constants/env";
-import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX, showToast, exeIntroStep } from "../components/modules/support";
+import { URLJoin, asyncGetJson, initWs, closeWsSafely, checkiPhoneX, showToast, exeIntroStep, cvtKeyFromSnakeToCamel } from "../components/modules/support";
 import { useChatState } from "../components/contexts/ChatContext";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { requestPatchProfile } from "./ProfileInput";
 
 
@@ -25,18 +23,21 @@ export default Talk;
 
 /** 
  * request talk. */
-export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
+// export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
+export const requestTalk = (isWorried, user, states, dispatches, navigation, setIsOpenRequestMenu) => {
   const url = URLJoin(BASE_URL, "users/", user.id, "talk-request/");
 
-  authAxios(token)
-    .post(url)
+  authAxios(states.authState.token)
+    .post(url, { is_worried: isWorried })
     .then(res => {
-      chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()) });
+      dispatches.chatDispatch({ type: "APPEND_SENDCOLLECTION", roomID: res.data.room_id, user: res.data.target_user, date: new Date(Date.now()), worriedUserID: res.data.worried_user_id });
       showToast({
         text1: `${user.name}さんにリクエストを送りました。`,
         text2: `${user.name}さんがリクエストに答えたらトークが開始されます。`,
       });
-      exeIntroStep(3, profileDispatch, profileState, requestPatchProfile, token);
+      setIsOpenRequestMenu(false);
+      navigation.navigate("Home");
+      // exeIntroStep(3, dispatches.profileDispatch, states.profileState, requestPatchProfile, states.authState.token);
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {
@@ -50,7 +51,7 @@ export const requestTalk = (user, token, chatDispatch, profileDispatch, profileS
 /** 
  * response talk request. 
  * If you are a request user and you are starting a talk, init is true. */
-const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch, init, callbackSuccess) => {
+const _connectWsChat = (roomID, token, states, dispatches, init, callbackSuccess) => {
   const wsSettings = {
     url: URLJoin(BASE_URL_WS, "chat/", roomID),
 
@@ -62,26 +63,26 @@ const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch,
       switch (data.type) {
         case "auth":
           if (isReconnect) {
-            chatDispatch({ type: "RECONNECT_TALK", ws: ws, roomID: roomID });
+            dispatches.chatDispatch({ type: "RECONNECT_TALK", ws: ws, roomID: roomID });
           } else {
             callbackSuccess(data, ws);
           }
-          profileDispatch({ type: "SET_ALL", profile: data.profile });
+          dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
           break;
 
         case "end_talk_alert":
-          profileDispatch({ type: "SET_ALL", profile: data.profile });
-          chatDispatch({ type: "APPEND_COMMON_MESSAGE", roomID: roomID, alert: true });
+          dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
+          dispatches.chatDispatch({ type: "APPEND_COMMON_MESSAGE", roomID: roomID, alert: true });
           break;
 
         case "end_talk_time_out":
-          profileDispatch({ type: "SET_ALL", profile: data.profile });
-          chatDispatch({ type: "END_TALK", roomID: roomID, timeOut: true });
+          dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
+          dispatches.chatDispatch({ type: "END_TALK", roomID: roomID, timeOut: true });
           break;
 
         case "end_talk":
-          profileDispatch({ type: "SET_ALL", profile: data.profile });
-          chatDispatch({ type: "END_TALK", roomID: roomID });
+          dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
+          dispatches.chatDispatch({ type: "END_TALK", roomID: roomID });
           break;
 
         case "error":
@@ -93,24 +94,24 @@ const _connectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch,
         default:
           break;
       }
-      handleChatMessage(data, chatState, chatDispatch, token);
+      handleChatMessage(data, states.chatState, dispatches.chatDispatch, token);
     },
     onclose: (e, ws) => {
     },
   };
 
-  initWs(wsSettings);
+  initWs(wsSettings, dispatches);
 }
 
-export const initConnectWsChat = (roomID, token, chatState, chatDispatch, profileDispatch) => {
-  _connectWsChat(roomID, token, chatState, chatDispatch, profileDispatch, true, (data, ws) => {
-    chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws });
+export const initConnectWsChat = (roomID, token, states, dispatches, isWorried = null) => {
+  _connectWsChat(roomID, token, states, dispatches, true, (data, ws) => {
+    dispatches.chatDispatch({ type: "START_TALK", roomID: data.room_id, user: data.target_user, ws: ws, isWorried: isWorried });
   });
 }
 
-const restartWsChat = (roomID, token, chatState, chatDispatch, profileDispatch, talkCollection) => {
-  _connectWsChat(roomID, token, chatState, chatDispatch, profileDispatch, false, (data, ws) => {
-    chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
+const restartWsChat = (roomID, token, states, dispatches, talkCollection) => {
+  _connectWsChat(roomID, token, states, dispatches, false, (data, ws) => {
+    dispatches.chatDispatch({ type: "RESTART_TALK", roomID: data.room_id, user: data.target_user, ws: ws, talkCollection: talkCollection });
   });
 }
 
@@ -219,7 +220,7 @@ export const requestCloseTalk = (roomID, token, navigation, chatDispatch, profil
       }
     })
     .finally(() => {
-      exeIntroStep(4, profileDispatch, profileState, requestPatchProfile, token);
+      // exeIntroStep(4, profileDispatch, profileState, requestPatchProfile, token);
     });
 }
 
@@ -235,36 +236,38 @@ const requestGetTalkInfo = (token, callbackSuccess) => {
 
 /** 
  *  トークのstate, wsなど全て再開, 復元する. startupで実行 */
-export const resumeTalk = (token, chatState, chatDispatch, profileDispatch) => {
+export const resumeTalk = (token, states, dispatches) => {
   requestGetTalkInfo(token, async res => {
     const sendObjects = res.data["send_objects"];
     const inObjects = res.data["in_objects"];
-    const talkingRoomIDs = res.data["talking_room_ids"];
+    const talkingRooms = res.data["talking_rooms"].map(talkingRoom => cvtKeyFromSnakeToCamel(talkingRoom));
+    const talkingRoomIDs = talkingRooms.map(talkingRoom => talkingRoom.roomID);
     const endRoomIDs = res.data["end_room_ids"];
     const endTimeOutRoomIDs = res.data["end_time_out_room_ids"];
-    chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: sendObjects, inObjects: inObjects });
+    dispatches.chatDispatch({ type: "SET_SEND_IN_COLLECTION", sendObjects: sendObjects, inObjects: inObjects });
 
-    let willConnectRoomIDs = [].concat(talkingRoomIDs);
+    let willConnectRooms = [].concat(talkingRooms);
     const talkCollection = await asyncGetJson("talkCollection");
     // resume talks that has already started
     if (talkCollection) {
       const roomIDs = Object.keys(talkCollection);
       roomIDs.forEach(roomID => {
         if (talkingRoomIDs.includes(roomID)) {
-          willConnectRoomIDs = willConnectRoomIDs.filter(elm => elm !== roomID);
-          restartWsChat(roomID, token, chatState, chatDispatch, profileDispatch, talkCollection);
+          willConnectRooms = willConnectRooms.filter(room => room.roomID !== roomID);
+          restartWsChat(roomID, token, states, dispatches, talkCollection);
         }
         else if (endRoomIDs.includes(roomID)) {
-          chatDispatch({ type: "APPEND_END_TALK_OBJ", talkObj: talkCollection[roomID] });
+          dispatches.chatDispatch({ type: "APPEND_END_TALK_OBJ", talkObj: talkCollection[roomID] });
         }
         else if (endTimeOutRoomIDs.includes(roomID)) {
-          chatDispatch({ type: "APPEND_END_TALK_OBJ", talkObj: talkCollection[roomID], timeOut: true });
+          dispatches.chatDispatch({ type: "APPEND_END_TALK_OBJ", talkObj: talkCollection[roomID], timeOut: true });
         }
       });
     }
+
     // init talks other than that
-    willConnectRoomIDs.forEach(talkingRoomID => {
-      initConnectWsChat(talkingRoomID, token, chatState, chatDispatch, profileDispatch);
+    willConnectRooms.forEach(talkingRoom => {
+      initConnectWsChat(talkingRoom.roomID, token, states, dispatches, talkingRoom.worriedUserID === states.profileState.profile.id);
     });
   })
 }

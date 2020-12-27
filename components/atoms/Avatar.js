@@ -1,7 +1,7 @@
-import React from 'react';
-import { Block } from 'galio-framework';
-import Icon from './Icon';
-import { Image, StyleSheet } from 'react-native';
+import React from "react";
+import { Block } from "galio-framework";
+import Icon from "./Icon";
+import { Image, StyleSheet } from "react-native";
 
 const Avatar = (props) => {
   const { size, border, style, image } = props;

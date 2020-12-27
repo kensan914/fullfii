@@ -21,6 +21,7 @@ const materialTheme = {
     BLOCK: "#E7E7E7",
     CAPTION: "#4A4A4A",
     FULLFII: "#F69896",
+    GREEN: "#3cc47c",
   },
   SIZES: {
     BLOCK_SHADOW_RADIUS: 2,
@@ -29,3 +30,8 @@ const materialTheme = {
 
 
 export default materialTheme;
+
+export const  COLORS = {
+  PINK: "#F69896",
+  GREEN: "#3cc47c",
+};

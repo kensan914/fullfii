@@ -18,8 +18,9 @@ import { NotificationProvider } from "./components/contexts/NotificationContext"
 import { ChatProvider } from "./components/contexts/ChatContext";
 import Manager from "./screens/Manager";
 import { ProductProvider } from "./components/contexts/ProductContext";
-import { logEvent } from "./components/modules/firebase";
+// import { logEvent } from "./components/modules/firebase/logEvent";
 import { LogBox } from "react-native";
+import usePushNotification from "./components/modules/firebase/pushNotification";
 
 
 LogBox.ignoreAllLogs(true);
@@ -40,6 +41,12 @@ function cacheImages(images) {
 }
 
 const App = (props) => {
+  const [deviceToken, notificationType] = usePushNotification();
+  // useEffect(() => {
+  //   console.error(deviceToken);
+  // }, [deviceToken]);
+
+
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
   const [assets, setAssets] = useState({});
 
@@ -66,14 +73,24 @@ const App = (props) => {
 
 
 const RootNavigator = (props) => {
+  const [status, setStatus] = useState();
   const [token, setToken] = useState();
+  const [signupBuffer, setSignupBuffer] = useState();
   const [profile, setProfile] = useState();
   const [notifications, setNotifications] = useState();
 
   useEffect(() => {
     const fetchData = async () => {
+      // asyncRemoveItem("status"); // テスト
+      // asyncRemoveItem("token"); // テスト
+      // asyncRemoveItem("signupBuffer"); // テスト
+
+      const _status = await asyncGetItem("status");
+      setStatus(_status ? _status : null);
       const _token = await asyncGetItem("token");
       setToken(_token ? _token : null);
+      const _signupBuffer = await asyncGetJson("signupBuffer");
+      setSignupBuffer(_signupBuffer ? _signupBuffer : null);
       const _profile = await asyncGetJson("profile");
       setProfile(_profile ? _profile : null);
       const _notifications = await asyncGetJson("notifications");
@@ -82,10 +99,17 @@ const RootNavigator = (props) => {
     fetchData();
 
     // send event to firebase
-    logEvent("sample_event");
+    // logEvent("sample_event");
   }, []);
 
-  if (typeof token === "undefined" || typeof profile === "undefined" || typeof notifications === "undefined" || !props.isFinishLoadingResources) {
+  if (
+    typeof status === "undefined" ||
+    typeof token === "undefined" ||
+    typeof signupBuffer === "undefined" ||
+    typeof profile === "undefined" ||
+    typeof notifications === "undefined" ||
+    !props.isFinishLoadingResources
+  ) {
     return <></>; // AppLording
   } else {
     setTimeout(() => {
@@ -94,7 +118,7 @@ const RootNavigator = (props) => {
 
     return (
       <NavigationContainer>
-        <AuthProvider token={token}>
+        <AuthProvider status={status} token={token} signupBuffer={signupBuffer}>
           <ProfileProvider profile={profile} >
             <NotificationProvider notifications={notifications} >
               <ChatProvider >
