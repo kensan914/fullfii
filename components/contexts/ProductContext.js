@@ -40,7 +40,9 @@ const productReducer = (prevState, action) => {
        * @param {Object} action [type, profile, profileDispatch, token, authDispatch, startUpLogind] */
 
       action.profileDispatch({ type: "SET_ALL", profile: action.profile });
-      action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLogind: action.startUpLogind });
+
+      // TODO: COMPLETE_SIGNINでなく、COMPLETE_SIGNUPに変更
+      // action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLogind: action.startUpLogind });
 
       return {
         ...prevState,

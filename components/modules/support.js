@@ -241,8 +241,8 @@ export const initWs = (wsSettings, dispatches) => {
     ws.onclose = wsSettings.onclose ? (e) => {
       if (!e.wasClean) {
         if (e.code === CODE.WS.UNAUTHORIZED) {
-          // ログアウト
-          dispatches.authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: dispatches.notificationDispatch, chatDispatch: dispatches.chatDispatch, profileDispatch: dispatches.profileDispatch });
+          // ログアウト TODO
+          // dispatches.authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: dispatches.notificationDispatch, chatDispatch: dispatches.chatDispatch, profileDispatch: dispatches.profileDispatch });
         } else {
           connectInterval = setTimeout(() => {
             if (!ws || ws.readyState == WebSocket.CLOSED) {

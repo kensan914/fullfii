@@ -23,7 +23,7 @@ export const requestPatchProfile = (token, data, profileDispatch, profileState, 
       profileDispatch({type: "SET_ALL", profile: res.data});
       successSubmit && successSubmit();
       if (Object.keys(data).indexOf("intro_step") == -1) {
-        exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
+        // exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
       }
     })
     .catch(err => {

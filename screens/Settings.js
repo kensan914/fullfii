@@ -67,7 +67,9 @@ const Settings = (props) => {
           }, "この設定を変更することはできません。");
         }} />
         <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
-        <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
+        
+        {/* Ver2.0 */}
+        {/* <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
         <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
         <SettingsButton title="ログアウト" color="crimson" onPress={() => {
           alertModal({
@@ -98,7 +100,7 @@ const Settings = (props) => {
               });
             },
           });
-        }} />
+        }} /> */}
 
         <SettingsTitle title="Fullfiiについて" />
         <SettingsLabel title="バージョン" content={VERSION} />

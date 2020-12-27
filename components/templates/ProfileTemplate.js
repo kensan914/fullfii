@@ -128,14 +128,14 @@ const ProfileTemplate = (props) => {
       <MenuModal isOpen={isOpenRequestMenu} setIsOpen={setIsOpenRequestMenu}
         items={[
           {
-            title: "話を聞いてほしい",
+            title: "話し手としてリクエスト",
             icon: <><Icon name="hand-stop-o" family="font-awesome" color="dimgray" size={20} />{"  "}</>,
             onPress: () => {
               sendTalkRequest(true, user, navigation, states, dispatches, setIsOpenRequestMenu);
             }
           },
           {
-            title: "話聞くよ",
+            title: "聞き手としてリクエスト",
             icon: <><Icon name="handshake-o" family="font-awesome" color="dimgray" size={20} />{" "}</>,
             onPress: () => {
               sendTalkRequest(false, user, navigation, states, dispatches, setIsOpenRequestMenu);

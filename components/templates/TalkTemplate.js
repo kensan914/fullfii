@@ -148,18 +148,18 @@ const SendInList = (props) => {
     if (item.worriedUserID === item.user.id) {
       if (initConnectWsChat) {
         // リクエスト受信 && 相手が相談者
-        return "「話を聞いてほしい」リクエストが届きました";
+        return "「話し手としてリクエスト」リクエストが届きました";
       } else if (requestCancelTalk) {
         // リクエスト送信 && 相手が相談者
-        return "「話聞くよ」リクエストを送信しています";
+        return "「聞き手としてリクエスト」リクエストを送信しています";
       }
     } else {
       if (initConnectWsChat) {
         // リクエスト受信 && 自分が相談者
-        return "「話聞くよ」リクエストが届きました";
+        return "「聞き手としてリクエスト」リクエストが届きました";
       } else if (requestCancelTalk) {
         // リクエスト送信 && 自分が相談者
-        return "「話を聞いてほしい」リクエストを送信しています";
+        return "「話し手としてリクエスト」リクエストを送信しています";
       }
     }
   }

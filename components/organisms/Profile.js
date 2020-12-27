@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator } from "react-native";
-import { Appearance } from 'react-native-appearance';
+import { Appearance } from "react-native-appearance";
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
-import { getPermissionAsync, onLoad, pickImage } from '../modules/imagePicker';
+import { getPermissionAsync, onLoad, pickImage } from "../modules/imagePicker";
 import { alertModal } from "../modules/support";
 import Avatar from "../atoms/Avatar";
 import { useProfileState, useProfileDispatch } from "../contexts/ProfileContext";
@@ -364,7 +364,7 @@ export const sendTalkRequest = (isWorried, user, navigation, states, dispatches,
     case "offline": {/* FULL-47: ユーザステータス表示の一時的停止 */ }
     case "talking": {/* FULL-47: ユーザステータス表示の一時的停止 */ }
       alertTitle = `${user.name}さんにリクエストを送ります。`;
-      alertText = isWorried ? "「話を聞いてほしい」" : "「話聞くよ」";
+      alertText = isWorried ? "「話し手としてリクエスト」" : "「聞き手としてリクエスト」";
       break;
       {/* FULL-47: ユーザステータス表示の一時的停止 */ }
       // case "offline":

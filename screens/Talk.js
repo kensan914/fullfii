@@ -37,7 +37,7 @@ export const requestTalk = (isWorried, user, states, dispatches, navigation, set
       });
       setIsOpenRequestMenu(false);
       navigation.navigate("Home");
-      exeIntroStep(3, dispatches.profileDispatch, states.profileState, requestPatchProfile, states.authState.token);
+      // exeIntroStep(3, dispatches.profileDispatch, states.profileState, requestPatchProfile, states.authState.token);
     })
     .catch(err => {
       if (err.response.data.type === "conflict_end") {
@@ -220,7 +220,7 @@ export const requestCloseTalk = (roomID, token, navigation, chatDispatch, profil
       }
     })
     .finally(() => {
-      exeIntroStep(4, profileDispatch, profileState, requestPatchProfile, token);
+      // exeIntroStep(4, profileDispatch, profileState, requestPatchProfile, token);
     });
 }
 

@@ -28,7 +28,7 @@ import WorryScreen from "../screens/Worry";
 import WorryPostScreen from "../screens/WorryPost";
 import WorryListScreen from "../screens/WorryList";
 import CustomDrawerContent from "./Menu";
-import { useAuthState } from "../components/contexts/AuthContext";
+import { useAuthState, AUTHENTICATED, UNAUTHENTICATED } from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useNotificationState } from "../components/contexts/NotificationContext";
 import { cvtBadgeCount } from "../components/modules/support";
@@ -362,9 +362,10 @@ const AppStack = (props) => {
   const authState = useAuthState();
   const profileState = useProfileState();
 
+  console.log({ ...authState.signupBuffer });
   return (
     <>
-      {authState.status === "Authenticated" ?
+      {authState.status === AUTHENTICATED ?
         <Stack.Navigator mode="card" headerMode="" >
 
           <Stack.Screen name="Authenticated" >
@@ -386,10 +387,8 @@ const AppStack = (props) => {
                   itemStyle: {
                     width: width * 0.74,
                     paddingHorizontal: 12,
-                    // paddingVertical: 4,
                     justifyContent: "center",
                     alignItems: "center",
-                    // alignItems: "center",
                     overflow: "hidden"
                   },
                   labelStyle: {
@@ -417,16 +416,23 @@ const AppStack = (props) => {
             )}
           </Stack.Screen>
         </Stack.Navigator> :
-        <Stack.Navigator mode="card" headerMode="" screenOptions={{
-          gestureEnabled: false,
-        }} >
-          <Stack.Screen name="AppIntro">
-            {() => {
-              const navigation = useNavigation();
-              return <AppIntroScreen {...props} navigation={navigation} />
-            }}
-          </Stack.Screen>
-          {/* <Stack.Screen name="" component={AppIntroScreen} /> */}
+
+        <Stack.Navigator
+          // mode="card"
+          mode="modal"
+          headerMode=""
+          screenOptions={{
+            // gestureEnabled: false,  // backを可能に。
+          }} >
+            
+          {(!authState.status || authState.status === UNAUTHENTICATED) &&
+            <Stack.Screen name="AppIntro">
+              {() => {
+                const navigation = useNavigation();
+                return <AppIntroScreen {...props} navigation={navigation} />
+              }}
+            </Stack.Screen>
+          }
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
         </Stack.Navigator>

@@ -26,18 +26,18 @@ export const requestGetProfile = (token, profileDispatch) => {
     });
 }
 
-export const requestGetProfileParams = (token, profileDispatch) => {
-  const url = URLJoin(BASE_URL, "profile-params/");
+// export const requestGetProfileParams = (token, profileDispatch) => {
+//   const url = URLJoin(BASE_URL, "profile-params/");
 
-  authAxios(token)
-    .get(url)
-    .then(res => {
-      profileDispatch({ type: "SET_PARAMS", profileParams: res.data });
-    })
-    .catch(err => {
-      console.log(err.response);
-    });
-}
+//   authAxios(token)
+//     .get(url)
+//     .then(res => {
+//       profileDispatch({ type: "SET_PARAMS", profileParams: res.data });
+//     })
+//     .catch(err => {
+//       console.log(err.response);
+//     });
+// }
 
 export const requestPatchBlock = (token, user, setIsShowSpinner) => {
   setIsShowSpinner(true);
