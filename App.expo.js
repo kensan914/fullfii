@@ -72,7 +72,11 @@ const RootNavigator = (props) => {
   const [notifications, setNotifications] = useState();
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
+      asyncRemoveItem("status"); // テスト
+      asyncRemoveItem("token"); // テスト
+      asyncRemoveItem("signupBuffer"); // テスト
+
       const _status = await asyncGetItem("status");
       setStatus(_status ? _status : null);
       const _token = await asyncGetItem("token");
@@ -83,8 +87,7 @@ const RootNavigator = (props) => {
       setProfile(_profile ? _profile : null);
       const _notifications = await asyncGetJson("notifications");
       setNotifications(_notifications ? _notifications : null);
-    }
-    fetchData();
+    })();
 
     // send event to firebase
     // logEvent("sample_event");

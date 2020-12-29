@@ -46,7 +46,7 @@ const UserListTemplate = (props) => {
         setHasMore(false);
       }
     },
-    errorCallback: err => {
+    catchCallback: err => {
       if (err.response.status === 404) {
 
       }
@@ -57,7 +57,7 @@ const UserListTemplate = (props) => {
     },
     didRequestCallback: r => {
     },
-    didMountRequest: true,
+    shouldRequestDidMount: true,
     token: token,
   });
 

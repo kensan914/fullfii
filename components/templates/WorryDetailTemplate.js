@@ -25,7 +25,7 @@ const WorryDetailTemplate = (props) => {
         type: "success",
       });
     },
-    errorCallback: err => {
+    catchCallback: err => {
       showToast({
         text1: "つぶやきの削除に失敗しました",
         type: "error",

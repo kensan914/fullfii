@@ -48,7 +48,7 @@ const WorryListTemplate = (props) => {
         setHasMore(false);
       }
     },
-    errorCallback: err => {
+    catchCallback: err => {
       if (err.response.status === 404) {
       }
     },
@@ -58,7 +58,7 @@ const WorryListTemplate = (props) => {
     },
     didRequestCallback: r => {
     },
-    didMountRequest: true,
+    shouldRequestDidMount: true,
     token: token,
   });
 
