@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Text, Block } from "galio-framework";
 import Toast from "react-native-toast-message";
-import { getFocusedRouteNameFromRoute, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 import Icon from "../components/atoms/Icon";
 import Header from "../components/organisms/Header";
@@ -27,6 +27,7 @@ import SignInScreen from "../screens/SignIn";
 import WorryScreen from "../screens/Worry";
 import WorryPostScreen from "../screens/WorryPost";
 import WorryListScreen from "../screens/WorryList";
+import ModalTestScreen from "../screens/ModalTest";
 import CustomDrawerContent from "./Menu";
 import { useAuthState, AUTHENTICATED, UNAUTHENTICATED } from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
@@ -435,6 +436,7 @@ const AppStack = (props) => {
           }
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
+          <Stack.Screen name="ModalTest" component={ModalTestScreen} />
         </Stack.Navigator>
       }
       <Toast ref={(ref) => Toast.setRef(ref)} />

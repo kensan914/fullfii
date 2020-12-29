@@ -19,8 +19,8 @@ const SignUpPageTemplate = (props) => {
   return (
     <>
       <Block flex middle style={styles.signupContainer}>
-        <KeyboardAvoidingView behavior="padding" enabled>
-          <Block flex={0.2} style={styles.signupTitleContainer}>
+        {/* <KeyboardAvoidingView behavior="padding" enabled> */}
+          <Block flex={0.15} style={styles.signupTitleContainer}>
             <Text size={26} bold color="#F69896" style={styles.title}>{title}</Text>
             <Text size={14} bold color="#F69896" style={styles.subTitle}>{subTitle}</Text>
           </Block>
@@ -29,7 +29,7 @@ const SignUpPageTemplate = (props) => {
             {contents}
           </Block>
 
-          <Block flex={0.1} center>
+          <Block flex={0.15} style={styles.signupButtonContainer}>
             <Button
               round
               color={COLORS.PINK}
@@ -42,7 +42,7 @@ const SignUpPageTemplate = (props) => {
               <Text bold color="white" size={16}>{buttonTitle}</Text>
             </Button>
           </Block>
-        </KeyboardAvoidingView>
+        {/* </KeyboardAvoidingView> */}
       </Block>
     </>
   )
@@ -60,8 +60,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   signupTitleContainer: {
+    justifyContent: "flex-start",
     alignItems: "center",
-    // backgroundColor: "red",
+  },
+  signupButtonContainer: {
+    justifyContent: "flex-end",
+    alignItems: "center",
   },
   signupContentsContainer: {
     alignItems: "center",

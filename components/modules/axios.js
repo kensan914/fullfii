@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { checkCorrectKey } from "./support";
 
 
@@ -25,22 +25,25 @@ export default authAxios;
 /** axiosを使用したリクエストのカスタムフック
  * @param {string} url
  * @param {string} method [get, post, delete, put, patch]
- * @param {Object} action [data, thenCallback, errorCallback, finallyCallback, didRequestCallback, token, didMountRequest] 
+ * @param {Object} action [data, thenCallback, catchCallback, finallyCallback, didRequestCallback, token, shouldRequestDidMount, limitRequest] 
  * @return {Object} { isLoading, resData, request }
  * @example
- * // デフォルトではdidMount時にリクエストは走らない。didMount時の自動リクエストはaction.didMountRequestにtrueをsetし設定。
- * const {isLoading, resData, request} = useAxios(URLJoin(BASE_URL, "blogs/"), "get", {
- *   thenCallback: res => setBlogs(res),
- *   didMountRequest: true,
- * }); 
- * // request()でリクエスト。urlかdataパラメータをobjectで渡してそのリクエスト間だけで有効な上書き設定が可能。
- * request({ url: URLJoin(BASE_URL, "blogs/", "page=2") }); 
+  // デフォルトではdidMount時にリクエストは走らない。didMount時の自動リクエストはaction.shouldRequestDidMountにtrueをsetし設定。
+  const { isLoading, resData, request } = useAxios(URLJoin(BASE_URL, ".../"), "post", {
+    data: {},
+    thenCallback: res => { },
+    catchCallback: err => { },
+    token: authState.token,
+    shouldRequestDidMount: true,
+  });
+  // request()でリクエスト。urlかdataパラメータをobjectで渡してそのリクエスト間だけで有効な上書き設定が可能。
+  request({ url: URLJoin(BASE_URL, ".../"), data: {}, }); 
  * */
 export const useAxios = (url, method, action) => {
   //---------- constants ----------//
   const axiosRequestMethods = ["get", "post", "delete", "put", "patch"];
   // ↓変更があれば都度追加していく↓
-  const correctActionKeys = ["data", "thenCallback", "errorCallback", "finallyCallback", "didRequestCallback", "token", "didMountRequest"];
+  const correctActionKeys = ["data", "thenCallback", "catchCallback", "finallyCallback", "didRequestCallback", "token", "shouldRequestDidMount", "limitRequest"];
   const correctRequestActionKeys = ["url", "data"];
   //---------- constants ----------//
 
@@ -76,12 +79,24 @@ export const useAxios = (url, method, action) => {
 
   const [resData, setResData] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [limitRequest] = useState(
+    actionKeys.indexOf("limitRequest") !== -1 && !isNaN(action.limitRequest) ?
+      Number(action.limitRequest) : // limitRequestが指定されている、かつ数値変換可能である
+      -1 // それ以外は-1(リクエスト無制限)
+  );
+  const requestNum = useRef(0);
 
   /** 再リクエストしたい時に使用する。最初の設定から変更できるパラメータはurl, dataのみ。どちらも引数も省略し、最初の設定を使用することが可能。
    * @param {string} url
    * @param {Object} data
    * */
   const request = (reAction = null) => {
+    // リクエスト回数制限
+    if (++requestNum.current > limitRequest && limitRequest >= 0) {
+      console.warn(`The request limit set to ${limitRequest} has been exceeded. Abort the request.`);
+      return;
+    }
+
     setIsLoading(true);
 
     const _axiosSettings = { ...axiosSettings };
@@ -101,12 +116,14 @@ export const useAxios = (url, method, action) => {
         setResData(res.data);
       })
       .catch(err => {
+        requestNum.current--; // リクエスト無効
+
         if (err.response) {
           console.error(err.response);
         } else {
           console.error(err);
         }
-        if (actionKeys.indexOf("errorCallback") !== -1) action.errorCallback(err);
+        if (actionKeys.indexOf("catchCallback") !== -1) action.catchCallback(err);
       })
       .finally(() => {
         if (actionKeys.indexOf("finallyCallback") !== -1) action.finallyCallback();
@@ -123,7 +140,7 @@ export const useAxios = (url, method, action) => {
       console.error(`"${incorrectkey}" action key is not supported.`);
     });
 
-    if (actionKeys.indexOf("didMountRequest") !== -1 && action.didMountRequest) {
+    if (actionKeys.indexOf("shouldRequestDidMount") !== -1 && action.shouldRequestDidMount) {
       request();
     }
   }, []);

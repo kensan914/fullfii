@@ -27,7 +27,7 @@ const WorryPostTemplate = (props) => {
         type: "success",
       });
     },
-    errorCallback: err => {
+    catchCallback: err => {
       setValidationText(err.response.data.message.length > 0 ? err.response.data.message[0] : "");
     },
     token: authState.token,

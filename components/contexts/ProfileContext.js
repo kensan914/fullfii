@@ -129,7 +129,7 @@ export const ProfileProvider = ({ children, profile }) => {
     thenCallback: res => {
       profileDispatch({ type: "SET_PARAMS", profileParams: res.data });
     },
-    didMountRequest: true,
+    shouldRequestDidMount: true,
   });
 
   useEffect(() => {

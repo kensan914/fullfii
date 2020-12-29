@@ -79,8 +79,8 @@ const AppIntroTemplate = (props) => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: "gray" }]}
-              onPress={() => navigation.navigate("SignIn")}>
-              <Text style={styles.buttonText}>ログイン</Text>
+              onPress={() => navigation.navigate("ModalTest")}>
+              <Text style={styles.buttonText}>モーダルテストforこうし</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}
               onPress={() => navigation.navigate("SignUp")}>
