@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, Dimensions, ScrollView, ActivityIndicator } from "react-native";
-import { Appearance } from 'react-native-appearance';
+import { Appearance } from "react-native-appearance";
 import { Block, Text, theme } from "galio-framework";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
-import { getPermissionAsync, onLoad, pickImage } from '../modules/imagePicker';
+import { getPermissionAsync, onLoad, pickImage } from "../modules/imagePicker";
 import { alertModal } from "../modules/support";
 import Avatar from "../atoms/Avatar";
 import { useProfileState, useProfileDispatch } from "../contexts/ProfileContext";
@@ -43,9 +45,11 @@ export const ProfileTabNavigator = (props) => {
       screenOptions={({ route }) => ({
         tabBarLabel: ({ focused, color, size }) => {
           let title;
-          if (route.name === "Consultant") {
+          // const routeName = getFocusedRouteNameFromRoute(route);
+          const routeName = route.name;
+          if (routeName === "Consultant") {
             title = "聞き手";
-          } else if (route.name === "Client") {
+          } else if (routeName === "Client") {
             title = "相談者";
           }
           return (
@@ -81,7 +85,7 @@ export const ConsultantProfile = (props) => {
   return (
     <Block style={[styles.profileContentBottom, { paddingBottom: theme.SIZES.BASE * 5 }]}>
       <Block style={styles.profileTextBlock}>
-        <Text size={16} bold style={{ marginBottom: 10 }}>自己紹介</Text>
+        <Text size={16} bold style={{ marginBottom: 10 }}>今悩んでいること</Text>
         <Text size={14} style={{ lineHeight: 18 }}>
           {user.introduction
             ? user.introduction
@@ -241,7 +245,7 @@ export const ConsultantProfileEditor = (props) => {
         <ProfileHr />
 
         <Block style={styles.profileTextBlock}>
-          <Text size={16} bold style={{ marginBottom: 10 }}>自己紹介</Text>
+          <Text size={16} bold style={{ marginBottom: 10 }}>今悩んでいること</Text>
           <EditorBlock onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.introduction, screen: "InputIntroduction" })} content={
             <Text size={14} style={{ lineHeight: 18, flex: editButtonRate.content }}>
               {user.introduction
@@ -351,22 +355,26 @@ export const Catalogue = (props) => {
   );
 }
 
-export const sendTalkRequest = (user, navigation, token, chatDispatch, profileDispatch, profileState) => {
+// export const sendTalkRequest = (user, navigation, token, chatDispatch, profileDispatch, profileState) => {
+export const sendTalkRequest = (isWorried, user, navigation, states, dispatches, setIsOpenRequestMenu) => {
   let alertTitle;
   let alertText;
   switch (user.status.key) {
     case "online":
+    case "offline": {/* FULL-47: ユーザステータス表示の一時的停止 */ }
+    case "talking": {/* FULL-47: ユーザステータス表示の一時的停止 */ }
       alertTitle = `${user.name}さんにリクエストを送ります。`;
-      alertText = "";
+      alertText = isWorried ? "「話し手としてリクエスト」" : "「聞き手としてリクエスト」";
       break;
-    case "offline":
-      alertTitle = `${user.name}さんは現在オフラインです。`;
-      alertText = "リクエストが承諾される可能性が低いです。";
-      break;
-    case "talking":
-      alertTitle = `${user.name}さんは現在誰かとトーク中です。`;
-      alertText = "リクエストが承諾される可能性が低いです。";
-      break;
+      {/* FULL-47: ユーザステータス表示の一時的停止 */ }
+      // case "offline":
+      //   alertTitle = `${user.name}さんは現在オフラインです。`;
+      //   alertText = "リクエストが承諾される可能性が低いです。";
+      //   break;
+      // case "talking":
+      //   alertTitle = `${user.name}さんは現在誰かとトーク中です。`;
+      //   alertText = "リクエストが承諾される可能性が低いです。";
+      // break;
     default:
       break;
   }
@@ -376,8 +384,7 @@ export const sendTalkRequest = (user, navigation, token, chatDispatch, profileDi
     cancelButton: "キャンセル",
     okButton: "送信する",
     onPress: () => {
-      requestTalk(user, token, chatDispatch, profileDispatch, profileState);
-      navigation.navigate("Home");
+      requestTalk(isWorried, user, states, dispatches, navigation, setIsOpenRequestMenu);
     },
   });
 }

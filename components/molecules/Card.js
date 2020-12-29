@@ -1,30 +1,31 @@
-import React from 'react';
-import { withNavigation } from '@react-navigation/compat';
-import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback } from 'react-native';
-import { Block, Text, theme } from 'galio-framework';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React from "react";
+import { withNavigation } from "@react-navigation/compat";
+import { StyleSheet, Dimensions, Image, TouchableWithoutFeedback } from "react-native";
+import { Block, Text, theme } from "galio-framework";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-import Icon from '../atoms/Icon';
-import Hr from '../atoms/Hr';
-import { LinearGradient } from 'expo-linear-gradient';
+import Icon from "../atoms/Icon";
+import Hr from "../atoms/Hr";
+import { LinearGradient } from "expo-linear-gradient";
 
 
-const { width } = Dimensions.get('screen');
+const { width } = Dimensions.get("screen");
 
 const Card = (props) => {
   const { navigation, item, horizontal, full, style, imageStyle, consultant } = props;
   const imageStyles = [styles.image, full ? styles.fullImage : styles.horizontalImage, imageStyle];
   const titleSize = 14;
   const contentSize = 12;
-  const navigateProfile = () => navigation.navigate('Profile', { item: item });
+  const navigateProfile = () => navigation.navigate("Profile", { item: item });
 
   return (
     <Block row={horizontal} card flex style={[styles.card, styles.shadow, style]}>
-      <TouchableWithoutFeedback onPress={navigateProfile}>
+      {/* FULL-47: ユーザステータス表示の一時的停止 */}
+      {/* <TouchableWithoutFeedback onPress={navigateProfile}>
         <Block style={[styles.statusContainer]}>
           <Block style={[styles.statusIcon, { backgroundColor: item.status.color }]} />
         </Block>
-      </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback> */}
       <TouchableWithoutFeedback onPress={navigateProfile}>
         <Block flex style={[styles.imageContainer, styles.shadow]}>
           {item.image
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   },
   horizontalImage: {
     height: 122,
-    width: 'auto',
+    width: "auto",
   },
   fullImage: {
     height: 215,

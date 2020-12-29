@@ -14,13 +14,14 @@ const chatReducer = (prevState, action) => {
   switch (action.type) {
     case "APPEND_SENDCOLLECTION":
       /** 1つのsendObjを作成し、sendCollectionに追加
-       * @param {Object} action [type, roomID, user, date(str or Date)] */
+       * @param {Object} action [type, roomID, user, date(str or Date), worriedUserID] */
 
       _sendCollection = Object.assign(prevState.sendCollection, {
         [action.roomID]: {
           roomID: action.roomID,
           user: cvtKeyFromSnakeToCamel(action.user),
           date: isString(action.date) ? new Date(action.date) : action.date,
+          worriedUserID: action.worriedUserID,
         }
       });
       return {
@@ -31,13 +32,14 @@ const chatReducer = (prevState, action) => {
 
     case "APPEND_INCOLLECTION":
       /** 1つのinObjを作成し、inCollectionに追加
-       * @param {Object} action [type, roomID, user, date(str or Date)] */
+       * @param {Object} action [type, roomID, user, date(str or Date), worriedUserID] */
 
       _inCollection = Object.assign(prevState.inCollection, {
         [action.roomID]: {
           roomID: action.roomID,
           user: cvtKeyFromSnakeToCamel(action.user),
           date: isString(action.date) ? new Date(action.date) : action.date,
+          worriedUserID: action.worriedUserID,
         }
       });
       return {
@@ -74,14 +76,14 @@ const chatReducer = (prevState, action) => {
 
     case "START_TALK":
       /** トーク開始時(init)に実行 1つのtalkObjを作成し、talkCollectionに追加 sendCollection・inCollectionからobjを削除
-       * @param {Object} action [type, roomID, user, ws] */
+       * @param {Object} action [type, roomID, user, ws, isWorried] */
 
       if (!prevState.talkingRoomIDs.includes(action.roomID)) {
         _talkCollection = Object.assign(prevState.talkCollection, {
           [action.roomID]: {
             roomID: action.roomID,
             user: cvtKeyFromSnakeToCamel(action.user),
-            messages: [geneCommonMessage("init")],
+            messages: [],
             offlineMessages: [],
             ws: action.ws,
             unreadNum: 0,
@@ -90,6 +92,21 @@ const chatReducer = (prevState, action) => {
         });
         _sendCollection = prevState.sendCollection;
         _inCollection = prevState.inCollection;
+
+        // sendCollection・inCollectionから削除。初期メッセージ付与。
+        let isWorried;
+        if (_sendCollection[action.roomID]) {
+          isWorried = _sendCollection[action.roomID].worriedUserID !== action.user.id;
+        } else if (_inCollection[action.roomID]) {
+          isWorried = _inCollection[action.roomID].worriedUserID !== action.user.id;
+        } else {
+          isWorried = action.isWorried;
+        }
+        _talkCollection[action.roomID].messages = [
+          isWorried ?
+            geneCommonMessage("initSpeak", action.user.name) :
+            geneCommonMessage("initListen", action.user.name)
+        ];
         delete _sendCollection[action.roomID];
         delete _inCollection[action.roomID];
 
@@ -307,10 +324,10 @@ const chatReducer = (prevState, action) => {
        * @param {Object} action [type, roomID, (timeOut)] */
 
       _talkCollection = prevState.talkCollection;
-      _talkCollection[action.roomID].messages = [geneCommonMessage("end", _talkCollection[action.roomID].user.name, Boolean(action.timeOut))];
+      _talkCollection[action.roomID].messages = [..._talkCollection[action.roomID].messages, ...[geneCommonMessage("end", _talkCollection[action.roomID].user.name, Boolean(action.timeOut))]];
       _talkCollection[action.roomID].offlineMessages = [];
-      const unreadNumDifference = _talkCollection[action.roomID].unreadNum;
-      _talkCollection[action.roomID].unreadNum = 0;
+      // const unreadNumDifference = _talkCollection[action.roomID].unreadNum;
+      // _talkCollection[action.roomID].unreadNum = 0;
       _talkCollection[action.roomID].isEnd = true;
       closeWsSafely(_talkCollection[action.roomID].ws);
 
@@ -318,7 +335,7 @@ const chatReducer = (prevState, action) => {
       return {
         ...prevState,
         talkCollection: _talkCollection,
-        totalUnreadNum: prevState.totalUnreadNum - unreadNumDifference,
+        // totalUnreadNum: prevState.totalUnreadNum - unreadNumDifference,
       };
 
     case "CLOSE_TALK":
@@ -390,6 +407,7 @@ const chatReducer = (prevState, action) => {
  *  roomID: {str},
  *  user: {Obj},
  *  date: {Obj},
+ *  worriedUserID: {str},
  * },} */
 const initSendCollection = {};
 
@@ -399,6 +417,7 @@ const initSendCollection = {};
  *  roomID: {str},
  *  user: {Obj},
  *  date: {Obj},
+ *  worriedUserID: {str},
  * },} */
 const initInCollection = {};
 
@@ -412,6 +431,7 @@ const initInCollection = {};
  *  ws: {Obj},
  *  unreadNum: {Num},
  *  isEnd: {boolean},
+ *  worriedUserID: {str},
  * },} */
 const initTalkCollection = {};
 
@@ -421,9 +441,13 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
     time: new Date(Date.now()),
   };
   switch (type) {
-    case "init":
+    case "initSpeak":
       message["id"] = 0;
-      message["message"] = "最初のメッセージを送りましょう。";
+      message["message"] = `トークが成立しました。${user_name}さんに話を聞いてもらいましょう。`;
+      break;
+    case "initListen":
+      message["id"] = 0;
+      message["message"] = `トークが成立しました。${user_name}さんのお話を聞いてあげましょう。`;
       break;
     case "alert":
       message["id"] = 2;

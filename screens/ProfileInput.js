@@ -1,6 +1,6 @@
 import React from "react";
 import ProfileInputTemplate from "../components/templates/ProfileInputTemplate";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { exeIntroStep, URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 
@@ -23,7 +23,7 @@ export const requestPatchProfile = (token, data, profileDispatch, profileState, 
       profileDispatch({type: "SET_ALL", profile: res.data});
       successSubmit && successSubmit();
       if (Object.keys(data).indexOf("intro_step") == -1) {
-        exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
+        // exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
       }
     })
     .catch(err => {

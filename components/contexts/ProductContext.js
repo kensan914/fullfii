@@ -4,13 +4,14 @@ import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
 } from "react-native-iap";
-import authAxios from "../modules/authAxios";
+import authAxios from "../modules/axios";
 import { showToast, URLJoin } from "../modules/support";
 import { useProfileDispatch, useProfileState } from "./ProfileContext";
 import { startUpLogind } from "../../screens/Manager";
 import { useChatDispatch, useChatState } from "./ChatContext";
 import { useAuthDispatch, useAuthState } from "./AuthContext";
 import { useNotificationDispatch, useNotificationState } from "./NotificationContext";
+import useAllContext from "./ContextUtils";
 
 
 const productReducer = (prevState, action) => {
@@ -39,7 +40,9 @@ const productReducer = (prevState, action) => {
        * @param {Object} action [type, profile, profileDispatch, token, authDispatch, startUpLogind] */
 
       action.profileDispatch({ type: "SET_ALL", profile: action.profile });
-      action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLogind: action.startUpLogind });
+
+      // TODO: COMPLETE_SIGNINでなく、COMPLETE_SIGNUPに変更
+      // action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLogind: action.startUpLogind });
 
       return {
         ...prevState,
@@ -108,12 +111,10 @@ export const ProductProvider = ({ children, token }) => {
     chatState: useChatState(),
     productState: productState,
   };
+  // const [states, dispatches] = useAllContext();
 
   const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState();
   const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState();
-
-  // let purchaseUpdateSubscription = null;
-  // let purchaseErrorSubscription = null;
 
   useEffect(() => {
     requestGetProducts(productDispatch);

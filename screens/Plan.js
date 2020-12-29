@@ -8,7 +8,7 @@ import { useProductState } from "../components/contexts/ProductContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { BASE_URL, PRODUCT_ID_LIST } from "../constants/env";
 import { URLJoin } from "../components/modules/support";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { startUpLogind } from "./Manager";
 
 

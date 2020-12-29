@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Block, NavBar, theme } from "galio-framework";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
@@ -36,7 +37,9 @@ const Header = (props) => {
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
-    if (scene.route.name === "Chat" && talkObj) return (
+    // const routeName = getFocusedRouteNameFromRoute(scene.route);
+    const routeName = scene.route.name;
+    if (routeName === "Chat" && talkObj) return (
       <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
     );
     switch (name) {
@@ -47,6 +50,7 @@ const Header = (props) => {
           );
         }
       case "Home":
+      case "WorryList":
       case "Talk":
       case "Notification":
         return (
@@ -100,7 +104,7 @@ const Header = (props) => {
       case "InputGender":
         return "性別";
       case "InputIntroduction":
-        return "自己紹介";
+        return "今悩んでいること";
       case "InputFeature":
         return "特徴";
       case "InputGenreOfWorries":
@@ -120,15 +124,23 @@ const Header = (props) => {
       case "Settings":
       case "SettingsInput":
         return "設定";
+      case "WorryList":
+        return "つぶやき";
+      case "Worry":
+        return "つぶやき";
+      case "WorryPost":
+        return "つぶやく";
       default:
         return name;
     }
   }
 
-  const noShadow = ["Home", "Profile"].includes(name);
+  const hasShadow = !["Home", "Profile", "Worry"].includes(name);
+  const hasBorder = ["Home", "Worry"].includes(name);
   const headerStyles = [
-    !noShadow ? styles.shadow : null,
+    hasShadow ? styles.shadow : null,
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,
+    hasBorder ? { borderBottomColor: "silver", borderBottomWidth: 0.5, } : null,
   ];
 
   return (

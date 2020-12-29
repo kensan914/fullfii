@@ -12,7 +12,7 @@ export const MenuModal = (props) => {
       backdropOpacity={0.3}
       isVisible={isOpen}
       onBackdropPress={() => {
-        if (canPressBackdrop) setIsOpen(false);
+        if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
       }}
       style={styles.menuModal}>
 
@@ -20,7 +20,9 @@ export const MenuModal = (props) => {
       <Block style={styles.menuContainer}>
         {items.map((item, index) => (
           <TouchableOpacity key={index} onPress={item.onPress} style={styles.menuItem}>
-            <Text style={{}} size={20} bold color="dimgray">{item.title}</Text>
+            <Text style={{}} size={20} bold color="dimgray">
+              {item.icon && <>{item.icon}{" "}</>}{item.title}
+            </Text>
           </TouchableOpacity>
         ))}
         <Button round shadowless size="small" color="lightgray" onPress={() => setIsOpen(false)} >

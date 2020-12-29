@@ -1,7 +1,7 @@
 import React from "react";
 
 import SettingsInputTemplate from "../components/templates/SettingsInputTemplate";
-import authAxios from "../components/modules/authAxios";
+import authAxios from "../components/modules/axios";
 import { BASE_URL } from "../constants/env";
 import { URLJoin } from "../components/modules/support";
 

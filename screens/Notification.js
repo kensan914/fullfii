@@ -17,7 +17,7 @@ const Notification = (props) => {
 export default Notification;
 
 
-export const connectWsNotification = (token, notificationDispatch, profileDispatch, chatState, chatDispatch) => {
+export const connectWsNotification = (token, states, dispatches) => {
   let newestPage = 1;
   const paginateBy = 10;
 
@@ -31,7 +31,7 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
       const data = JSON.parse(e.data);
 
       if (data.type === "auth") {
-        profileDispatch({ type: "SET_ALL", profile: data.profile });
+        dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
         // get newest notifications
         ws.send(JSON.stringify({ type: "get", page: newestPage, token: token }));
       }
@@ -39,7 +39,7 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
       else if (data.type === "get") {
         // merge newest notifications
         const newestNotifications = data.notifications;
-        notificationDispatch({
+        dispatches.notificationDispatch({
           type: "MERGE", notifications: newestNotifications, notDuplicateFunc: () => {
             if (newestNotifications.length >= paginateBy) {
               // paginateBy分の長さかつ重複がなければ次ページのnotificationsをget
@@ -52,37 +52,38 @@ export const connectWsNotification = (token, notificationDispatch, profileDispat
 
       else if (data.type === "notice") {
         if (data.notification.message) {
-          notificationDispatch({ type: "ADD", notification: data.notification });
+          dispatches.notificationDispatch({ type: "ADD", notification: data.notification });
         }
 
         if (data.notification.type === "talk_request") {
           // チャットリクエスト通知
-          chatDispatch({ type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date });
+          dispatches.chatDispatch({ type: "APPEND_INCOLLECTION", roomID: data.room_id, user: data.notification.subject, date: data.notification.date, worriedUserID: data.worried_user_id });
         } else if (data.notification.type === "talk_response") {
           // チャットレスポンス通知
-          initConnectWsChat(data.room_id, token, chatState, chatDispatch, profileDispatch);
+          // initConnectWsChat(data.room_id, token, states, dispatches, data.worried_user_id !== data.notification.subject.id);
+          initConnectWsChat(data.room_id, token, states, dispatches);
         } else if (data.notification.type === "cancel_talk_request_to_res") {
           // レスポンスユーザへのキャンセルトークリクエスト通知
-          chatDispatch({ type: "DELETE_IN_OBJ", roomID: data.room_id });
+          dispatches.chatDispatch({ type: "DELETE_IN_OBJ", roomID: data.room_id });
         } else if (data.notification.type === "cancel_talk_request_to_req") {
           // リクエストユーザへのキャンセルトークリクエスト通知
-          chatDispatch({ type: "DELETE_SEND_OBJ", roomID: data.room_id });
+          dispatches.chatDispatch({ type: "DELETE_SEND_OBJ", roomID: data.room_id });
         } else {
           // 通常の通知
         }
       }
 
       else if (data.type === "read") {
-        notificationDispatch({ type: "COMPLETE_READ" });
+        dispatches.notificationDispatch({ type: "COMPLETE_READ" });
       }
     },
     onclose: (e, ws) => {
     },
 
     registerWs: (ws) => {
-      notificationDispatch({ type: "SET_WS", ws: ws });
+      dispatches.notificationDispatch({ type: "SET_WS", ws: ws });
     }
   }
 
-  initWs(wsSettings);
+  initWs(wsSettings, dispatches);
 }
