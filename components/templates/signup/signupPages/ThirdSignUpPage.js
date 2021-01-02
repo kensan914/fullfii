@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, StyleSheet, TouchableOpacity } from "react-native";
-import { Block, Button, Icon, Input, Text } from "galio-framework";
-import Modal from "react-native-modal";
+import { Block, Button, Checkbox, Icon, Input, Text } from "galio-framework";
+import * as WebBrowser from "expo-web-browser";
 
 import SignUpPageTemplate from "./SignUpPageTemplate";
 import { useAuthDispatch, useAuthState } from "../../../contexts/AuthContext";
 import { useAxios } from "../../../modules/axios";
 import { URLJoin } from "../../../modules/support";
-import { BASE_URL } from "../../../../constants/env";
+import { BASE_URL, USER_POLICY_URL } from "../../../../constants/env";
 import { useProfileDispatch, useProfileState } from "../../../contexts/ProfileContext";
 import { COLORS } from "../../../../constants/Theme";
 import { MenuModal } from "../../../molecules/Menu";
@@ -20,36 +20,47 @@ const ThirdSignUpPage = (props) => {
   const { goToPage } = props;
   const authState = useAuthState();
   const authDispatch = useAuthDispatch();
+  const profileDispatch = useProfileDispatch();
+  const profileState = useProfileState();
   const progressNum = 3;
 
   const [username, setUsername] = useState("");
   const [isActiveUsername, setIsActiveUsername] = useState(false);
   const maxUsernameLen = 15;
 
-  const GENDER = { FEMALE: 0, MALE: 1, SEQRET: 2 };
+  // const GENDER = { FEMALE: 0, MALE: 1, SEQRET: 2 };
   const [gender, setGender] = useState();
 
-  const [isOpenJobModal, setIsOpenJobModal] = useState(false);
   const [job, setJob] = useState();
+  const [isOpenJobModal, setIsOpenJobModal] = useState(false);
 
-  // テスト
-  const testData = {
-    username: "テストさん7",
-    password: "gin-TK46",
-    genre_of_worries: authState.signupBuffer.worries,
-    gender: "male",
-    job: "housewife",
-  };
+  const [isAgreedUserpolicy, setIsAgreedUserpolicy] = useState(false);
 
-  const profileDispatch = useProfileDispatch();
+  const checkCanNext = () => {
+    console.log(username.length);
+    return (
+      (0 < username.length && username.length <= maxUsernameLen) &&
+      typeof gender !== "undefined" &&
+      typeof job !== "undefined" &&
+      isAgreedUserpolicy
+    );
+  }
+
+  const [password] = useState("gin-TK46");
   const { isLoading, resData, request } = useAxios(URLJoin(BASE_URL, "signup/"), "post", {
-    data: testData,
+    data: {
+      username: username,
+      password: password,
+      genre_of_worries: authState.signupBuffer.worries,
+      gender: gender,
+      job: job,
+    },
     thenCallback: res => {
       const _me = res.data.me;
       const _token = res.data.token;
       profileDispatch({ type: "SET_ALL", profile: _me });
-      authDispatch({ type: "COMPLETE_SIGNUP", token: _token, password: testData.password, });
-      authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: false, });
+      authDispatch({ type: "COMPLETE_SIGNUP", token: _token, password: password, });
+      authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: true, });
       goToPage(progressNum + 1);
     },
     catchCallback: err => {
@@ -95,6 +106,7 @@ const ThirdSignUpPage = (props) => {
       <Block flex>
         <Block flex justifyContent="center">
           <Input
+            returnKeyType="done"
             bgColor="transparent"
             placeholderTextColor="darkgray"
             borderless
@@ -120,15 +132,18 @@ const ThirdSignUpPage = (props) => {
 
         <Block flex justifyContent="center">
           <Block flex style={styles.genderInputContainer}>
-            <Block flex style={styles.genderInput}>
-              {renderGenderInputButton("female", "女性", gender === GENDER.FEMALE, GENDER.FEMALE)}
-            </Block>
-            <Block flex style={styles.genderInput}>
-              {renderGenderInputButton("male", "男性", gender === GENDER.MALE, GENDER.MALE)}
-            </Block>
-            <Block flex style={styles.genderInput}>
-              {renderGenderInputButton("question", "秘密", gender === GENDER.SEQRET, GENDER.SEQRET)}
-            </Block>
+            {Object.values(profileState.profileParams.gender).map((genderObj, i) => {
+              const iconNames = { female: "female", male: "male", secret: "lock", };
+              return (
+                <Block
+                  key={i}
+                  flex
+                  style={styles.genderInput}
+                >
+                  {renderGenderInputButton(iconNames[genderObj.key], genderObj.label, gender === genderObj.key, genderObj.key)}
+                </Block>
+              );
+            })}
           </Block>
         </Block>
 
@@ -146,7 +161,7 @@ const ThirdSignUpPage = (props) => {
                 color={job ? "lightcoral" : "darkgray"}
                 bold={Boolean(job)}
               >
-                {job ? job : "-- 職業を選択してください --"}
+                {job ? profileState.profileParams.job[job].label : "-- 職業を選択してください --"}
               </Text>
               <Icon
                 name="angle-down"
@@ -157,26 +172,41 @@ const ThirdSignUpPage = (props) => {
             </Block>
           </TouchableOpacity>
 
-          <MenuModal isOpen={isOpenJobModal} setIsOpen={setIsOpenJobModal}
-            items={[
-              {
-                title: "学生",
+          <MenuModal
+            isOpen={isOpenJobModal}
+            setIsOpen={setIsOpenJobModal}
+            items={Object.values(profileState.profileParams.job).map((jobObj, i) => {
+              return {
+                title: jobObj.label,
                 onPress: () => {
-                  setJob("学生");
+                  setJob(jobObj.key);
                   setIsOpenJobModal(false);
                 }
-              },
-              {
-                title: "社会人",
-                onPress: () => {
-                  setJob("社会人");
-                  setIsOpenJobModal(false);
-                }
-              },
-            ]}
+              };
+            })}
           />
-
         </Block>
+
+        <Block flex={0.5} justifyContent="flex-end">
+          <Block style={styles.agreeInput}>
+            <Checkbox
+              label=""
+              color={COLORS.PINK}
+              style={{ marginHorizontal: 8, }}
+              initialValue={isAgreedUserpolicy}
+              onChange={(value) => setIsAgreedUserpolicy(value)}
+            />
+            <Text
+              color="lightcoral"
+              onPress={() => WebBrowser.openBrowserAsync(USER_POLICY_URL)}
+              style={{ textDecorationLine: "underline" }}
+            >
+              利用規約
+            </Text>
+            <Text color="gray">に同意する</Text>
+          </Block>
+        </Block>
+
       </Block >
     );
   }
@@ -188,7 +218,9 @@ const ThirdSignUpPage = (props) => {
       contents={renderContents()}
       isLoading={isLoading}
       pressCallback={pressButton}
-      buttonTitle="登録して次へ"
+      buttonTitle="登録してはじめる"
+      checkCanNext={checkCanNext}
+      statesRequied={[username, gender, job, isAgreedUserpolicy]}
     />
   )
 }
@@ -245,5 +277,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 17,
     borderTopLeftRadius: 17,
     paddingBottom: 40,
-  }
+  },
+  agreeInput: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
