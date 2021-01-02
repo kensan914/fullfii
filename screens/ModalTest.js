@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Block, Button } from "galio-framework";
 import { ChatModal } from "../components/molecules/ChatModal";
+import {ProfileModal} from "../components/molecules/ProfileModal"
 
 
 const ModalTest = (props) => {
@@ -20,7 +21,7 @@ const ModalTest = (props) => {
       </Button>
       </Block>
 
-      <ChatModal isOpen={isOpen} setIsOpen={setIsOpen} />
+      <ProfileModal isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   );
 }
