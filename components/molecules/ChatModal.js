@@ -11,8 +11,10 @@ export const ChatModal = (props) => {
   const [ isSpeak, setIsSpeak] = useState(true);
   const [ isListen, setIsListen] = useState(false);
   const [ sameType, setSameType] = useState(false);
+  const [ sexType, setSexType] = useState(false);
 
-  const SettingsSwitch = (props) => {
+
+  const ChatSwitch = (props) => {
     const { title, onChange, value } = props;
     
     return (
@@ -62,14 +64,16 @@ export const ChatModal = (props) => {
     >
       <Block style={styles.modalContents}>
         <Block >
-          <Block style={{flex: 3.5}}>
-            <SettingsSwitch title="話したい" value={isSpeak} onChange={(value)=>{speaker(value);}}/>
-            <SettingsSwitch title="聞きたい" value={isListen} onChange={(value)=>{listener(value);}}/>
+          <Block style={{flex: 0.35, justifyContent: "center"}}>
+            <ChatSwitch title="話したい" value={isSpeak} onChange={(value)=>{speaker(value);}}/>
+            <ChatSwitch title="聞きたい" value={isListen} onChange={(value)=>{listener(value);}}/>
           </Block>
-          <Block style={{flex:3.5}}>
-            <SettingsSwitch title="話し相手を高校生に絞る" value={sameType} onChange={(value)=>{value ? setSameType(true) : setSameType(false)}}/>
+          <Block style={{flex: 0.35, justifyContent: "center"}}>
+            <ChatSwitch title="話し相手を高校生に絞る" value={sameType} onChange={(value)=>{value ? setSameType(true) : setSameType(false)}}/>
+            <ChatSwitch title="話し相手に異性を含む" value={sexType} onChange={(value)=>{value ? setSexType(true) : setSexType(false)}}/>
           </Block>
-          <Block flex row center >
+          <Block style={{flex: 0.1}}/>
+          <Block flex row center style={{flex: 0.2, justifyContent: "center"}}>
             <Block center style={{flex: 0.45}}>
               <ChangeModalButton icon="logout" iconFamily="AntDesign" color={false}/>
             </Block>
@@ -88,7 +92,7 @@ const styles = StyleSheet.create({
   modal: {
     marginHorizontal: 0,
     marginBottom: 0,
-    marginTop: 320,
+    marginTop: 280,
   },
   modalContents: {
     backgroundColor: "white",
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 17,
     borderTopLeftRadius: 17,
     paddingTop: 40,
-    paddingBottom: 60
+    paddingBottom: 40
   },
   settingsCard: {
     backgroundColor: "white",

@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   modal: {
     marginHorizontal: 0,
     marginBottom: 0,
-    marginTop: 320,
+    marginTop: 300,
   },
   modalContents: {
     backgroundColor: "white",

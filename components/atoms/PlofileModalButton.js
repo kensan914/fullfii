@@ -16,7 +16,7 @@ const ChangeButton = (props) => {
       iconFamily={iconFamily}
       iconSize={40}
       color={color ? materialTheme.COLORS.FULLFII : "#b0b0b0"}
-      shadowColor={color ? materialTheme.COLORS.FULLFII : "#b0b0b0"}
+      shadowColor={color ? materialTheme.COLORS.FULLFII : "#717171"}
       iconColor="white"
       style={styles.ChangeButton}
       onPress={() => {
@@ -30,8 +30,8 @@ export default withNavigation(ChangeButton);
 
 const styles = StyleSheet.create({
   ChangeButton: {
-    width: width / 6,
-    height: width / 6,
+    width: width / 5.5,
+    height: width / 5.5,
     //right: 10,
     //bottom: 10,
     //paddingRight: 3,   // for edit icon
