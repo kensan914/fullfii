@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { BASE_URL } from "../constants/env";
 import { URLJoin } from "../components/modules/support";
-import { startUpLogind } from "./Manager";
+import { startUpLoggedin } from "./StartUpManager";
 import SignInUpTemplate from "../components/templates/SignInUpTemplate";
 
 
@@ -32,7 +32,7 @@ export const requestSignIn = (email, password, dispatches, states, setErrorMessa
       }
       // 単独signin
       else {
-        dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLogind: () => startUpLogind(res.data["token"], dispatches, states) });
+        dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: res.data["token"], startUpLoggedin: () => startUpLoggedin(res.data["token"], states, dispatches) });
       }
     })
     .catch(err => {

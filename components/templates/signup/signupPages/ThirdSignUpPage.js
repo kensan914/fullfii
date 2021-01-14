@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import { Block, Button, Checkbox, Icon, Input, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
@@ -6,11 +6,13 @@ import * as WebBrowser from "expo-web-browser";
 import SignUpPageTemplate from "./SignUpPageTemplate";
 import { useAuthDispatch, useAuthState } from "../../../contexts/AuthContext";
 import { useAxios } from "../../../modules/axios";
-import { URLJoin } from "../../../modules/support";
+import { generatePassword, URLJoin } from "../../../modules/support";
 import { BASE_URL, USER_POLICY_URL } from "../../../../constants/env";
 import { useProfileDispatch, useProfileState } from "../../../contexts/ProfileContext";
 import { COLORS } from "../../../../constants/Theme";
 import { MenuModal } from "../../../molecules/Menu";
+import { startUpLoggedin } from "../../../../screens/StartUpManager";
+import useAllContext from "../../../contexts/ContextUtils";
 
 
 const { height, width } = Dimensions.get("window");
@@ -28,7 +30,6 @@ const ThirdSignUpPage = (props) => {
   const [isActiveUsername, setIsActiveUsername] = useState(false);
   const maxUsernameLen = 15;
 
-  // const GENDER = { FEMALE: 0, MALE: 1, SEQRET: 2 };
   const [gender, setGender] = useState();
 
   const [job, setJob] = useState();
@@ -37,7 +38,6 @@ const ThirdSignUpPage = (props) => {
   const [isAgreedUserpolicy, setIsAgreedUserpolicy] = useState(false);
 
   const checkCanNext = () => {
-    console.log(username.length);
     return (
       (0 < username.length && username.length <= maxUsernameLen) &&
       typeof gender !== "undefined" &&
@@ -46,7 +46,8 @@ const ThirdSignUpPage = (props) => {
     );
   }
 
-  const [password] = useState("gin-TK46");
+  const [password] = useState(generatePassword());
+  const [states, dispatches] = useAllContext();
   const { isLoading, resData, request } = useAxios(URLJoin(BASE_URL, "signup/"), "post", {
     data: {
       username: username,
@@ -61,7 +62,8 @@ const ThirdSignUpPage = (props) => {
       profileDispatch({ type: "SET_ALL", profile: _me });
       authDispatch({ type: "COMPLETE_SIGNUP", token: _token, password: password, });
       authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: true, });
-      goToPage(progressNum + 1);
+
+      startUpLoggedin(_token, states, dispatches);
     },
     catchCallback: err => {
       alert("新規登録に失敗しました。");
@@ -132,18 +134,19 @@ const ThirdSignUpPage = (props) => {
 
         <Block flex justifyContent="center">
           <Block flex style={styles.genderInputContainer}>
-            {Object.values(profileState.profileParams.gender).map((genderObj, i) => {
-              const iconNames = { female: "female", male: "male", secret: "lock", };
-              return (
-                <Block
-                  key={i}
-                  flex
-                  style={styles.genderInput}
-                >
-                  {renderGenderInputButton(iconNames[genderObj.key], genderObj.label, gender === genderObj.key, genderObj.key)}
-                </Block>
-              );
-            })}
+            {profileState.profileParams?.gender &&
+              Object.values(profileState.profileParams.gender).map((genderObj, i) => {
+                const iconNames = { female: "female", male: "male", secret: "lock", };
+                return (
+                  <Block
+                    key={i}
+                    flex
+                    style={styles.genderInput}
+                  >
+                    {renderGenderInputButton(iconNames[genderObj.key], genderObj.label, gender === genderObj.key, genderObj.key)}
+                  </Block>
+                );
+              })}
           </Block>
         </Block>
 
@@ -161,7 +164,8 @@ const ThirdSignUpPage = (props) => {
                 color={job ? "lightcoral" : "darkgray"}
                 bold={Boolean(job)}
               >
-                {job ? profileState.profileParams.job[job].label : "-- 職業を選択してください --"}
+                {(job && profileState.profileParams?.job)
+                  ? profileState.profileParams.job[job].label : "-- 職業を選択してください --"}
               </Text>
               <Icon
                 name="angle-down"
@@ -175,15 +179,16 @@ const ThirdSignUpPage = (props) => {
           <MenuModal
             isOpen={isOpenJobModal}
             setIsOpen={setIsOpenJobModal}
-            items={Object.values(profileState.profileParams.job).map((jobObj, i) => {
-              return {
-                title: jobObj.label,
-                onPress: () => {
-                  setJob(jobObj.key);
-                  setIsOpenJobModal(false);
-                }
-              };
-            })}
+            items={profileState.profileParams?.job &&
+              Object.values(profileState.profileParams.job).map((jobObj, i) => {
+                return {
+                  title: jobObj.label,
+                  onPress: () => {
+                    setJob(jobObj.key);
+                    setIsOpenJobModal(false);
+                  }
+                };
+              })}
           />
         </Block>
 
@@ -220,7 +225,7 @@ const ThirdSignUpPage = (props) => {
       pressCallback={pressButton}
       buttonTitle="登録してはじめる"
       checkCanNext={checkCanNext}
-      statesRequied={[username, gender, job, isAgreedUserpolicy]}
+      statesRequired={[username, gender, job, isAgreedUserpolicy]}
     />
   )
 }

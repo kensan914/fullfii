@@ -214,7 +214,7 @@ export const ConsultantProfileEditor = (props) => {
         </Block>
         <ProfileHr />
 
-        {!user.gender.key &&
+        {/* {!user.gender.key &&
           <>
             <Block style={styles.profileTextBlock}>
               <Block style={{ marginBottom: 10, width: "100%", alignItems: "center", justifyContent: "space-between", flexDirection: "row" }}>
@@ -227,9 +227,9 @@ export const ConsultantProfileEditor = (props) => {
             </Block>
             <ProfileHr />
           </>
-        }
+        } */}
 
-        <Block style={styles.profileTextBlock}>
+        {/* <Block style={styles.profileTextBlock}>
           <Block style={{ marginBottom: 10, width: "100%", alignItems: "center", justifyContent: "space-between", flexDirection: "row" }}>
             <Text size={16} bold>生年月日</Text>
             {!user.birthday &&
@@ -242,7 +242,7 @@ export const ConsultantProfileEditor = (props) => {
           <BirthdayPicker birthday={birthday} setBirthday={setBirthday} isOpen={isOpenBirthdayPicker} setIsOpen={setIsOpenBirthdayPicker} colorScheme={colorScheme}
             submit={submitBirthday} canSubmit={canSubmit} isLoading={isLoading} />
         </Block>
-        <ProfileHr />
+        <ProfileHr /> */}
 
         <Block style={styles.profileTextBlock}>
           <Text size={16} bold style={{ marginBottom: 10 }}>今悩んでいること</Text>
@@ -257,11 +257,11 @@ export const ConsultantProfileEditor = (props) => {
         </Block>
         <ProfileHr />
 
-        <Catalogue title="特徴" items={user.features} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.features, screen: "InputFeature" })} />
+        {/* <Catalogue title="特徴" items={user.features} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.features, screen: "InputFeature" })} />
         <ProfileHr />
         <Catalogue title="話したい悩みのジャンル" items={user.genreOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.genreOfWorries, screen: "InputGenreOfWorries" })} />
         <ProfileHr />
-        <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.scaleOfWorries, screen: "InputScaleOfWorries" })} />
+        <Catalogue title="話せる悩みの大きさ" items={user.scaleOfWorries} isEditor onPress={() => navigation.navigate("ProfileInput", { user: user, prevValue: user.scaleOfWorries, screen: "InputScaleOfWorries" })} /> */}
       </Block >
     </ScrollView>
   );

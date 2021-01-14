@@ -13,15 +13,21 @@ const Talk = (props) => {
   const chatState = useChatState();
 
   return (
-    <TalkTemplate {...props} sendCollection={chatState.sendCollection} inCollection={chatState.inCollection} talkCollection={chatState.talkCollection}
-      initConnectWsChat={initConnectWsChat} requestCancelTalk={requestCancelTalk} />
+    <TalkTemplate
+      {...props}
+      sendCollection={chatState.sendCollection}
+      inCollection={chatState.inCollection}
+      talkCollection={chatState.talkCollection}
+      initConnectWsChat={initConnectWsChat}
+      requestCancelTalk={requestCancelTalk}
+    />
   );
 }
 
 export default Talk;
 
 
-/** 
+/**
  * request talk. */
 // export const requestTalk = (user, token, chatDispatch, profileDispatch, profileState) => {
 export const requestTalk = (isWorried, user, states, dispatches, navigation, setIsOpenRequestMenu) => {
@@ -48,8 +54,8 @@ export const requestTalk = (isWorried, user, states, dispatches, navigation, set
     });
 }
 
-/** 
- * response talk request. 
+/**
+ * response talk request.
  * If you are a request user and you are starting a talk, init is true. */
 const _connectWsChat = (roomID, token, states, dispatches, init, callbackSuccess) => {
   const wsSettings = {
@@ -148,8 +154,8 @@ const handleChatMessage = (data, chatState, chatDispatch, token) => {
 }
 
 
-/** 
- *  cansel talk request. */
+/**
+ *  cancel talk request. */
 export const requestCancelTalk = (roomID, token, chatDispatch) => {
   const url = URLJoin(BASE_URL, "rooms/", roomID, "cancel/");
 
@@ -165,7 +171,7 @@ export const requestCancelTalk = (roomID, token, chatDispatch) => {
     });
 }
 
-/** 
+/**
  *  end talk request. */
 export const requestEndTalk = (roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, willSkipEvaluation = false) => {
   setIsShowSpinner(true);
@@ -199,7 +205,7 @@ export const requestEndTalk = (roomID, token, setIsOpenEndTalk, navigation, chat
     });
 }
 
-/** 
+/**
  *  close talk request. */
 export const requestCloseTalk = (roomID, token, navigation, chatDispatch, profileDispatch, profileState, hasThunks = false) => {
   const url = URLJoin(BASE_URL, "rooms/", roomID, "close/");
@@ -234,7 +240,7 @@ const requestGetTalkInfo = (token, callbackSuccess) => {
     });
 }
 
-/** 
+/**
  *  トークのstate, wsなど全て再開, 復元する. startupで実行 */
 export const resumeTalk = (token, states, dispatches) => {
   requestGetTalkInfo(token, async res => {

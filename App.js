@@ -16,7 +16,7 @@ import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./components/module
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { NotificationProvider } from "./components/contexts/NotificationContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
-import Manager from "./screens/Manager";
+import Manager from "./screens/StartUpManager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 // import { logEvent } from "./components/modules/firebase/logEvent";
 import { LogBox } from "react-native";
@@ -78,12 +78,14 @@ const RootNavigator = (props) => {
   const [signupBuffer, setSignupBuffer] = useState();
   const [profile, setProfile] = useState();
   const [notifications, setNotifications] = useState();
+  const [talkTicketCollection, setTalkTicketCollection] = useState();
 
   useEffect(() => {
     (async () => {
-      asyncRemoveItem("status"); // テスト
-      asyncRemoveItem("token"); // テスト
-      asyncRemoveItem("signupBuffer"); // テスト
+      // asyncRemoveItem("status"); // テスト
+      // asyncRemoveItem("token"); // テスト
+      // asyncRemoveItem("signupBuffer"); // テスト
+      // asyncRemoveItem("talkTicketCollection"); // テスト
 
       const _status = await asyncGetItem("status");
       setStatus(_status ? _status : null);
@@ -95,6 +97,8 @@ const RootNavigator = (props) => {
       setProfile(_profile ? _profile : null);
       const _notifications = await asyncGetJson("notifications");
       setNotifications(_notifications ? _notifications : null);
+      const _talkTicketCollection = await asyncGetJson("talkTicketCollection");
+      setTalkTicketCollection(_talkTicketCollection ? _talkTicketCollection : null);
     })();
 
     // send event to firebase
@@ -107,6 +111,7 @@ const RootNavigator = (props) => {
     typeof signupBuffer === "undefined" ||
     typeof profile === "undefined" ||
     typeof notifications === "undefined" ||
+    typeof talkTicketCollection === "undefined" ||
     !props.isFinishLoadingResources
   ) {
     return <></>; // AppLording
@@ -118,9 +123,9 @@ const RootNavigator = (props) => {
     return (
       <NavigationContainer>
         <AuthProvider status={status} token={token} signupBuffer={signupBuffer}>
-          <ProfileProvider profile={profile} >
-            <NotificationProvider notifications={notifications} >
-              <ChatProvider >
+          <ProfileProvider profile={profile}>
+            <NotificationProvider notifications={notifications}>
+              <ChatProvider talkTicketCollection={talkTicketCollection}>
                 <ProductProvider token={token}>
                   <GalioProvider theme={materialTheme}>
                     <Manager>

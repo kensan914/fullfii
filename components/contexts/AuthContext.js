@@ -52,7 +52,7 @@ const authReducer = (prevState, action) => {
       if (prevState.token) return { ...prevState };
       asyncStoreItem("token", action.token);
       asyncStoreItem("password", action.password);
-      // action.startUpLogind();
+      // action.startUpLoggedin();
 
       return {
         ...prevState,
@@ -70,47 +70,6 @@ const authReducer = (prevState, action) => {
         ...prevState,
         token: action.token,
       };
-
-    // TODO:後に削除
-    case "COMPLETE_SIGNIN":
-      /** state関連の初期化 signin時に実行
-       * @param {Object} action [type, token, startUpLogind] */
-
-      asyncStoreItem("token", action.token);
-      action.startUpLogind();
-      _status = AUTHENTICATED;
-      asyncStoreItem("status", _status);
-
-      return {
-        ...prevState,
-        status: _status,
-        token: action.token,
-      };
-
-    // case "WHILE_SIGNIN":
-    //   /** signin未完状態. signup⇒signinが完了し、plan選択に入る際に実行.
-    //    * @param {Object} action [type, token] */
-
-    //   asyncStoreItem("token", action.token);
-    //   return {
-    //     ...prevState,
-    //     status: "Loading",
-    //     token: action.token,
-    //   };
-
-    // case "COMPLETE_LOGOUT":
-    //   /** state関連の削除処理 logout時に実行
-    //    * @param {Object} action [type, notificationDispatch, chatDispatch, profileDispatch] */
-
-    //   asyncRemoveAll();
-    //   action.notificationDispatch({ type: "RESET" });
-    //   action.chatDispatch({ type: "RESET" });
-    //   action.profileDispatch({ type: "RESET" });
-    //   return {
-    //     ...prevState,
-    //     status: UNAUTHENTICATED,
-    //     token: undefined,
-    //   };
 
     default:
       console.warn(`Not found "${action.type}" action.type.`);

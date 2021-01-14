@@ -15,7 +15,7 @@ const SignUpPageTemplate = (props) => {
     pressCallback,
     buttonTitle,
     checkCanNext,
-    statesRequied = [],
+    statesRequired = [],
   } = props;
 
   const [canNext, setCanNext] = useState(false);
@@ -25,7 +25,7 @@ const SignUpPageTemplate = (props) => {
     } else {
       setCanNext(checkCanNext());
     }
-  }, statesRequied);
+  }, statesRequired);
 
   return (
     <>

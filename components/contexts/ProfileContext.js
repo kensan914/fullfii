@@ -132,10 +132,6 @@ export const ProfileProvider = ({ children, profile }) => {
     shouldRequestDidMount: true,
   });
 
-  useEffect(() => {
-    console.log(profileState.profileParams);
-  }, [profileState.profileParams]);
-
   return (
     <ProfileStateContext.Provider value={profileState}>
       <ProfileDispatchContext.Provider value={profileDispatch}>

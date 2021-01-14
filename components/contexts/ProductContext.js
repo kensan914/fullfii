@@ -7,7 +7,7 @@ import RNIap, {
 import authAxios from "../modules/axios";
 import { showToast, URLJoin } from "../modules/support";
 import { useProfileDispatch, useProfileState } from "./ProfileContext";
-import { startUpLogind } from "../../screens/Manager";
+import { startUpLoggedin } from "../../screens/StartUpManager";
 import { useChatDispatch, useChatState } from "./ChatContext";
 import { useAuthDispatch, useAuthState } from "./AuthContext";
 import { useNotificationDispatch, useNotificationState } from "./NotificationContext";
@@ -37,12 +37,12 @@ const productReducer = (prevState, action) => {
     case "SUCCESS_PURCHASE":
     case "SUCCESS_RESTORE":
       /** 購入(復元)成功時に実行.
-       * @param {Object} action [type, profile, profileDispatch, token, authDispatch, startUpLogind] */
+       * @param {Object} action [type, profile, profileDispatch, token, authDispatch, startUpLoggedin] */
 
       action.profileDispatch({ type: "SET_ALL", profile: action.profile });
 
       // TODO: COMPLETE_SIGNINでなく、COMPLETE_SIGNUPに変更
-      // action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLogind: action.startUpLogind });
+      // action.authDispatch({ type: "COMPLETE_SIGNIN", token: action.token, startUpLoggedin: action.startUpLoggedin });
 
       return {
         ...prevState,
@@ -159,7 +159,7 @@ export const ProductProvider = ({ children, token }) => {
                 await RNIap.finishTransaction(purchase);
                 productDispatch({
                   type: "SUCCESS_PURCHASE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: states.authState.token,
-                  authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(states.authState.token, dispatches, states),
+                  authDispatch: dispatches.authDispatch, startUpLoggedin: () => startUpLoggedin(states.authState.token, states, dispatches),
                 });
               })
               .catch(async (err) => {

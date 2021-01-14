@@ -30,7 +30,10 @@ const SecondSignUpPage = (props) => {
     goToPage(progressNum + 1);
   }
 
-  const genreOfWorries = JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries));
+  const genreOfWorries =
+    profileState.profileParams ?
+      JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries)) :
+      {};
 
   const pressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
@@ -67,7 +70,7 @@ const SecondSignUpPage = (props) => {
       pressCallback={pressButton}
       buttonTitle="次へ"
       checkCanNext={checkCanNext}
-      statesRequied={[worriesCollection]}
+      statesRequired={[worriesCollection]}
     />
   )
 }
