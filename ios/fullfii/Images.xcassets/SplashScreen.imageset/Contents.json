@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "splashScreen1x.png",
+      "filename" : "828_1792.png",
       "idiom" : "iphone",
       "scale" : "1x"
     },
     {
-      "filename" : "splashScreen2x-1.png",
+      "filename" : "828_1792-1.png",
       "idiom" : "iphone",
       "scale" : "2x"
     },
     {
-      "filename" : "splashScreen3x-1.png",
+      "filename" : "828_1792-2.png",
       "idiom" : "iphone",
       "scale" : "3x"
     }

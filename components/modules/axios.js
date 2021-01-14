@@ -25,7 +25,7 @@ export default authAxios;
 /** axiosを使用したリクエストのカスタムフック
  * @param {string} url
  * @param {string} method [get, post, delete, put, patch]
- * @param {Object} action [data, thenCallback, catchCallback, finallyCallback, didRequestCallback, token, shouldRequestDidMount, limitRequest] 
+ * @param {Object} action [data, thenCallback, catchCallback, finallyCallback, didRequestCallback, token, shouldRequestDidMount, limitRequest]
  * @return {Object} { isLoading, resData, request }
  * @example
   // デフォルトではdidMount時にリクエストは走らない。didMount時の自動リクエストはaction.shouldRequestDidMountにtrueをsetし設定。
@@ -37,7 +37,7 @@ export default authAxios;
     shouldRequestDidMount: true,
   });
   // request()でリクエスト。urlかdataパラメータをobjectで渡してそのリクエスト間だけで有効な上書き設定が可能。
-  request({ url: URLJoin(BASE_URL, ".../"), data: {}, }); 
+  request({ url: URLJoin(BASE_URL, ".../"), data: {}, });
  * */
 export const useAxios = (url, method, action) => {
   //---------- constants ----------//

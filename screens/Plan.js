@@ -9,7 +9,7 @@ import { useProfileState } from "../components/contexts/ProfileContext";
 import { BASE_URL, PRODUCT_ID_LIST } from "../constants/env";
 import { URLJoin } from "../components/modules/support";
 import authAxios from "../components/modules/axios";
-import { startUpLogind } from "./Manager";
+import { startUpLoggedin } from "./StartUpManager";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -64,7 +64,7 @@ export const getPurchases = async (token, dispatches, states, handleSelectedPlan
         productDispatch({ type: "SET_WILL_ALERT", text: "復元完了" });
         productDispatch({
           type: "SUCCESS_RESTORE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: token,
-          authDispatch: dispatches.authDispatch, startUpLogind: () => startUpLogind(token, dispatches, states),
+          authDispatch: dispatches.authDispatch, startUpLoggedin: () => startUpLoggedin(token, states, dispatches),
         });
         handleSelectedPlan && handleSelectedPlan();
       })

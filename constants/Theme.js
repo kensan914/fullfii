@@ -31,7 +31,26 @@ const materialTheme = {
 
 export default materialTheme;
 
-export const  COLORS = {
+export const COLORS = {
   PINK: "#F69896",
   GREEN: "#3cc47c",
+  ALERT: "#F44336",
 };
+
+export const CARD_COLORS = {
+  "0": "#bf7fff",
+  "1": "#78C1E2",
+  "2": "#F69896",
+  "3": "#D7DF7F",
+  "4": "#ff7fbf",
+  "5": "#78C1E2",
+  "6": "#7fbfff",
+  "7": "#D8B0FF",
+  "8": "#ff7f7f",
+  "9": "#92E49C",
+  "10": "#F69896",
+  "11": "#7f7fff",
+  "12": "#D7DF7F",
+  "13": "#ff7fff",
+  "14": "#D8B0FF",
+}

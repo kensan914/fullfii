@@ -21,14 +21,20 @@ const SubmitButton = (props) => {
   return (
     <Button
       round
-      size="small"
+      size="large"
       disabled={!canSubmit || isLoading}
       color={color}
       style={[styles.submitButton, { shadowColor: color }, style]}
       loading={isLoading}
       onPress={pressedFunc}
     >
-      <Text color={textColor} size={16}>{children ? children : "決定"}</Text>
+      <Text
+        color={textColor}
+        size={16}
+        bold
+      >
+        {children ? children : "決定"}
+      </Text>
     </Button>
   );
 }

@@ -5,13 +5,16 @@ import Modal from "react-native-modal";
 import LottieView from "lottie-react-native";
 import Spinner from "react-native-loading-spinner-overlay";
 
-import { alertModal } from "../modules/support";
+import { alertModal, URLJoin } from "../modules/support";
 import { MenuModal } from "../molecules/Menu";
 import { TouchableOpacity } from "react-native";
 import { useAuthState } from "../contexts/AuthContext";
 import { requestCloseTalk, requestEndTalk } from "../../screens/Talk";
 import { useChatDispatch } from "../contexts/ChatContext";
 import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
+import ChatModal from "../molecules/ChatModal";
+import { useAxios } from "../modules/axios";
+import { BASE_URL } from "../../constants/env";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -20,27 +23,35 @@ export const CommonMessage = (props) => {
   const { message } = props;
   return (
     <Block style={styles.commonMessage}>
-      <Text style={{ alignSelf: "center", lineHeight: 18, }} bold size={14} color="#F69896">{message.replace("\\n", "\n")}</Text>
+      <Text
+        style={{ alignSelf: "center", lineHeight: 18, }}
+        bold
+        size={14}
+        color="#F69896"
+      >
+        {message.replace("\\n", "\n")}
+      </Text>
     </Block>
   );
 }
 
 export const TalkMenuButton = (props) => {
-  const { navigation, talkObj } = props;
+  // const { navigation, talkObj } = props;
+  const { talkTicket } = props;
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
-  const [isShowSpinner, setIsShowSpinner] = useState(false);
-  const [canPressBackdrop, setCanPressBackdrop] = useState(true);
-
-  const authState = useAuthState();
-  const chatDispatch = useChatDispatch();
-  const profileDispatch = useProfileDispatch();
 
   return (
     <>
-      <TouchableOpacity style={[styles.TalkMenuButton, {}]} onPress={() => setIsOpen(true)}>
-        <Icon family="font-awesome" size={20} name="sign-out" color="gray" />
-        <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
+      <TouchableOpacity style={[styles.TalkMenuButton]} onPress={() => setIsOpen(true)}>
+        <Icon family="MaterialIcons" size={25} name="loop" color="gray" />
+        <ChatModal
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          talkTicket={talkTicket}
+          EndTalkScreen={EndTalkScreen}
+        />
+
+        {/* <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
           items={[
             {
               title: "トークを終了する", onPress: () => {
@@ -69,52 +80,66 @@ export const TalkMenuButton = (props) => {
               overlayColor="rgba(0,0,0,0)"
             />}
           canPressBackdrop={canPressBackdrop}
-        />
+        /> */}
+
       </TouchableOpacity >
     </>
   );
 }
 
-export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
-  setCanPressBackdrop(false);
-  alertModal({
-    mainText: "トークを終了します。",
-    subText: "本当によろしいですか？",
-    cancelButton: "キャンセル",
-    okButton: "終了する",
-    onPress: () => {
-      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
-    },
-    cancelOnPress: () => {
-      setCanPressBackdrop(true);
-    }
-  });
-}
+// export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
+//   setCanPressBackdrop(false);
+//   alertModal({
+//     mainText: "トークを終了します。",
+//     subText: "本当によろしいですか？",
+//     cancelButton: "キャンセル",
+//     okButton: "終了する",
+//     onPress: () => {
+//       requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
+//     },
+//     cancelOnPress: () => {
+//       setCanPressBackdrop(true);
+//     }
+//   });
+// }
 
-const handleReport = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
-  setCanPressBackdrop(false);
-  alertModal({
-    mainText: "通報します。",
-    subText: "トークは終了され、通報ページに移動します。よろしいですか？",
-    cancelButton: "キャンセル",
-    okButton: "通報する",
-    onPress: () => {
-      setCanPressBackdrop(true);
-      requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, true);
-    },
-    cancelOnPress: () => {
-      setCanPressBackdrop(true);
-    }
-  });
-}
+// const handleReport = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
+//   setCanPressBackdrop(false);
+//   alertModal({
+//     mainText: "通報します。",
+//     subText: "トークは終了され、通報ページに移動します。よろしいですか？",
+//     cancelButton: "キャンセル",
+//     okButton: "通報する",
+//     onPress: () => {
+//       setCanPressBackdrop(true);
+//       requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, true);
+//     },
+//     cancelOnPress: () => {
+//       setCanPressBackdrop(true);
+//     }
+//   });
+// }
 
 export const EndTalkScreen = (props) => {
-  const { isOpen, setIsOpen, navigation, talkObj, token } = props;
+  const { isOpen, setIsOpen, navigation, talkTicket, token } = props;
   const scrollView = useRef(null);
 
-  const chatDispatch = useChatDispatch();
-  const profileDispatch = useProfileDispatch();
-  const profileState = useProfileState();
+  const { request } = useAxios(URLJoin(BASE_URL, "rooms/", talkTicket.room.id, "close/"), "post", {
+    data: {
+      has_thunks: true,
+    },
+    thenCallback: res => {
+      navigation.navigate("Home");
+    },
+    catchCallback: err => {
+      if (err.response.status === 404) {
+        alert("ありがとうの送信に失敗しました。");
+        navigation.navigate("Home");
+      }
+    },
+    token: token,
+    limitRequest: 1,
+  });
 
   const renderFirstPage = () => {
     const animation = useRef(null);
@@ -124,17 +149,16 @@ export const EndTalkScreen = (props) => {
         pushed = true;
         animation.current.play();
         setTimeout(() => {
-          // goNextPage();
-          requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, profileDispatch, profileState, true);
+          request();
         }, 800);
       }
     }
     const pushSkip = () => {
-      if (!pushed) {
-        pushed = true;
-        // goNextPage();
-        requestCloseTalk(talkObj.roomID, token, navigation, chatDispatch, profileDispatch, profileState);
-      }
+      request({
+        data: {
+          has_thunks: false,
+        },
+      });
     }
 
     return (
@@ -143,7 +167,7 @@ export const EndTalkScreen = (props) => {
           <Text bold size={26} color="gray">トークを終了しました</Text>
         </Block>
         <Block style={styles.endTalkContents}>
-          <Block style={{ postion: "relative", width: width, height: "100%", alignItems: "center", justifyContent: "center" }}>
+          <Block style={{ position: "relative", width: width, height: "100%", alignItems: "center", justifyContent: "center" }}>
             <Text style={{ width: "55%", position: "absolute", top: 0 }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
             <LottieView
               ref={animation}
@@ -165,7 +189,7 @@ export const EndTalkScreen = (props) => {
       </Block>
     );
   };
-  
+
   return (
     <Modal
       backdropOpacity={0.3}

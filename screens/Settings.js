@@ -18,15 +18,6 @@ import authAxios from "../components/modules/axios";
 const { width, height } = Dimensions.get("screen");
 
 const Settings = (props) => {
-  const { screen } = props.route.params;
-  const { navigation } = props;
-  const authDispatch = useAuthDispatch();
-  const notificationDispatch = useNotificationDispatch();
-  const chatDispatch = useChatDispatch();
-  const profileState = useProfileState();
-  const profileDispatch = useProfileDispatch();
-  const authState = useAuthState();
-
   const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
@@ -35,81 +26,16 @@ const Settings = (props) => {
     WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
-  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(profileState.profile.canTalkHeterosexual);
-
-  if (typeof screen === "undefined")
-    return (
-      <ScrollView>
-        <SettingsTitle title="アカウント" />
-        <SettingsSwitch title="異性との相談を許可" value={canTalkHeterosexual} onChange={(value) => {
-          checkProfileIsBuried(profileState.profile, () => {
-            setCanTalkHeterosexual(value);
-            if (profileState.profile.canTalkHeterosexual !== value) {
-              alertModal({
-                mainText: value ? "異性との相談を許可しますか？" : "異性との相談を制限しますか？",
-                subText: value ? "異性のユーザの端末にあなたが表示されるようになり、リクエストが届く可能性があります。" : "異性のユーザの端末にあなたが表示されることはなくなります。",
-                cancelButton: "キャンセル",
-                okButton: value ? "許可する" : "制限する",
-                onPress: () => {
-                  // request patch canTalkHeterosexual
-                  requestPatchProfile(authState.token, { can_talk_heterosexual: value }, profileDispatch, profileState, () => {
-                    setCanTalkHeterosexual(value);
-                  }, () => {
-                    alertModal("変更に失敗しました。");
-                    setCanTalkHeterosexual(!value);
-                  })
-                },
-                cancelOnPress: () => {
-                  setCanTalkHeterosexual(!value);
-                },
-              });
-            }
-          }, "この設定を変更することはできません。");
-        }} />
-        <SettingsExplain explain="異性との相談を許可している他ユーザーも一覧に表示され相談ができるようになります。" />
-        
-        {/* Ver2.0 */}
-        {/* <SettingsCard title="メールアドレス" onPress={() => navigation.navigate("SettingsInput", { screen: "InputEmail" })} />
-        <SettingsCard title="パスワード" onPress={() => navigation.navigate("SettingsInput", { screen: "InputPassword" })} />
-        <SettingsButton title="ログアウト" color="crimson" onPress={() => {
-          alertModal({
-            mainText: "ログアウトします。",
-            subText: "本当によろしいですか？",
-            cancelButton: "キャンセル",
-            okButton: "ログアウト",
-            onPress: () => {
-              authDispatch({ type: "COMPLETE_LOGOUT", notificationDispatch: notificationDispatch, chatDispatch: chatDispatch, profileDispatch: profileDispatch });
-            },
-          });
-        }} />
-        <SettingsButton title="アカウントを削除" color="silver" onPress={() => {
-          alertModal({
-            mainText: "アカウントを削除します。",
-            subText: "本当によろしいですか？",
-            cancelButton: "キャンセル",
-            okButton: "削除する",
-            onPress: () => {
-              alertModal({
-                mainText: "削除後、アカウントを復元することはできません。",
-                subText: "本当によろしいですか？",
-                cancelButton: "キャンセル",
-                okButton: "削除する",
-                onPress: () => {
-                  requestDeleteAccount(authState.token, notificationDispatch, chatDispatch, authDispatch, profileDispatch);
-                },
-              });
-            },
-          });
-        }} /> */}
-
-        <SettingsTitle title="Fullfiiについて" />
-        <SettingsLabel title="バージョン" content={VERSION} />
-        <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
-        <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowser} />
-        <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
-        <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
-      </ScrollView>
-    );
+  return (
+    <ScrollView>
+      <SettingsTitle title="Fullfiiについて" />
+      <SettingsLabel title="バージョン" content={VERSION} />
+      <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
+      <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowser} />
+      <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
+      <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
+    </ScrollView>
+  );
 }
 
 

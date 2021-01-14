@@ -5,26 +5,34 @@ import { useChatState, useChatDispatch } from "../components/contexts/ChatContex
 
 
 const Chat = (props) => {
-  const roomID = props.route.params.roomID;
-  const talkObj = useChatState().talkCollection[roomID];
+  const talkTicketKey = props.route.params.talkTicketKey;
+  const talkTicket = useChatState().talkTicketCollection[talkTicketKey];
 
-  if (talkObj) {
-    const user = talkObj.user;
-    const messages = talkObj.messages;
-    const offlineMessages = talkObj.offlineMessages;
-    const ws = talkObj.ws;
-    const isEnd = talkObj.isEnd
+  const chatDispatch = useChatDispatch();
+  const authState = useAuthState();
 
-    const chatDispatch = useChatDispatch();
-    const authState = useAuthState();
+  if (talkTicket) {
+    const user = talkTicket.room.user;
+    const messages = talkTicket.room.messages;
+    const offlineMessages = talkTicket.room.offlineMessages;
+    const ws = talkTicket.room.ws;
+    const isEnd = talkTicket.room.isEnd;
 
     const appendOfflineMessage = (messageID, message) => {
-      chatDispatch({ type: "APPEND_OFFLINE_MESSAGE", roomID: roomID, messageID: messageID, message: message });
+      chatDispatch({ type: "APPEND_OFFLINE_MESSAGE", talkTicketKey, messageID, message });
     }
 
     return (
-      <ChatTemplate user={user} messages={messages.concat(offlineMessages)} ws={ws} appendOfflineMessage={appendOfflineMessage}
-        sendWsMesssage={sendWsMesssage} token={authState.token} roomID={roomID} isEnd={isEnd} />
+      <ChatTemplate
+        user={user}
+        messages={messages.concat(offlineMessages)}
+        ws={ws}
+        appendOfflineMessage={appendOfflineMessage}
+        sendWsMessage={sendWsMessage}
+        token={authState.token}
+        talkTicketKey={talkTicketKey}
+        isEnd={isEnd}
+      />
     );
   } else return <></>;
 }
@@ -32,6 +40,6 @@ const Chat = (props) => {
 export default Chat;
 
 
-const sendWsMesssage = (ws, messageID, message, token) => {
-  ws.send(JSON.stringify({ type: "chat_message", message_id: messageID, message: message, token: token }));
+const sendWsMessage = (ws, messageID, message, token) => {
+  ws.send(JSON.stringify({ type: "chat_message", message_id: messageID, message, token }));
 }

@@ -8,7 +8,6 @@ import useSlideView from "./useSlideView";
 import FirstPage from "./signupPages/FirstSignUpPage";
 import SecondPage from "./signupPages/SecondSignUpPage";
 import ThirdPage from "./signupPages/ThirdSignUpPage";
-import FourthPage from "./signupPages/FourthSignUpPage";
 import { useAuthState } from "../../contexts/AuthContext";
 
 
@@ -26,7 +25,6 @@ const SignUpTemplate = (props) => {
     <FirstPage goToPage={goToPage} key={1} />,
     <SecondPage goToPage={goToPage} key={2} />,
     <ThirdPage goToPage={goToPage} key={3} />,
-    // <FourthPage key={4} />,
   ]);
 
   useEffect(() => {

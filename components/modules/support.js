@@ -75,6 +75,27 @@ export const fmtfromDateToStr = (date, format) => {
   return format;
 }
 
+// (deep Ver)スネークケースのobjのkeyをすべてキャメルケースに変換
+export const deepCvtKeyFromSnakeToCamel = (obj) => {
+  return (
+    Object.fromEntries(
+      Object.entries(obj).map(([k, v]) => {
+        let _v;
+        if (isObject(v)) { // object
+          _v = deepCvtKeyFromSnakeToCamel(v);
+        } else if (Array.isArray(v)) { // Array
+          _v = v.map(elm => (
+            isObject(elm) ? deepCvtKeyFromSnakeToCamel(elm) : elm
+          ));
+        } else {
+          _v = v;
+        }
+        return [fromSnakeToCamel(k), _v];
+      })
+    )
+  );
+}
+
 // スネークケースのobjのkeyをすべてキャメルケースに変換
 export const cvtKeyFromSnakeToCamel = (obj) => {
   return (
@@ -126,6 +147,14 @@ export const asyncStoreJson = async (key, value) => {
   } catch (error) {
     console.log(error);
   }
+}
+
+export const asyncStoreTalkTicketCollection = async (talkTicketCollection) => {
+  const _talkTicketCollection = deepCopy(talkTicketCollection, ["ws"]); // deep copy
+  Object.keys(_talkTicketCollection).forEach(key => {
+    _talkTicketCollection[key].room.ws = null;
+  });
+  asyncStoreJson("talkTicketCollection", _talkTicketCollection);
 }
 
 export const asyncStoreTalkCollection = async (talkCollection) => {
@@ -353,4 +382,22 @@ export const checkCorrectKey = (correctKeys, targetObj, discoverIncorrectCallbac
       discoverIncorrectCallback(targetObjKey);
     }
   })
+}
+
+
+/**
+ * パスワード生成
+ */
+export const generatePassword = (length = 12) => {
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const symbols = "!#$%&()-"
+
+  const string = letters + letters.toUpperCase() + numbers + symbols;
+
+  let password = "";
+  for (var i = 0; i < length; i++) {
+    password += string.charAt(Math.floor(Math.random() * string.length));
+  }
+  return password;
 }

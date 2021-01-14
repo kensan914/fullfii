@@ -14,17 +14,19 @@ export const MenuModal = (props) => {
       onBackdropPress={() => {
         if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
       }}
-      style={styles.menuModal}>
+      style={styles.menuModal}
+    >
 
       {spinnerOverlay}
       <Block style={styles.menuContainer}>
-        {items.map((item, index) => (
-          <TouchableOpacity key={index} onPress={item.onPress} style={styles.menuItem}>
-            <Text style={{}} size={20} bold color="dimgray">
-              {item.icon && <>{item.icon}{" "}</>}{item.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {items &&
+          items.map((item, index) => (
+            <TouchableOpacity key={index} onPress={item.onPress} style={styles.menuItem}>
+              <Text style={{}} size={20} bold color="dimgray">
+                {item.icon && <>{item.icon}{" "}</>}{item.title}
+              </Text>
+            </TouchableOpacity>
+          ))}
         <Button round shadowless size="small" color="lightgray" onPress={() => setIsOpen(false)} >
           <Text bold color="white">閉じる</Text>
         </Button>
