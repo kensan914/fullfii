@@ -8,7 +8,6 @@ import useSlideView from "./useSlideView";
 import FirstPage from "./signupPages/FirstSignUpPage";
 import SecondPage from "./signupPages/SecondSignUpPage";
 import ThirdPage from "./signupPages/ThirdSignUpPage";
-import FourthPage from "./signupPages/FourthSignUpPage";
 import { useAuthState } from "../../contexts/AuthContext";
 
 
@@ -23,10 +22,9 @@ const SignUpTemplate = (props) => {
   const [currentPage, scrollViewRef, goToPage] = useSlideView(initPage);
 
   const [pageStack, setPageStack] = useState([
-    <FirstPage goToPage={goToPage} />,
-    <SecondPage goToPage={goToPage} />,
-    <ThirdPage goToPage={goToPage} />,
-    <FourthPage />,
+    <FirstPage goToPage={goToPage} key={1} />,
+    <SecondPage goToPage={goToPage} key={2} />,
+    <ThirdPage goToPage={goToPage} key={3} />,
   ]);
 
   useEffect(() => {
@@ -74,13 +72,11 @@ const styles = StyleSheet.create({
   },
   signupScrollView: {
     marginTop: 10,
-    // backgroundColor: "white",
     borderTopRightRadius: 17,
     borderTopLeftRadius: 17,
   },
   signupContainer: {
     width: width,
-    // backgroundColor: "white",
     padding: 22,
     paddingBottom: 40,
     justifyContent: "flex-start",

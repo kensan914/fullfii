@@ -6,7 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { HeaderHeight } from "../../constants/utils";
 import BirthdayPicker from "../atoms/BirthdayPicker";
 import { useAuthState } from "../contexts/AuthContext";
-import { startUpLogind } from "../../screens/Manager";
+import { startUpLoggedin } from "../../screens/Manager";
 import { requestSubscription, getPurchases } from "../../screens/Plan";
 import { PlanTemplateContent } from "./PlanTemplate";
 import { InputBlock } from "../organisms/ProfileInput";
@@ -63,7 +63,7 @@ const SignUpTemplate = (props) => {
         }, dispatches.profileDispatch, states.profileState, () => { }, () => { })
       }
     });
-    dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: authState.token, startUpLogind: () => startUpLogind(authState.token, dispatches, states) });
+    dispatches.authDispatch({ type: "COMPLETE_SIGNIN", token: authState.token, startUpLoggedin: () => startUpLoggedin(authState.token, dispatches, states) });
   }
 
   const FirstPage = () => {

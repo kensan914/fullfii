@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Block, Button, Text } from "galio-framework";
 import { Dimensions, StyleSheet, KeyboardAvoidingView } from "react-native";
 import { COLORS } from "../../../../constants/Theme";
@@ -14,35 +14,45 @@ const SignUpPageTemplate = (props) => {
     isLoading,
     pressCallback,
     buttonTitle,
+    checkCanNext,
+    statesRequired = [],
   } = props;
+
+  const [canNext, setCanNext] = useState(false);
+  useEffect(() => {
+    if (typeof checkCanNext === "undefined") {
+      setCanNext(true);
+    } else {
+      setCanNext(checkCanNext());
+    }
+  }, statesRequired);
 
   return (
     <>
       <Block flex middle style={styles.signupContainer}>
-        {/* <KeyboardAvoidingView behavior="padding" enabled> */}
-          <Block flex={0.15} style={styles.signupTitleContainer}>
-            <Text size={26} bold color="#F69896" style={styles.title}>{title}</Text>
-            <Text size={14} bold color="#F69896" style={styles.subTitle}>{subTitle}</Text>
-          </Block>
+        <Block flex={0.15} style={styles.signupTitleContainer}>
+          <Text size={26} bold color={COLORS.PINK} style={styles.title}>{title}</Text>
+          <Text size={14} bold color={COLORS.PINK} style={styles.subTitle}>{subTitle}</Text>
+        </Block>
 
-          <Block flex={0.7} style={styles.signupContentsContainer}>
-            {contents}
-          </Block>
+        <Block flex={0.7} style={styles.signupContentsContainer}>
+          {contents}
+        </Block>
 
-          <Block flex={0.15} style={styles.signupButtonContainer}>
-            <Button
-              round
-              color={COLORS.PINK}
-              shadowColor={COLORS.PINK}
-              style={[styles.goNextButton]}
-              disabled={isLoading}
-              loading={isLoading}
-              onPress={pressCallback}
-            >
-              <Text bold color="white" size={16}>{buttonTitle}</Text>
-            </Button>
-          </Block>
-        {/* </KeyboardAvoidingView> */}
+        <Block flex={0.15} style={styles.signupButtonContainer}>
+          <Button
+            round
+            color={canNext ? COLORS.PINK : "gainsboro"}
+            shadowless={!canNext}
+            shadowColor={COLORS.PINK}
+            style={[styles.goNextButton]}
+            disabled={!canNext || isLoading}
+            loading={isLoading}
+            onPress={pressCallback}
+          >
+            <Text bold color="white" size={16}>{buttonTitle}</Text>
+          </Button>
+        </Block>
       </Block>
     </>
   )

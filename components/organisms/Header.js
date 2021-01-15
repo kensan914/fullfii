@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { TouchableOpacity, StyleSheet, Dimensions } from "react-native";
 import { Block, NavBar, theme } from "galio-framework";
-import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 
 import Icon from "../atoms/Icon";
 import materialTheme from "../../constants/Theme";
@@ -13,40 +12,46 @@ import { useNotificationDispatch } from "../contexts/NotificationContext";
 import { useAuthState } from "../contexts/AuthContext";
 import { ProfileMenuButton } from "./ProfileMenuButton";
 import { checkiPhoneX } from "../modules/support";
+import { useProfileState } from "../contexts/ProfileContext";
+import ProfileModal from "../molecules/ProfileModal";
 
 
 const { height, width } = Dimensions.get("window");
 
 
-const ProPlanButton = ({ isWhite, style, navigation }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Plan")}>
+const SettingsButton = ({ isWhite, style, navigation }) => (
+  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Settings")}>
     <Icon
       family="font-awesome"
-      size={16}
-      name="id-card-o"
-      color={theme.COLORS[isWhite ? "WHITE" : "ICON"]}
+      size={22}
+      name="gear"
+      color={isWhite ? "white" : "dimgray"}
     />
     {/* <Block middle style={styles.notify} /> */}
   </TouchableOpacity>
 );
 
 const Header = (props) => {
-  const { back, title, name, white, transparent, navigation, scene, profile, talkObj } = props;
+  const { back, title, name, white, transparent, navigation, scene, profile, talkTicket } = props;
   const authState = useAuthState();
+  const profileState = useProfileState();
   const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
-    // const routeName = getFocusedRouteNameFromRoute(scene.route);
     const routeName = scene.route.name;
-    if (routeName === "Chat" && talkObj) return (
-      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkObj={talkObj} />
+    if (routeName === "Chat" && talkTicket) return (
+      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkTicket={talkTicket} />
     );
     switch (name) {
       case "Profile":
         if (scene.route.params && scene.route.params.item) {
           if (!scene.route.params.item.me) return (
-            <ProfileMenuButton key="ProfileMenuButton" navigation={navigation} user={scene.route.params.item} />
+            <ProfileMenuButton
+              key="ProfileMenuButton"
+              navigation={navigation}
+              user={scene.route.params.item}
+            />
           );
         }
       case "Home":
@@ -54,26 +59,43 @@ const Header = (props) => {
       case "Talk":
       case "Notification":
         return (
-          <ProPlanButton key="Plan" navigation={navigation} isWhite={white} />
+          <SettingsButton key="Settings" navigation={navigation} isWhite={white} />
         );
       default:
         break;
     }
   }
 
-  const renderLeft = () => {
-    return (
-      <TouchableOpacity onPress={handleLeftPress}>
-        <Avatar size={34} image={profile.image} />
-      </TouchableOpacity >
-    );
+  const renderLeft = (setIsOpenProfile) => {
+    if (back) {
+      return (
+        <TouchableOpacity
+          onPress={() => handleLeftPress(setIsOpenProfile)}
+          style={styles.backIconContainer}
+        >
+          <Icon
+            family="font-awesome"
+            size={30}
+            name="angle-left"
+            color={transparent ? "white" : "dimgray"}
+          />
+        </TouchableOpacity >
+      );
+    } else {
+      return (
+        <TouchableOpacity onPress={() => handleLeftPress(setIsOpenProfile)}>
+          <Avatar size={34} image={profile.image} />
+        </TouchableOpacity >
+      );
+    }
   }
 
-  const handleLeftPress = () => {
+  const handleLeftPress = (setIsOpenProfile) => {
     if (back)
       navigation.goBack();
     else
-      navigation.openDrawer();
+      // navigation.navigate("Profile", { item: profileState.profile });
+      setIsOpenProfile(true);
   }
 
   const [currentScreenName, setCurrentScreenName] = useState(name);
@@ -81,7 +103,7 @@ const Header = (props) => {
   // 画面遷移するたびに呼ばれる
   useEffect(() => {
     if (currentScreenName === "Chat") {
-      chatDispatch({ type: "READ_BY_ROOM", roomID: scene.route.params.roomID });
+      chatDispatch({ type: "READ_BY_ROOM", talkTicketKey: scene.route.params.talkTicketKey });
     } else if (currentScreenName === "Notification") {
       notificationDispatch({ type: "PUT_READ", token: authState.token });
     }
@@ -130,6 +152,8 @@ const Header = (props) => {
         return "つぶやき";
       case "WorryPost":
         return "つぶやく";
+      case "WorrySelect":
+        return "悩み選択";
       default:
         return name;
     }
@@ -142,11 +166,11 @@ const Header = (props) => {
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,
     hasBorder ? { borderBottomColor: "silver", borderBottomWidth: 0.5, } : null,
   ];
+  const [isOpenProfile, setIsOpenProfile] = useState(false);
 
   return (
     <Block style={headerStyles}>
       <NavBar
-        back={back}
         style={styles.navbar}
         transparent={transparent}
         title={convertNameToTitle(name)}
@@ -156,16 +180,23 @@ const Header = (props) => {
         ]}
         right={renderRight()}
         rightStyle={{ alignItems: "flex-end" }}
-        left={renderLeft()}
-        leftStyle={{ paddingTop: 3, flex: 0.3 }}
+        left={renderLeft(setIsOpenProfile)}
+        leftStyle={styles.leftStyle}
         leftIconColor={white ? theme.COLORS.WHITE : theme.COLORS.ICON}
-        onLeftPress={handleLeftPress}
+        onLeftPress={() => handleLeftPress(setIsOpenProfile)}
+      />
+      <ProfileModal
+        isOpen={isOpenProfile}
+        setIsOpen={setIsOpenProfile}
+        profile={profileState.profile}
       />
     </Block>
   );
 }
 
+
 export default withNavigation(Header);
+
 
 const styles = StyleSheet.create({
   button: {
@@ -213,5 +244,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderWidth: 1,
     borderRadius: 3,
+  },
+  leftStyle: {
+    flex: 0.3,
+  },
+  backIconContainer: {
+    height: "100%",
+    justifyContent: "center",
   },
 });

@@ -1,30 +1,33 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, Image, Dimensions, StyleSheet, FlatList, KeyboardAvoidingView } from "react-native";
+import { View, Image, Dimensions, StyleSheet, FlatList, KeyboardAvoidingView, TouchableWithoutFeedback, TouchableNativeFeedback, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Input, Block, Text, Button, theme } from "galio-framework";
 import Icon from "../atoms/Icon";
 import { CommonMessage } from "../organisms/Chat";
 import Avatar from "../atoms/Avatar";
-import { generateUuid4, fmtfromDateToStr } from "../modules/support";
-import { useChatDispatch } from "../contexts/ChatContext";
+import { generateUuid4, fmtfromDateToStr, isObject } from "../modules/support";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
+import ProfileModal from "../molecules/ProfileModal";
 
 
 const { width } = Dimensions.get("screen");
 
 
 const ChatTemplate = (props) => {
-  const { user, messages, appendOfflineMessage, ws, sendWsMesssage, token, roomID, isEnd } = props;
+  const { user, messages, appendOfflineMessage, ws, sendWsMessage, token, talkTicketKey, isEnd } = props;
 
   const messagesScroll = useRef(null);
   const [message, setMessage] = useState("");
   const [height, setHeight] = useState(0);
   const [inputHeight, setInputHeight] = useState(0);
 
+  const existUser = isObject(user) && Object.keys(user).length;
   const chatDispatch = useChatDispatch();
+  const chatState = useChatState();
 
   useEffect(() => {
     handleScroll();
-    chatDispatch({ type: "READ_BY_ROOM", roomID: roomID });
+    chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
   }, [messages.length]);
 
   const itemLayout = (data, index) => (
@@ -33,7 +36,7 @@ const ChatTemplate = (props) => {
 
   const handleScroll = () => {
     setTimeout(() => {
-      messagesScroll.current.scrollToOffset({ offset: height });
+      messagesScroll.current?.scrollToOffset({ offset: height });
     }, 1);
   }
 
@@ -52,9 +55,11 @@ const ChatTemplate = (props) => {
       return (
         <Block key={index}>
           <Block row space={message.isMe ? "between" : null}>
-            {!message.isMe
-              ? <Avatar size={40} image={user.image} style={[styles.avatar, styles.shadow]} />
-              : <Image source={null} style={[styles.avatar, styles.shadow]} />
+            {message.isMe ?
+              <Image source={null} style={[styles.avatar, styles.shadow]} /> :
+              <TouchableOpacity onPress={() => setIsOpenProfile(true)} >
+                <Avatar size={40} image={user.image} style={[styles.avatar, styles.shadow]} />
+              </TouchableOpacity>
             }
             <Block style={styles.messageCardWrapper}>
               {!message.isMe ?
@@ -107,11 +112,14 @@ const ChatTemplate = (props) => {
       if (isEnd) {
         alert(`${user.name}さんは退室しています`);
         return;
+      } else if (!existUser) {
+        alert("話し相手が見つかりません。");
+        return;
       }
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
-      sendWsMesssage(ws, messageID, message, token);
+      sendWsMessage(ws, messageID, message, token);
     }
   }
 
@@ -148,6 +156,7 @@ const ChatTemplate = (props) => {
     );
   }
 
+  const [isOpenProfile, setIsOpenProfile] = useState(false);
   return (
     <Block flex space="between" style={styles.container}>
       <KeyboardAvoidingView
@@ -158,6 +167,16 @@ const ChatTemplate = (props) => {
         {renderMessages()}
         {messageForm()}
       </KeyboardAvoidingView>
+
+      {existUser ?
+        <ProfileModal
+          isOpen={isOpenProfile}
+          setIsOpen={setIsOpenProfile}
+          profile={user}
+          talkTicket={chatState.talkTicketCollection[talkTicketKey]}
+        /> :
+        <></>
+      }
     </Block>
   );
 }

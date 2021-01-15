@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Dimensions, FlatList, ActivityIndicator } from "react-native";
 import { Block, theme } from "galio-framework";
-import ConsultantCard from "../molecules/Card";
+import ConsultantCard from "../molecules/UserCard";
 import { useAxios } from "../modules/axios";
 import { cvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
 import { BASE_URL } from "../../constants/env";
