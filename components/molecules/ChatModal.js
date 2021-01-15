@@ -137,6 +137,7 @@ const ChatModal = (props) => {
             <ChatSwitch title="聞きたい" value={!isSpeaker} onChange={(val) => setIsSpeaker(!val)} />
           </Block>
           <Block style={{ justifyContent: "center", marginTop: 10 }}>
+            {/* TODO: 内緒処理 */}
             <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
             <ChatSwitch title="話し相手に異性を含む" value={!canTalkHeterosexual} onChange={(val) => setCanTalkHeterosexual(!val)} />
           </Block>

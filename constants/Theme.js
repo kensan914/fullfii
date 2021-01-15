@@ -38,6 +38,14 @@ export const COLORS = {
 };
 
 export const CARD_COLORS = {
+  "a": "#F28C8E",
+  "b": "#F79086",
+  "c": "#FE9D7E",
+  "d": "#FCB869",
+  "e": "#EFCF67",
+  "f": "#CACA61",
+  "g": "#9BC967",
+
   "0": "#bf7fff",
   "1": "#78C1E2",
   "2": "#F69896",
