@@ -386,7 +386,7 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
 
     case "waiting":
       message["id"] = 0;
-      message["message"] = "話し相手を探しています。";
+      message["message"] = "話し相手を探し中...。";
       break;
     case "stopping":
       message["id"] = 0;

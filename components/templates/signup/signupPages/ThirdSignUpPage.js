@@ -137,14 +137,15 @@ const ThirdSignUpPage = (props) => {
             {profileState.profileParams?.gender &&
               Object.values(profileState.profileParams.gender).map((genderObj, i) => {
                 const iconNames = { female: "female", male: "male", secret: "lock", };
-                return (
+                return (i < 2 ?
                   <Block
                     key={i}
                     flex
                     style={styles.genderInput}
                   >
                     {renderGenderInputButton(iconNames[genderObj.key], genderObj.label, gender === genderObj.key, genderObj.key)}
-                  </Block>
+                  </Block> :
+                  <Block/>
                 );
               })}
           </Block>
