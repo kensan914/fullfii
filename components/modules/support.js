@@ -292,9 +292,11 @@ export const initWs = (wsSettings, dispatches) => {
 
 // ios環境でclosecodeが1001で固定されてしまうため対処
 export const closeWsSafely = (ws) => {
-  if (ws) {
+  if (isObject(ws) && Object.keys(ws).length) {
     ws.onclose = (e) => { };
     ws.close();
+  } else {
+    console.error("ws is empty object");
   }
 }
 

@@ -15,7 +15,7 @@ const SubmitButton = (props) => {
     pressedFunc = submit;
   } else {
     color = "gainsboro";
-    textColor = "silver";
+    textColor = "white";
   }
 
   return (
