@@ -6,12 +6,13 @@ import BubbleList from "../organisms/BubbleList";
 import { useProfileState } from "../contexts/ProfileContext";
 import SubmitButton from "../atoms/SubmitButton";
 import { useAxios } from "../modules/axios";
-import { deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
+import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
+import { useRef } from "react";
 
 
 
@@ -19,8 +20,6 @@ const { width, height } = Dimensions.get("screen");
 
 
 const WorrySelectTemplate = (props) => {
-  const [worriesCollection, setWorriesCollection] = useState({});
-
   const iPhoneXHeight = 812;
   const isHigherDevice = height >= iPhoneXHeight;
 
@@ -31,13 +30,35 @@ const WorrySelectTemplate = (props) => {
       {};
 
   const chatState = useChatState();
+  const initWorriesCollection = useRef(
+    (() => {
+      const _initWorriesCollection = {};
+      Object.keys(chatState.talkTicketCollection).forEach(key => {
+        _initWorriesCollection[key] = genreOfWorries[key];
+      });
+      return _initWorriesCollection;
+    })()
+  );
+  const [worriesCollection, setWorriesCollection] = useState(
+    JSON.parse(JSON.stringify(initWorriesCollection.current))
+  );
+
+  const [canSubmit, setCanSubmit] = useState(false);
   useEffect(() => {
-    const initWorriesCollection = { ...worriesCollection };
-    Object.keys(chatState.talkTicketCollection).forEach(key => {
-      initWorriesCollection[key] = genreOfWorries[key];
-    })
-    setWorriesCollection(initWorriesCollection);
-  }, []);
+    if (Object.keys(initWorriesCollection.current).length !== Object.keys(worriesCollection).length) {
+      setCanSubmit(true);
+    } else {
+      if (
+        Object.keys(initWorriesCollection.current).some(key => (
+          !worriesCollection.hasOwnProperty(key)
+        ))
+      ) {
+        setCanSubmit(true);
+      } else {
+        setCanSubmit(false);
+      }
+    }
+  }, [worriesCollection]);
 
   const pressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
@@ -70,10 +91,19 @@ const WorrySelectTemplate = (props) => {
     limitRequest: 1,
   });
   const submit = () => {
-    request({
-      data: {
-        genre_of_worries: Object.values(worriesCollection),
-      }
+    alertModal({
+      mainText: "悩みを変更します",
+      subText: "トーク中の悩みを削除しようとしている場合は、自動でトークが終了します。",
+      cancelButton: "キャンセル",
+      okButton: "変更する",
+      onPress: () => {
+        request({
+          data: {
+            genre_of_worries: Object.values(worriesCollection),
+          }
+        });
+      },
+      cancelOnPress: () => { },
     });
   }
 
@@ -92,7 +122,7 @@ const WorrySelectTemplate = (props) => {
 
       <Block flex={0.2}>
         <SubmitButton
-          canSubmit={true}
+          canSubmit={canSubmit}
           isLoading={isLoading}
           submit={submit}
         />
