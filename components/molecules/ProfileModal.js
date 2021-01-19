@@ -112,16 +112,10 @@ const ProfileModal = (props) => {
 
         {user.me &&
           <Block row center style={{ marginVertical: 28, }}>
-            <Block flex={0.5} column center>
+            <Block center column center>
               <Text bold size={16} color="#333333">{user.numOfThunks}</Text>
               <Text muted size={15}>
                 <Icon name="heart" family="font-awesome" color="#F69896" size={15} />{" "}ありがとう
-                  </Text>
-            </Block>
-            <Block flex={0.5} column center>
-              <Text bold size={16} color="#333333">{user.plan.label}</Text>
-              <Text muted size={15}>
-                <Icon name="id-card-o" family="font-awesome" color="#F69896" size={15} />{" "}プラン
                   </Text>
             </Block>
           </Block>
