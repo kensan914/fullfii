@@ -23,7 +23,7 @@ const HomeTemplate = (props) => {
           const mb = (index >= (items.length - numColumns)) ? theme.SIZES.BASE : 2; // 下2
           return (
             <Block
-              style={[styles.item, { marginLeft: ml, marginRight: mr, marginTop: mt, marginBottom: mb, }]}
+              style={[styles.item, { marginLeft: ml, marginRight: mr, marginTop: mt }]}
               key={item.key}
             >
               <Card
@@ -50,6 +50,7 @@ const styles = StyleSheet.create({
   },
   list: {
     width: width,
+    flex: 1
   },
   item: {
     flex: 0.5,

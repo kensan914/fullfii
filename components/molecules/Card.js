@@ -40,15 +40,16 @@ const Card = (props) => {
         ]}
       >
         {item.icon ?
-          <Block center flex justifyContent="center">
-            <Icon
-              family={item.iconFamily ? item.iconFamily : "fontawesome"}
-              size={60}
-              name={item.icon}
-              color={item.iconColor ? item.iconColor : "white"}
-            />
+          <Block flex style={styles.content}>
+            <Block center flex justifyContent="center">
+              <Icon
+                family={item.iconFamily ? item.iconFamily : "fontawesome"}
+                size={60}
+                name={item.icon}
+                color={item.iconColor ? item.iconColor : "white"}
+              />
+            </Block>
           </Block> :
-
           <Block flex style={styles.content}>
             <Block row style={[styles.titleContainer, { height: titleSize + 5 }]}>
               <Text
@@ -62,20 +63,7 @@ const Card = (props) => {
                 {item.title}
               </Text>
 
-              {(Number.isInteger(countNum) && countNum > 0) ?
-                <Block style={[
-                  styles.counter,
-                  { height: titleSize + 5, borderRadius: (titleSize + 5) / 2, minWidth: titleSize + 5 }
-                ]}>
-                  <Text
-                    color="white"
-                    size={titleSize - 2}
-                  >
-                    {countNum}
-                  </Text>
-                </Block> :
-                <></>
-              }
+              
             </Block>
 
             <Block style={styles.messageContainer}>
@@ -102,7 +90,7 @@ export default Card;
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 5,
+    marginVertical: 7,
     borderWidth: 0,
     minHeight: 114,
     position: "relative",
