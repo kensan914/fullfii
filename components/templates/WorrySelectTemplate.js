@@ -120,14 +120,17 @@ const WorrySelectTemplate = (props) => {
         />
       </Block>
 
-      <Block flex={0.2}>
+      <Block center flex={0.2} style={{justifyContent: "center"}}>
         <SubmitButton
           canSubmit={canSubmit}
           isLoading={isLoading}
           submit={submit}
         />
       </Block>
+      <Block style={{width: 320, height: 50, backgroundColor: "#F69896"}}/>
+
     </Block>
+    
   );
 }
 

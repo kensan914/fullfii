@@ -13,7 +13,7 @@ const HomeTemplate = (props) => {
 
   return (
     <Block flex center style={styles.home}>
-      <FlatList
+      <FlatList 
         data={items}
         style={styles.list}
         renderItem={({ item, index }) => {
@@ -37,6 +37,7 @@ const HomeTemplate = (props) => {
         numColumns={numColumns}
         keyExtractor={(item, index) => index.toString()}
       />
+      <Block style={{width: 320, height: 50, backgroundColor: "#F69896", zIndex: 2}}/>
     </Block>
   );
 }
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
   },
   list: {
     width: width,
+    zIndex: 1
   },
   item: {
     flex: 0.5,

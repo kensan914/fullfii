@@ -27,6 +27,7 @@ const Settings = (props) => {
   };
 
   return (
+    <Block flex center>
     <ScrollView>
       <SettingsTitle title="Fullfiiについて" />
       <SettingsLabel title="バージョン" content={VERSION} />
@@ -35,6 +36,9 @@ const Settings = (props) => {
       <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
       <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
     </ScrollView>
+    <Block style={{width: 320, height: 50, backgroundColor: "#F69896"}}/>
+
+    </Block>
   );
 }
 
