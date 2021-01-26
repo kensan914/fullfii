@@ -8,6 +8,7 @@ const WS_SCHEME_HTTP = DEBUG ? "ws" : "wss";
 export const BASE_URL = `${URL_SCHEME_HTTP}://${BASE_HOST}/api/v2/`;
 export const BASE_URL_WS = `${WS_SCHEME_HTTP}://${BASE_HOST}/ws/v2/`;
 export const USER_POLICY_URL = "https://fullfii.com/terms-of-service/";
+export const PRIVACY_POLICY_URL = "https://fullfii.com/privacy-policy/";
 export const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLScaGHQYXpvYtPPSIKqVgPdSgM5QY_dzOQeTG6j8Jz16bJWV3A/viewform?usp=sf_link";
 export const REPORT_URL = "https://docs.google.com/forms/d/e/1FAIpQLScuWE_hUXY8GN2Nu4CpMa7rNsUTtVRfcL0_avj5h69XwwjD8g/viewform";
 
