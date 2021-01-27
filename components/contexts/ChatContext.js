@@ -385,11 +385,11 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
       break;
 
     case "waiting":
-      let now = new Date()
-      let Hour = now.getHours();
-      let Min =((now.getMinutes()<10?'0':'') + now.getMinutes())
+      const now = new Date()
+      const hour = now.getHours();
+      const min = ((now.getMinutes() < 10 ? '0' : '') + now.getMinutes())
       message["id"] = 0;
-      message["message"] = `話し相手を探し中...。（最終更新：${Hour}:${Min}）`;
+      message["message"] = `話し相手を探し中...。（最終更新：${hour}:${min}）`;
       break;
     case "stopping":
       message["id"] = 0;
