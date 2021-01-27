@@ -3,18 +3,14 @@ import { StyleSheet, Dimensions, ScrollView } from "react-native";
 import { Block, Text, theme, Button, Icon } from "galio-framework";
 import Modal from "react-native-modal";
 import LottieView from "lottie-react-native";
-import Spinner from "react-native-loading-spinner-overlay";
 
-import { alertModal, URLJoin } from "../modules/support";
-import { MenuModal } from "../molecules/Menu";
+import { URLJoin } from "../modules/support";
 import { TouchableOpacity } from "react-native";
-import { useAuthState } from "../contexts/AuthContext";
-import { requestCloseTalk, requestEndTalk } from "../../screens/Talk";
-import { useChatDispatch } from "../contexts/ChatContext";
-import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
 import ChatModal from "../molecules/ChatModal";
 import { useAxios } from "../modules/axios";
-import { BASE_URL } from "../../constants/env";
+import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
+import { AdMobInterstitial } from "react-native-admob";
+import { useAuthDispatch } from "../contexts/AuthContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -36,7 +32,6 @@ export const CommonMessage = (props) => {
 }
 
 export const TalkMenuButton = (props) => {
-  // const { navigation, talkObj } = props;
   const { talkTicket } = props;
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,91 +45,46 @@ export const TalkMenuButton = (props) => {
           talkTicket={talkTicket}
           EndTalkScreen={EndTalkScreen}
         />
-
-        {/* <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
-          items={[
-            {
-              title: "トークを終了する", onPress: () => {
-                if (!talkObj.isEnd) endTalk(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop);
-                else {
-                  setCanPressBackdrop(false);
-                  requestEndTalk(talkObj.roomID, authState.token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
-                }
-              }
-            },
-            {
-              title: "通報する", onPress: () => handleReport(navigation, setIsOpenEndTalk, talkObj, authState.token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop)
-            },
-          ]}
-          otherModal={
-            <EndTalkScreen
-              navigation={navigation}
-              isOpen={isOpenEndTalk}
-              setIsOpen={setIsOpenEndTalk}
-              talkObj={talkObj}
-              token={authState.token}
-            />}
-          spinnerOverlay={
-            <Spinner
-              visible={isShowSpinner}
-              overlayColor="rgba(0,0,0,0)"
-            />}
-          canPressBackdrop={canPressBackdrop}
-        /> */}
-
       </TouchableOpacity >
     </>
   );
 }
 
-// export const endTalk = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
-//   setCanPressBackdrop(false);
-//   alertModal({
-//     mainText: "トークを終了します。",
-//     subText: "本当によろしいですか？",
-//     cancelButton: "キャンセル",
-//     okButton: "終了する",
-//     onPress: () => {
-//       requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner);
-//     },
-//     cancelOnPress: () => {
-//       setCanPressBackdrop(true);
-//     }
-//   });
-// }
-
-// const handleReport = (navigation, setIsOpenEndTalk, talkObj, token, chatDispatch, profileDispatch, setIsShowSpinner, setCanPressBackdrop) => {
-//   setCanPressBackdrop(false);
-//   alertModal({
-//     mainText: "通報します。",
-//     subText: "トークは終了され、通報ページに移動します。よろしいですか？",
-//     cancelButton: "キャンセル",
-//     okButton: "通報する",
-//     onPress: () => {
-//       setCanPressBackdrop(true);
-//       requestEndTalk(talkObj.roomID, token, setIsOpenEndTalk, navigation, chatDispatch, profileDispatch, setIsShowSpinner, true);
-//     },
-//     cancelOnPress: () => {
-//       setCanPressBackdrop(true);
-//     }
-//   });
-// }
-
 export const EndTalkScreen = (props) => {
-  const { isOpen, setIsOpen, navigation, talkTicket, token } = props;
+  const { isOpen, setIsOpen, navigation, roomId, token, setIsOpenChatModal } = props;
   const scrollView = useRef(null);
+  const authDispatch = useAuthDispatch();
 
-  const { request } = useAxios(URLJoin(BASE_URL, "rooms/", talkTicket.room.id, "close/"), "post", {
+  const { request } = useAxios(URLJoin(BASE_URL, "rooms/", roomId, "close/"), "post", {
     data: {
       has_thunks: true,
     },
     thenCallback: res => {
-      navigation.navigate("Home");
+      setIsOpenChatModal(false);
+      authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
+
+      if (!isExpo) {
+        AdMobInterstitial.setAdUnitID(ADMOB_UNIT_ID_AFTER_THX);
+        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+        AdMobInterstitial.requestAd()
+          .then(() => {
+            AdMobInterstitial.showAd();
+          })
+          .catch(e => {
+            console.error(e)
+          })
+          .finally(() => {
+            authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+          });
+      } else {
+        authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+      }
     },
     catchCallback: err => {
       if (err.response.status === 404) {
         alert("ありがとうの送信に失敗しました。");
-        navigation.navigate("Home");
+        setIsOpenChatModal(false);
+        authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
       }
     },
     token: token,
@@ -195,12 +145,17 @@ export const EndTalkScreen = (props) => {
       backdropOpacity={0.3}
       isVisible={isOpen}
       style={styles.endTalkModal}>
-      <ScrollView ref={scrollView} style={styles.endTalkScrollView} horizontal scrollEnabled={false}>
+      <ScrollView
+        ref={scrollView}
+        style={styles.endTalkScrollView}
+        horizontal
+        scrollEnabled={false}
+      >
         <Block flex row>
           {renderFirstPage()}
         </Block>
       </ScrollView>
-    </Modal >
+    </Modal>
   );
 }
 
@@ -215,7 +170,7 @@ const styles = StyleSheet.create({
   },
   endTalkModal: {
     margin: 0,
-    position: "relative"
+    position: "relative",
   },
   endTalkScrollView: {
     marginTop: 50,

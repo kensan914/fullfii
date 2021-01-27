@@ -1,5 +1,7 @@
 // const DEBUG = true;
 const DEBUG = false;
+// const ADMOB_DEBUG = true;
+const ADMOB_DEBUG = false;
 
 const BASE_HOST = DEBUG ? "192.168.11.18:8080" : "fullfii.com";
 const URL_SCHEME_HTTP = DEBUG ? "http" : "https";
@@ -23,3 +25,17 @@ export const FREE_PLAN = Object.freeze({
     title: "未加入",
     description: "",
 });
+
+const ADMOB_UNIT_ID_DEBUG_BANNER = "ca-app-pub-3940256099942544/2934735716";
+const ADMOB_UNIT_ID_DEBUG_INT = "ca-app-pub-3940256099942544/4411468910";
+const ADMOB_UNIT_ID_DEBUG_INT_MOV = "ca-app-pub-3940256099942544/5135589807";
+export const ADMOB_UNIT_ID_HOME = ADMOB_DEBUG ? ADMOB_UNIT_ID_DEBUG_BANNER : "ca-app-pub-1754293395940427/5865171200";
+export const ADMOB_UNIT_ID_SELECT_WORRY = ADMOB_DEBUG ? ADMOB_UNIT_ID_DEBUG_BANNER : "ca-app-pub-1754293395940427/1351211125";
+export const ADMOB_UNIT_ID_SETTINGS = ADMOB_DEBUG ? ADMOB_UNIT_ID_DEBUG_BANNER : "ca-app-pub-1754293395940427/7725047785";
+export const ADMOB_UNIT_ID_EDIT_PROFILE = ADMOB_DEBUG ? ADMOB_UNIT_ID_DEBUG_BANNER : "ca-app-pub-1754293395940427/4708319431";
+export const ADMOB_UNIT_ID_AFTER_THX = ADMOB_DEBUG ? ADMOB_UNIT_ID_DEBUG_INT : "ca-app-pub-1754293395940427/3594231086";
+export const ADMOB_BANNER_WIDTH = 320;
+export const ADMOB_BANNER_HEIGHT = 50;
+
+export let isExpo = false;
+export const setIsExpo = val => isExpo = val;

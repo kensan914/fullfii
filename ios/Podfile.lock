@@ -108,6 +108,9 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - Google-Mobile-Ads-SDK (7.67.0):
+    - GoogleAppMeasurement (~> 6.0)
+    - GoogleUserMessagingPlatform (~> 1.1)
   - GoogleAppMeasurement (6.9.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
     - GoogleUtilities/MethodSwizzler (~> 6.7)
@@ -116,6 +119,7 @@ PODS:
     - nanopb (~> 1.30906.0)
   - GoogleDataTransport (7.5.1):
     - nanopb (~> 1.30906.0)
+  - GoogleUserMessagingPlatform (1.4.0)
   - GoogleUtilities/AppDelegateSwizzler (6.7.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -312,6 +316,8 @@ PODS:
     - React-cxxreact (= 0.63.3)
     - React-jsi (= 0.63.3)
   - React-jsinspector (0.63.3)
+  - react-native-admob (2.0.0-beta.6):
+    - React
   - react-native-appearance (0.3.4):
     - React
   - react-native-safe-area-context (3.1.4):
@@ -380,8 +386,6 @@ PODS:
     - React-jsi (= 0.63.3)
   - RNCMaskedView (0.1.10):
     - React
-  - RNDateTimePicker (3.0.0):
-    - React
   - RNFBAnalytics (7.6.10):
     - Firebase/Analytics (~> 6.34.0)
     - React-Core
@@ -445,6 +449,7 @@ DEPENDENCIES:
   - Firebase/Messaging
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - Google-Mobile-Ads-SDK
   - lottie-ios (from `../node_modules/lottie-ios`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -459,6 +464,7 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-admob (from `../node_modules/react-native-admob`)
   - react-native-appearance (from `../node_modules/react-native-appearance`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
@@ -473,7 +479,6 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
-  - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
@@ -507,8 +512,10 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseInstanceID
     - FirebaseMessaging
+    - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleUserMessagingPlatform
     - GoogleUtilities
     - nanopb
     - PromisesObjC
@@ -577,6 +584,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-admob:
+    :path: "../node_modules/react-native-admob"
   react-native-appearance:
     :path: "../node_modules/react-native-appearance"
   react-native-safe-area-context:
@@ -605,8 +614,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
-  RNDateTimePicker:
-    :path: "../node_modules/@react-native-community/datetimepicker"
   RNFBAnalytics:
     :path: "../node_modules/@react-native-firebase/analytics"
   RNFBApp:
@@ -680,8 +687,10 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 5eca4ef173de76253352511aafef774caa1cba2a
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
+  Google-Mobile-Ads-SDK: 8b58584890539de4527c47ef01e4da941a10bc8a
   GoogleAppMeasurement: a6a3a066369828db64eda428cb2856dc1cdc7c4e
   GoogleDataTransport: f56af7caa4ed338dc8e138a5d7c5973e66440833
+  GoogleUserMessagingPlatform: b168e8c46cd8f92aa3e34b584c4ca78a411ce367
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
   lottie-ios: a50d5c0160425cd4b01b852bb9578963e6d92d31
   lottie-react-native: 3d8181d43619b1fe804c828bd5a09d20fe8bdea7
@@ -698,6 +707,7 @@ SPEC CHECKSUMS:
   React-jsi: df07aa95b39c5be3e41199921509bfa929ed2b9d
   React-jsiexecutor: b56c03e61c0dd5f5801255f2160a815f4a53d451
   React-jsinspector: 8e68ffbfe23880d3ee9bafa8be2777f60b25cbe2
+  react-native-admob: cb7f9e5e7d6f1e68bfbf1df8f72b2e23963bc7db
   react-native-appearance: fc2014516054585d531e07aa0b40ab0de1d2be85
   react-native-safe-area-context: 0ed9288ed4409beabb0817b54efc047286fc84da
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
@@ -712,7 +722,6 @@ SPEC CHECKSUMS:
   React-RCTVibration: 8e9fb25724a0805107fc1acc9075e26f814df454
   ReactCommon: 4167844018c9ed375cc01a843e9ee564399e53c3
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNDateTimePicker: 4eaf4032b374e818a19e183f13f2c833fbea3815
   RNFBAnalytics: 6414e9fe1f36c3074f39cd6265b3def777dbfbdb
   RNFBApp: 804b98033f45c3a3e35b56de8c894f85ef5e4388
   RNFBMessaging: 759f5f8d92276e8fb67cf9da80ad617a85f64b8b
@@ -736,6 +745,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: dfc62edf51844ae87dafc1fe849b594871fda1e5
   Yoga: 7d13633d129fd179e01b8953d38d47be90db185a
 
-PODFILE CHECKSUM: 1108ce433606e95ef6d76c744e998aad2489b6c3
+PODFILE CHECKSUM: 50a9ea4a090e49261e6e11ee1c9ac56d021c4869
 
 COCOAPODS: 1.9.3
