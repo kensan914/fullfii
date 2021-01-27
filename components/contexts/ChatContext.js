@@ -241,7 +241,7 @@ const chatReducer = (prevState, action) => {
       _talkTicket.room.isEnd = true;
       closeWsSafely(_talkTicket.room.ws);
 
-      _talkTicketCollection[action.talkTicketKey] = { ..._talkTicket };
+      _talkTicketCollection[action.talkTicketKey] = _talkTicket;
       asyncStoreTalkTicketCollection(_talkTicketCollection);
       return {
         ...prevState,
@@ -320,10 +320,10 @@ const chatReducer = (prevState, action) => {
       _talkTicketCollection = prevState.talkTicketCollection;
 
       action.talkTicketKeys.forEach(talkTicketKey => {
-        _talkTicket = _talkTicketCollection[talkTicketKey]
-        console.log("_talkTicket.room?.ws");
-        console.log(_talkTicket.room?.ws);
-        if (_talkTicket.room?.ws) closeWsSafely(_talkTicket.room.ws);
+        _talkTicket = _talkTicketCollection[talkTicketKey];
+        if (isObject(_talkTicket.room?.ws) && Object.keys(_talkTicket.room?.ws).length) { // null || {} の場合があり得る
+          closeWsSafely(_talkTicket.room.ws);
+        }
         delete _talkTicketCollection[talkTicketKey];
       });
 
@@ -385,8 +385,11 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
       break;
 
     case "waiting":
+      let now = new Date()
+      let Hour = now.getHours();
+      let Min =((now.getMinutes()<10?'0':'') + now.getMinutes())
       message["id"] = 0;
-      message["message"] = "話し相手を探しています。";
+      message["message"] = `話し相手を探し中...。（最終更新：${Hour}:${Min}）`;
       break;
     case "stopping":
       message["id"] = 0;

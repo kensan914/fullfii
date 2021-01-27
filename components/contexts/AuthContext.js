@@ -71,6 +71,15 @@ const authReducer = (prevState, action) => {
         token: action.token,
       };
 
+    case "SET_IS_SHOW_SPINNER":
+      /** set isShowSpinner.
+        * @param {Object} action [type, value] */
+
+      return {
+        ...prevState,
+        isShowSpinner: Boolean(action.value),
+      };
+
     default:
       console.warn(`Not found "${action.type}" action.type.`);
       return;
@@ -91,6 +100,7 @@ const AuthStateContext = createContext({
   status: UNAUTHENTICATED,
   token: undefined,
   signupBuffer: { ...initSignupBuffer },
+  isShowSpinner: false,
 });
 const AuthDispatchContext = createContext(undefined);
 
@@ -108,6 +118,7 @@ export const AuthProvider = ({ children, status, token, signupBuffer }) => {
     status: status ? status : UNAUTHENTICATED,
     token: token ? token : undefined,
     signupBuffer: signupBuffer ? signupBuffer : { ...initSignupBuffer },
+    isShowSpinner: false,
   });
 
   return (

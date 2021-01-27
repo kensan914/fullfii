@@ -1,18 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Dimensions, ScrollView, TouchableOpacity, Switch } from "react-native";
 import { Block, theme, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import Icon from "../components/atoms/Icon";
 import Hr from "../components/atoms/Hr";
-import { useAuthDispatch, useAuthState } from "../components/contexts/AuthContext";
-import { alertModal, checkProfileIsBuried, URLJoin } from "../components/modules/support";
-import { useNotificationDispatch } from "../components/contexts/NotificationContext";
-import { useChatDispatch } from "../components/contexts/ChatContext";
-import { BASE_URL, USER_POLICY_URL, VERSION, GOOGLE_FORM_URL } from "../constants/env"
-import { useProfileDispatch, useProfileState } from "../components/contexts/ProfileContext";
-import { requestPatchProfile } from "./ProfileInput";
+import { URLJoin } from "../components/modules/support";
+import { BASE_URL, USER_POLICY_URL, VERSION, GOOGLE_FORM_URL, PRIVACY_POLICY_URL, ADMOB_UNIT_ID_SETTINGS, ADMOB_BANNER_HEIGHT, ADMOB_BANNER_WIDTH, isExpo } from "../constants/env";
 import authAxios from "../components/modules/axios";
+import Admob from "../components/molecules/Admob";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -22,19 +18,34 @@ const Settings = (props) => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
 
+  const _handleOpenWithWebBrowserPrivacyPolicy = () => {
+    WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL);
+  };
+
   const _handleOpenWithWebBrowserContactUsForm = () => {
     WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
   return (
-    <ScrollView>
-      <SettingsTitle title="Fullfiiについて" />
-      <SettingsLabel title="バージョン" content={VERSION} />
-      <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
-      <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowser} />
-      <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} />
-      <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
-    </ScrollView>
+    <Block flex center>
+      <ScrollView>
+        <SettingsTitle title="Fullfiiについて" />
+        <SettingsLabel title="バージョン" content={VERSION} />
+        <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
+        <SettingsCard title="プライバシーポリシー" onPress={_handleOpenWithWebBrowserPrivacyPolicy} />
+        {/* <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} /> */}
+        <SettingsCard title="お問い合わせ" onPress={_handleOpenWithWebBrowserContactUsForm} />
+      </ScrollView>
+
+      <Block style={styles.adMobBanner}>
+        {!isExpo &&
+          <Admob
+            adSize={"banner"}
+            adUnitID={ADMOB_UNIT_ID_SETTINGS}
+          />
+        }
+      </Block>
+    </Block>
   );
 }
 
@@ -161,5 +172,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
     shadowColor: "lightcoral"
-  }
+  },
+  adMobBanner: {
+    width: ADMOB_BANNER_WIDTH,
+    height: ADMOB_BANNER_HEIGHT,
+    zIndex: 2,
+    position: "absolute",
+    bottom: 0,
+  },
 });

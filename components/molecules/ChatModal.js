@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { StyleSheet, Dimensions, Switch } from "react-native";
-import { Block, Text, Button } from "galio-framework";
+import { Block, Text } from "galio-framework";
 import Modal from "react-native-modal";
 import Spinner from "react-native-loading-spinner-overlay";
 import { withNavigation } from "@react-navigation/compat";
@@ -11,11 +11,11 @@ import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/supp
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch } from "../contexts/ChatContext";
-import Chat from "../../screens/Chat";
 import { useProfileState } from "../contexts/ProfileContext";
 
 
 const { width, height } = Dimensions.get("screen");
+
 
 const ChatModal = (props) => {
   const { isOpen, setIsOpen, talkTicket, EndTalkScreen } = props;
@@ -46,11 +46,13 @@ const ChatModal = (props) => {
     );
   }
 
+  const roomId = useRef();
   const authState = useAuthState();
   const chatDispatch = useChatDispatch();
   const profileState = useProfileState();
   const { request } = useAxios(URLJoin(BASE_URL, "talk-ticket/", talkTicket.id), "post", {
     thenCallback: res => {
+      roomId.current = talkTicket.room.id;
       const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
       chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket: newTalkTicket });
       if (talkTicket.status.key === "talking") {
@@ -117,60 +119,63 @@ const ChatModal = (props) => {
   const [canPressBackdrop, setCanPressBackdrop] = useState(true);
 
   return (
-    <Modal
-      backdropOpacity={0.3}
-      isVisible={isOpen}
-      onBackdropPress={() => {
-        if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
-      }}
-      style={styles.modal}
-    >
-      <Spinner
-        visible={isShowSpinner}
-        overlayColor="rgba(0,0,0,0)"
-      />
+    <>
+      <Modal
+        backdropOpacity={0.3}
+        isVisible={isOpen}
+        onBackdropPress={() => {
+          if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
+        }}
+        style={styles.modal}
+      >
+        <Spinner
+          visible={isShowSpinner}
+          overlayColor="rgba(0,0,0,0)"
+        />
 
-      <Block style={styles.modalContents}>
-        <Block>
-          <Block style={{ justifyContent: "center" }}>
-            <ChatSwitch title="話したい" value={isSpeaker} onChange={(val) => setIsSpeaker(val)} />
-            <ChatSwitch title="聞きたい" value={!isSpeaker} onChange={(val) => setIsSpeaker(!val)} />
-          </Block>
-          <Block style={{ justifyContent: "center", marginTop: 10 }}>
-            {/* TODO: 内緒処理 */}
-            <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
-            <ChatSwitch title="話し相手に異性を含む" value={!canTalkHeterosexual} onChange={(val) => setCanTalkHeterosexual(!val)} />
-          </Block>
-          <Block />
-          <Block row center style={{ justifyContent: "center", marginTop: 20 }}>
-            <Block flex={0.45} center>
-              <ModalButton
-                icon="logout"
-                iconFamily="AntDesign"
-                colorLess
-                onPress={onPressStop}
-              />
+        <Block style={styles.modalContents}>
+          <Block>
+            <Block style={{ justifyContent: "center" }}>
+              <ChatSwitch title="話したい" value={isSpeaker} onChange={(val) => setIsSpeaker(val)} />
+              <ChatSwitch title="聞きたい" value={!isSpeaker} onChange={(val) => setIsSpeaker(!val)} />
+            </Block>
+            <Block style={{ justifyContent: "center", marginTop: 10 }}>
+              {/* TODO: 内緒処理 */}
+              <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
+              <ChatSwitch title="話し相手に異性を含む" value={!canTalkHeterosexual} onChange={(val) => setCanTalkHeterosexual(!val)} />
             </Block>
             <Block />
-            <Block flex={0.45} center>
-              <ModalButton
-                icon="loop"
-                iconFamily="MaterialIcons"
-                onPress={onPressShuffle}
-              />
+            <Block row center style={{ justifyContent: "center", marginTop: 20 }}>
+              <Block flex={0.45} center>
+                <ModalButton
+                  icon="logout"
+                  iconFamily="AntDesign"
+                  colorLess
+                  onPress={onPressStop}
+                />
+              </Block>
+              <Block />
+              <Block flex={0.45} center>
+                <ModalButton
+                  icon="loop"
+                  iconFamily="MaterialIcons"
+                  onPress={onPressShuffle}
+                />
+              </Block>
             </Block>
           </Block>
         </Block>
-      </Block>
 
-      <EndTalkScreen
-        navigation={props.navigation}
-        isOpen={isOpenEndTalk}
-        setIsOpen={setIsOpenEndTalk}
-        talkTicket={talkTicket}
-        token={authState.token}
-      />
-    </Modal>
+        <EndTalkScreen
+          navigation={props.navigation}
+          isOpen={isOpenEndTalk}
+          setIsOpen={setIsOpenEndTalk}
+          setIsOpenChatModal={setIsOpen}
+          roomId={roomId.current}
+          token={authState.token}
+        />
+      </Modal>
+    </>
   );
 }
 
