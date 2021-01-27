@@ -1,7 +1,9 @@
 import React from "react";
 import { StyleSheet, Dimensions, FlatList } from "react-native";
 import { Block, theme } from "galio-framework";
+
 import Card from "../molecules/Card";
+import { ADMOB_BANNER_HEIGHT } from "../../constants/env";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -13,7 +15,7 @@ const HomeTemplate = (props) => {
 
   return (
     <Block flex center style={styles.home}>
-      <FlatList 
+      <FlatList
         data={items}
         style={styles.list}
         renderItem={({ item, index }) => {
@@ -24,7 +26,7 @@ const HomeTemplate = (props) => {
             index % numColumns == 0 ?
               (index >= (items.length - numColumns)) :
               (index >= (items.length - index % numColumns))
-          ) ? theme.SIZES.BASE : 2; // 下2 (奇数の時は下1)
+          ) ? theme.SIZES.BASE + ADMOB_BANNER_HEIGHT : 2; // 下2 (奇数の時は下1)
           return (
             <Block
               style={[styles.item, { marginLeft: ml, marginRight: mr, marginTop: mt, marginBottom: mb, }]}
@@ -41,7 +43,6 @@ const HomeTemplate = (props) => {
         numColumns={numColumns}
         keyExtractor={(item, index) => index.toString()}
       />
-      <Block style={{width: 320, height: 50, backgroundColor: "#F69896", zIndex: 2}}/>
     </Block>
   );
 }

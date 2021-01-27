@@ -80,8 +80,6 @@ const Card = (props) => {
 
             <Block style={styles.messageContainer}>
               <Text
-                numberOfLines={1}
-                ellipsizeMode="clip"
                 size={contentSize}
                 style={[styles.textPale, { lineHeight: contentSize + 2 }]}
                 numberOfLines={2}

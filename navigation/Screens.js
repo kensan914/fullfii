@@ -22,9 +22,10 @@ import WorrySelectScreen from "../screens/WorrySelect";
 import { useAuthState, AUTHENTICATED, UNAUTHENTICATED } from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useChatState } from "../components/contexts/ChatContext";
+import Spinner from "../components/atoms/Spinner";
 
 
-const { width } = Dimensions.get("screen");
+const { width, height } = Dimensions.get("screen");
 const Stack = createStackNavigator();
 
 
@@ -154,8 +155,15 @@ const AppStack = (props) => {
       {authState.status === AUTHENTICATED ?
         <Stack.Navigator mode="card" headerMode="" >
 
-          <Stack.Screen name="Authenticated" >
-            {HomeStack}
+          <Stack.Screen name="Authenticated">
+            {(props) => (
+              <>
+                <HomeStack {...props} />
+                {authState.isShowSpinner &&
+                  <Spinner />
+                }
+              </>
+            )}
           </Stack.Screen>
         </Stack.Navigator> :
 
@@ -169,12 +177,12 @@ const AppStack = (props) => {
         >
 
           {/* {(!authState.status || authState.status === UNAUTHENTICATED) && */}
-            <Stack.Screen name="SignUp">
-              {() => {
-                const navigation = useNavigation();
-                return <SignUpScreen {...props} navigation={navigation} />
-              }}
-            </Stack.Screen>
+          <Stack.Screen name="SignUp">
+            {() => {
+              const navigation = useNavigation();
+              return <SignUpScreen {...props} navigation={navigation} />
+            }}
+          </Stack.Screen>
           {/* } */}
           {/* <Stack.Screen name="S" component={SignUpScreen} /> */}
         </Stack.Navigator>

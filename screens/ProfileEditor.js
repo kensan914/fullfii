@@ -1,16 +1,32 @@
 import React from "react";
-import { ProfileTabNavigator, ConsultantProfileEditor } from "../components/organisms/Profile";
+import { ConsultantProfileEditor } from "../components/organisms/Profile";
 import authAxios from "../components/modules/axios";
 import { URLJoin } from "../components/modules/support";
-import { BASE_URL } from "../constants/env";
+import { BASE_URL, ADMOB_UNIT_ID_EDIT_PROFILE, ADMOB_BANNER_WIDTH, ADMOB_BANNER_HEIGHT, isExpo } from "../constants/env";
+import { StyleSheet } from "react-native";
+import { Block } from "galio-framework";
+import Admob from "../components/molecules/Admob";
 
 
 const ProfileEditor = (props) => {
   const { navigation } = props;
 
   return (
-    // <ProfileTabNavigator user={user} screen="ProfileEditor" navigation={navigation} />
-    <ConsultantProfileEditor navigation={navigation} requestPostProfileImage={requestPostProfileImage} />
+    <Block flex style={styles.container}>
+      <ConsultantProfileEditor
+        navigation={navigation}
+        requestPostProfileImage={requestPostProfileImage}
+      />
+
+      <Block style={styles.adMobBanner}>
+        {!isExpo &&
+          <Admob
+            adSize={"banner"}
+            adUnitID={ADMOB_UNIT_ID_EDIT_PROFILE}
+          />
+        }
+      </Block>
+    </Block>
   );
 }
 
@@ -24,7 +40,7 @@ const requestPostProfileImage = (token, image, profileDispatch, successSubmit, e
   formData.append("image", {
     name: "avatar.jpg",
     uri: Platform.OS === "android" ? image.uri : image.uri.replace("file://", ""),
-    type:"image/jpg",
+    type: "image/jpg",
   });
 
   authAxios(token)
@@ -42,3 +58,18 @@ const requestPostProfileImage = (token, image, profileDispatch, successSubmit, e
       errorSubmit(err);
     });
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "white",
+    alignItems: "center",
+  },
+  adMobBanner: {
+    width: ADMOB_BANNER_WIDTH,
+    height: ADMOB_BANNER_HEIGHT,
+    zIndex: 2,
+    position: "absolute",
+    bottom: 0,
+  },
+});

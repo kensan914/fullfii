@@ -7,13 +7,13 @@ import { useProfileState } from "../contexts/ProfileContext";
 import SubmitButton from "../atoms/SubmitButton";
 import { useAxios } from "../modules/axios";
 import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
-import { BASE_URL } from "../../constants/env";
+import { ADMOB_BANNER_HEIGHT, ADMOB_BANNER_WIDTH, ADMOB_UNIT_ID_SELECT_WORRY, BASE_URL, isExpo } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { useRef } from "react";
-
+import Admob from "../molecules/Admob";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -120,17 +120,23 @@ const WorrySelectTemplate = (props) => {
         />
       </Block>
 
-      <Block center flex={0.2} style={{justifyContent: "center"}}>
+      <Block center flex={0.2} style={{ justifyContent: "center" }}>
         <SubmitButton
           canSubmit={canSubmit}
           isLoading={isLoading}
           submit={submit}
         />
       </Block>
-      <Block style={{width: 320, height: 50, backgroundColor: "#F69896"}}/>
 
+      <Block style={styles.adMobBanner}>
+        {!isExpo &&
+          <Admob
+            adSize={"banner"}
+            adUnitID={ADMOB_UNIT_ID_SELECT_WORRY}
+          />
+        }
+      </Block>
     </Block>
-    
   );
 }
 
@@ -146,5 +152,10 @@ const styles = StyleSheet.create({
   },
   item: {
     flex: 0.5,
+  },
+  adMobBanner: {
+    width: ADMOB_BANNER_WIDTH,
+    height: ADMOB_BANNER_HEIGHT,
+    zIndex: 2,
   },
 });

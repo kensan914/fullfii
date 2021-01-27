@@ -20,6 +20,7 @@ import StartUpManager from "./screens/StartUpManager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 // import { logEvent } from "./components/modules/firebase";
 import { LogBox } from "react-native";
+import { isExpo, setIsExpo } from "./constants/env";
 
 
 LogBox.ignoreAllLogs(true);
@@ -50,6 +51,8 @@ const App = (props) => {
   };
 
   useEffect(() => {
+    setIsExpo(true);
+
     loadResourcesAsync()
       .then((assetList) => {
         const downloadedAssets = {};
@@ -68,7 +71,7 @@ const App = (props) => {
 const RootNavigator = (props) => {
   const [status, setStatus] = useState();
   const [token, setToken] = useState();
-  const [signupBuffer, setSignupBuffer] = useState();  const [profile, setProfile] = useState();
+  const [signupBuffer, setSignupBuffer] = useState(); const [profile, setProfile] = useState();
   const [notifications, setNotifications] = useState();
   const [talkTicketCollection, setTalkTicketCollection] = useState();
 
@@ -116,7 +119,7 @@ const RootNavigator = (props) => {
         <AuthProvider status={status} token={token} signupBuffer={signupBuffer}>
           <ProfileProvider profile={profile}>
             <NotificationProvider notifications={notifications}>
-            <ChatProvider talkTicketCollection={talkTicketCollection}>
+              <ChatProvider talkTicketCollection={talkTicketCollection}>
                 <ProductProvider token={token}>
                   <GalioProvider theme={materialTheme}>
                     <StartUpManager>
