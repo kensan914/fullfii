@@ -115,7 +115,7 @@ const HomeStack = (props) => {
                 <Header
                   title={title}
                   name={"Chat"}
-                  talkTicket={talkTicket}
+                  talkTicketKey={talkTicketKey}
                   back
                   navigation={navigation}
                   scene={scene}
