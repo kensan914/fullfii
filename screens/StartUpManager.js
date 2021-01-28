@@ -71,7 +71,7 @@ const updateTalk = (token, states, dispatches) => {
         talkTickets
           .filter(talkTicket => talkTicket.status.key === "talking")
           .forEach(talkTicket => {
-            if (prevTalkTicketCollection[talkTicket.worry.key].status.key === "talking") {
+            if (prevTalkTicketCollection[talkTicket.worry.key]?.status?.key === "talking") {
               // 既にトークは開始されているが、wsは接続されていない
               if (!states.chatState.talkTicketCollection[talkTicket.worry.key].room.ws)
                 reconnectWsChat(talkTicket.room?.id, token, states, dispatches, talkTicket.worry.key);

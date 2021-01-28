@@ -112,7 +112,7 @@ const WorrySelectTemplate = (props) => {
       <Block flex={0.8}>
         <BubbleList
           items={Object.values(genreOfWorries)}
-          limitLines={isHigherDevice ? 5 : 3}
+          limitLines={isHigherDevice ? 3 /* before: 5 */ : 3} // 悩み7個で5行だと配置が不自然になるため
           diameter={isHigherDevice ? height / 10 : undefined}
           margin={isHigherDevice ? 3.0 : undefined}
           activeKeys={Object.keys(worriesCollection)}
