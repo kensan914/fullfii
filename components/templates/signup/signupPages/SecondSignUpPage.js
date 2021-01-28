@@ -52,7 +52,7 @@ const SecondSignUpPage = (props) => {
     return (
       <BubbleList
         items={Object.values(genreOfWorries)}
-        limitLines={isHigherDevice ? 5 : 3}
+        limitLines={isHigherDevice ? 3 : 3}
         diameter={isHigherDevice ? height / 10 : undefined}
         margin={isHigherDevice ? 3.0 : undefined}
         activeKeys={Object.keys(worriesCollection)}
