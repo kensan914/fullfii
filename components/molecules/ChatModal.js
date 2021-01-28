@@ -87,7 +87,7 @@ const ChatModal = (props) => {
       mainText: `以下の条件で「${talkTicket.worry.label}」の話し相手を探します。`,
       subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}
       ・${canTalkDifferentJob ? "全ての職業を許可" : `話し相手を${profileState.profile.job?.label}に絞る`}
-      ・${canTalkHeterosexual ? "話し相手を同性に絞る" : "話し相手に異性を含む"}
+      ・${canTalkHeterosexual ? "話し相手に異性を含む" : "話し相手を同性に絞る"}
       \n今までのトーク内容は端末から削除されます。`,
       cancelButton: "キャンセル",
       okButton: "探す",
@@ -136,7 +136,7 @@ const ChatModal = (props) => {
             <Block style={{ justifyContent: "center", marginTop: 10 }}>
               {/* TODO: 内緒処理 */}
               <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
-              <ChatSwitch title="話し相手に異性を含む" value={!canTalkHeterosexual} onChange={(val) => setCanTalkHeterosexual(!val)} />
+              <ChatSwitch title="話し相手に異性を含む" value={canTalkHeterosexual} onChange={setCanTalkHeterosexual} />
             </Block>
             <Block />
             <Block row center style={{ justifyContent: "center", marginTop: 20 }}>
