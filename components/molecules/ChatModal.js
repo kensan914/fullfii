@@ -87,7 +87,7 @@ const ChatModal = (props) => {
       mainText: `以下の条件で「${talkTicket.worry.label}」の話し相手を探します。`,
       subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}
       ・${canTalkDifferentJob ? "全ての職業を許可" : `話し相手を${profileState.profile.job?.label}に絞る`}
-      ・${canTalkHeterosexual ? "異性の話し相手を許可" : "話し相手に異性を含む"}
+      ・${canTalkHeterosexual ? "話し相手を同性に絞る" : "話し相手に異性を含む"}
       \n今までのトーク内容は端末から削除されます。`,
       cancelButton: "キャンセル",
       okButton: "探す",

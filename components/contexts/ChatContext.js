@@ -378,9 +378,9 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
     case "end":
       message["id"] = -1;
       if (timeOut) {
-        message["message"] = "トークが開始されてから2週間が経過したため、自動退室されました。右上のボタンからトークを終了してください。";
+        message["message"] = "トークが開始されてから2週間が経過したため、自動退室されました。右上のボタンからトークを更新または終了してください。";
       } else {
-        message["message"] = `${user_name}さんが退室しました。右上のボタンからトークを終了してください。`;
+        message["message"] = `${user_name}さんが退室しました。右上のボタンからトークを更新または終了してください。`;
       }
       break;
 
