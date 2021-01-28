@@ -10,7 +10,7 @@ import { useAxios } from "../modules/axios";
 import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
-import { useChatDispatch } from "../contexts/ChatContext";
+import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useProfileState } from "../contexts/ProfileContext";
 
 
@@ -18,38 +18,28 @@ const { width, height } = Dimensions.get("screen");
 
 
 const ChatModal = (props) => {
-  const { isOpen, setIsOpen, talkTicket, EndTalkScreen } = props;
-  const [isSpeaker, setIsSpeaker] = useState(talkTicket.isSpeaker);
-  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(talkTicket.canTalkHeterosexual);
-  const [canTalkDifferentJob, setCanTalkDifferentJob] = useState(talkTicket.canTalkDifferentJob);
+  const { isOpen, setIsOpen, EndTalkScreen, talkTicketKey } = props;
 
-  const ChatSwitch = (props) => {
-    const { title, onChange, value } = props;
-
-    return (
-      <>
-        <Block row space="between" style={styles.settingsCard}>
-          <Block>
-            <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
-          </Block>
-          <Block style={{ alignItems: "center", justifyContent: "center" }} >
-            <Switch
-              trackColor={{ false: "dimgray", true: "#F69896" }}
-              ios_backgroundColor={"gray"}
-              value={value}
-              style={{ marginVertical: 8, marginHorizontal: 15, }}
-              onValueChange={onChange}
-            />
-          </Block>
-        </Block>
-      </>
-    );
-  }
-
-  const roomId = useRef();
+  /* states, dispatches */
+  const chatState = useChatState();
   const authState = useAuthState();
   const chatDispatch = useChatDispatch();
   const profileState = useProfileState();
+
+  /* talkTicket */
+  const talkTicket = chatState.talkTicketCollection[talkTicketKey];
+
+  /* state */
+  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(talkTicket.canTalkHeterosexual);
+  const [canTalkDifferentJob, setCanTalkDifferentJob] = useState(talkTicket.canTalkDifferentJob);
+  const [isSpeaker, setIsSpeaker] = useState(talkTicket.isSpeaker);
+  const [isShowSpinner, setIsShowSpinner] = useState(false);
+  const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
+  const [canPressBackdrop, setCanPressBackdrop] = useState(true);
+
+  /* ref */
+  const roomId = useRef();
+
   const { request } = useAxios(URLJoin(BASE_URL, "talk-ticket/", talkTicket.id), "post", {
     thenCallback: res => {
       roomId.current = talkTicket.room.id;
@@ -58,16 +48,17 @@ const ChatModal = (props) => {
       if (talkTicket.status.key === "talking") {
         setIsOpenEndTalk(true);
       } else {
-        setIsOpen(false);
-        props.navigation.navigate("Home");
+        closeChatModal();
       }
     },
+    catchCallback: (e) => { console.error(e); closeChatModal(); },
     finallyCallback: () => {
       setIsShowSpinner(false);
     },
     token: authState.token,
-    limitRequest: 1,
+    // limitRequest: 1,
   });
+
   const onPressStop = () => {
     setCanPressBackdrop(false);
     alertModal({
@@ -89,13 +80,14 @@ const ChatModal = (props) => {
       cancelOnPress: () => setCanPressBackdrop(true),
     });
   }
+
   const onPressShuffle = () => {
     setCanPressBackdrop(false);
     alertModal({
       mainText: `以下の条件で「${talkTicket.worry.label}」の話し相手を探します。`,
       subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}
       ・${canTalkDifferentJob ? "全ての職業を許可" : `話し相手を${profileState.profile.job?.label}に絞る`}
-      ・${canTalkHeterosexual ? "異性の話し相手を許可" : "話し相手に異性を含む"}
+      ・${canTalkHeterosexual ? "話し相手に異性を含む" : "話し相手を同性に絞る"}
       \n今までのトーク内容は端末から削除されます。`,
       cancelButton: "キャンセル",
       okButton: "探す",
@@ -114,9 +106,11 @@ const ChatModal = (props) => {
     });
   }
 
-  const [isShowSpinner, setIsShowSpinner] = useState(false);
-  const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
-  const [canPressBackdrop, setCanPressBackdrop] = useState(true);
+  const closeChatModal = () => {
+    setIsOpen(false);
+    setCanPressBackdrop(true);
+    setIsOpenEndTalk(false);
+  }
 
   return (
     <>
@@ -124,7 +118,7 @@ const ChatModal = (props) => {
         backdropOpacity={0.3}
         isVisible={isOpen}
         onBackdropPress={() => {
-          if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
+          if (canPressBackdrop || typeof canPressBackdrop === "undefined") closeChatModal();
         }}
         style={styles.modal}
       >
@@ -142,7 +136,7 @@ const ChatModal = (props) => {
             <Block style={{ justifyContent: "center", marginTop: 10 }}>
               {/* TODO: 内緒処理 */}
               <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
-              <ChatSwitch title="話し相手に異性を含む" value={!canTalkHeterosexual} onChange={(val) => setCanTalkHeterosexual(!val)} />
+              <ChatSwitch title="話し相手に異性を含む" value={canTalkHeterosexual} onChange={setCanTalkHeterosexual} />
             </Block>
             <Block />
             <Block row center style={{ justifyContent: "center", marginTop: 20 }}>
@@ -167,10 +161,8 @@ const ChatModal = (props) => {
         </Block>
 
         <EndTalkScreen
-          navigation={props.navigation}
           isOpen={isOpenEndTalk}
-          setIsOpen={setIsOpenEndTalk}
-          setIsOpenChatModal={setIsOpen}
+          closeChatModal={closeChatModal}
           roomId={roomId.current}
           token={authState.token}
         />
@@ -181,6 +173,29 @@ const ChatModal = (props) => {
 
 
 export default withNavigation(ChatModal);
+
+
+const ChatSwitch = (props) => {
+  const { title, onChange, value } = props;
+  return (
+    <>
+      <Block row space="between" style={styles.settingsCard}>
+        <Block>
+          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
+        </Block>
+        <Block style={{ alignItems: "center", justifyContent: "center" }} >
+          <Switch
+            trackColor={{ false: "dimgray", true: "#F69896" }}
+            ios_backgroundColor={"gray"}
+            value={value}
+            style={{ marginVertical: 8, marginHorizontal: 15, }}
+            onValueChange={onChange}
+          />
+        </Block>
+      </Block>
+    </>
+  );
+}
 
 
 const styles = StyleSheet.create({

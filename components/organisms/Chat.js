@@ -32,7 +32,7 @@ export const CommonMessage = (props) => {
 }
 
 export const TalkMenuButton = (props) => {
-  const { talkTicket } = props;
+  const { talkTicketKey } = props;
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -42,7 +42,7 @@ export const TalkMenuButton = (props) => {
         <ChatModal
           isOpen={isOpen}
           setIsOpen={setIsOpen}
-          talkTicket={talkTicket}
+          talkTicketKey={talkTicketKey}
           EndTalkScreen={EndTalkScreen}
         />
       </TouchableOpacity >
@@ -51,7 +51,7 @@ export const TalkMenuButton = (props) => {
 }
 
 export const EndTalkScreen = (props) => {
-  const { isOpen, setIsOpen, navigation, roomId, token, setIsOpenChatModal } = props;
+  const { isOpen, roomId, token, closeChatModal } = props;
   const scrollView = useRef(null);
   const authDispatch = useAuthDispatch();
 
@@ -60,7 +60,7 @@ export const EndTalkScreen = (props) => {
       has_thunks: true,
     },
     thenCallback: res => {
-      setIsOpenChatModal(false);
+      closeChatModal();
       authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
 
       if (!isExpo) {
@@ -83,7 +83,7 @@ export const EndTalkScreen = (props) => {
     catchCallback: err => {
       if (err.response.status === 404) {
         alert("ありがとうの送信に失敗しました。");
-        setIsOpenChatModal(false);
+        closeChatModal();
         authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
       }
     },

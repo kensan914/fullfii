@@ -94,6 +94,7 @@ export const useAxios = (url, method, action) => {
     // リクエスト回数制限
     if (++requestNum.current > limitRequest && limitRequest >= 0) {
       console.warn(`The request limit set to ${limitRequest} has been exceeded. Abort the request.`);
+      if (actionKeys.indexOf("catchCallback") !== -1) action.catchCallback(err);
       return;
     }
 

@@ -32,7 +32,7 @@ const SettingsButton = ({ isWhite, style, navigation }) => (
 );
 
 const Header = (props) => {
-  const { back, title, name, white, transparent, navigation, scene, profile, talkTicket } = props;
+  const { back, title, name, white, transparent, navigation, scene, profile, talkTicketKey } = props;
   const authState = useAuthState();
   const profileState = useProfileState();
   const notificationDispatch = useNotificationDispatch();
@@ -40,8 +40,8 @@ const Header = (props) => {
 
   const renderRight = () => {
     const routeName = scene.route.name;
-    if (routeName === "Chat" && talkTicket) return (
-      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkTicket={talkTicket} />
+    if (routeName === "Chat" && talkTicketKey) return (
+      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkTicketKey={talkTicketKey} />
     );
     switch (name) {
       case "Profile":
