@@ -11,6 +11,7 @@ import { useAxios } from "../modules/axios";
 import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
 import { AdMobInterstitial } from "react-native-admob";
 import { useAuthDispatch } from "../contexts/AuthContext";
+import {logEvent} from "../modules/firebase/logEvents"
 
 
 const { width, height } = Dimensions.get("screen");
@@ -96,6 +97,7 @@ export const EndTalkScreen = (props) => {
     let pushed = false;
     const pushThunks = () => {
       if (!pushed) {
+        logEvent("thx_button");
         pushed = true;
         animation.current.play();
         setTimeout(() => {
@@ -104,6 +106,7 @@ export const EndTalkScreen = (props) => {
       }
     }
     const pushSkip = () => {
+      logEvent("slip_thx_button");
       request({
         data: {
           has_thunks: false,

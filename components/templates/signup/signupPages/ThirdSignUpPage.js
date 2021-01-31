@@ -13,7 +13,7 @@ import { COLORS } from "../../../../constants/Theme";
 import { MenuModal } from "../../../molecules/Menu";
 import { startUpLoggedin } from "../../../../screens/StartUpManager";
 import useAllContext from "../../../contexts/ContextUtils";
-
+import { logEvent } from "../../../modules/firebase/logEvent"
 
 const { height, width } = Dimensions.get("window");
 
@@ -72,6 +72,12 @@ const ThirdSignUpPage = (props) => {
   });
 
   const pressButton = () => {
+    logEvent("intro_user_info_button", {
+      username: username,
+      genre_of_worries: authState.signupBuffer.worries,
+      gender: gender,
+      job: job,
+    });
     request();
   }
 

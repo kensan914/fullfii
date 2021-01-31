@@ -12,7 +12,7 @@ import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useProfileState } from "../contexts/ProfileContext";
-
+import { logEvent } from "../modules/firebase/logEvent"
 
 const { width, height } = Dimensions.get("screen");
 
@@ -67,6 +67,9 @@ const ChatModal = (props) => {
       cancelButton: "キャンセル",
       okButton: "停止する",
       onPress: () => {
+        logEvent("stop_talk_button", {
+          job: profileState.profile.job?.label,
+        });
         setIsShowSpinner(true);
         request({
           data: {
@@ -92,6 +95,12 @@ const ChatModal = (props) => {
       cancelButton: "キャンセル",
       okButton: "探す",
       onPress: () => {
+        logEvent("shuffle_talk_button", {
+          is_speaker: isSpeaker,
+          can_talk_heterosexual: canTalkHeterosexual,
+          can_talk_different_job: canTalkDifferentJob,
+          job: profileState.profile.job?.label,
+        });
         setIsShowSpinner(true);
         request({
           data: {

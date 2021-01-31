@@ -14,7 +14,7 @@ import { ProfileMenuButton } from "./ProfileMenuButton";
 import { checkiPhoneX } from "../modules/support";
 import { useProfileState } from "../contexts/ProfileContext";
 import ProfileModal from "../molecules/ProfileModal";
-
+import {logEvent} from "../modules/firebase/logEvent"
 
 const { height, width } = Dimensions.get("window");
 
@@ -40,6 +40,8 @@ const Header = (props) => {
 
   const renderRight = () => {
     const routeName = scene.route.name;
+    if (routeName === "Chat" && talkTicketKey) {
+    logEvent("shuffle_option_button")}
     if (routeName === "Chat" && talkTicketKey) return (
       <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkTicketKey={talkTicketKey} />
     );
