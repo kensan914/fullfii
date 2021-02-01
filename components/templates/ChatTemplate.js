@@ -8,7 +8,7 @@ import Avatar from "../atoms/Avatar";
 import { generateUuid4, fmtfromDateToStr, isObject } from "../modules/support";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import ProfileModal from "../molecules/ProfileModal";
-
+import { logEvent } from "../modules/firebase/logEvent";
 
 const { width } = Dimensions.get("screen");
 
@@ -116,6 +116,10 @@ const ChatTemplate = (props) => {
         alert("話し相手が見つかりません。");
         return;
       }
+      logEvent("send_message_button", {
+        message: message,
+        talkTicketKey: talkTicketKey
+      });
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
