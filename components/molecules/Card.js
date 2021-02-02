@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions, TouchableWithoutFeedback } from "react-native";
 import { Block, Text, theme } from "galio-framework";
 import Icon from "../atoms/Icon";
 import { COLORS } from "../../constants/Theme";
-
+import StatusIcon from "../atoms/StatusIcon";
 
 const { width } = Dimensions.get("screen");
 
@@ -50,6 +50,7 @@ const Card = (props) => {
           </Block> :
 
           <Block flex style={styles.content}>
+            {item.content.includes("話し相手が見つかりました！") && <StatusIcon/>}
             <Block row style={[styles.titleContainer, { height: titleSize + 5 }]}>
               <Text
                 bold

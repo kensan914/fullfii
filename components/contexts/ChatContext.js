@@ -365,11 +365,11 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
   switch (type) {
     case "initSpeak":
       message["id"] = 0;
-      message["message"] = `トークが開始されました。${user_name}さんに話を聞いてもらいましょう。`;
+      message["message"] = `話し相手が見つかりました！${user_name}さんに話を聞いてもらいましょう。`;
       break;
     case "initListen":
       message["id"] = 0;
-      message["message"] = `トークが開始されました。${user_name}さんのお話を聞いてあげましょう。`;
+      message["message"] = `話し相手が見つかりました！${user_name}さんのお話を聞いてあげましょう。`;
       break;
     case "alert":
       message["id"] = 2;
