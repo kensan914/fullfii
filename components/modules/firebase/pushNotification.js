@@ -4,7 +4,10 @@ import firebase from "@react-native-firebase/app";
 import messaging from "@react-native-firebase/messaging";
 
 
+
 const usePushNotification = () => {
+  const [messaging] = useState(firebase.messaging());
+
   const [deviceToken, setDeviceToken] = useState(null);
   const [notificationType, setNotificationType] = useState("");
   const listenerRemovingFunctions = useRef([]);
@@ -18,12 +21,13 @@ const usePushNotification = () => {
   }, []);
 
   const initPushNotification = async () => {
-    const enabled = await firebase.messaging().hasPermission();
+    console.log(0);
+    const enabled = await messaging.hasPermission();
     if (enabled) {
       initFcm();
     } else {
       try {
-        await firebase.messaging().requestPermission();
+        await messaging.requestPermission();
         initFcm();
       } catch (e) {
         console.log(e);
@@ -32,31 +36,33 @@ const usePushNotification = () => {
   }
 
   const initFcm = async () => {
-    const _deviceToken = await messaging().getToken();
+    const _deviceToken = await messaging.getToken();
     console.log(`deviceToken: ${_deviceToken}`);
     setDeviceToken(_deviceToken);
 
     listenerRemovingFunctions.current = [
-      messaging().onTokenRefresh(onFcmTokenRefresh),
-      messaging().onNotification(handleNotification("onNotification")),
-      messaging().onNotificationOpened(
-        handleNotification("onNotificationOpened"),
-      ),
-      messaging().onNotificationDisplayed(
-        handleNotification("onNotificationDisplayed"),
-      ),
-      messaging().onMessage(onMessage),
+      messaging.onTokenRefresh(onFcmTokenRefresh),
+      messaging.onNotification(handleNotification("onNotification")),
+      messaging.onNotificationOpened(handleNotification("onNotificationOpened")),
+      messaging.onNotificationDisplayed(handleNotification("onNotificationDisplayed")),
+      messaging.onMessage(onMessage),
     ];
-    const notificationOpen = await messaging().getInitialNotification();
+    console.log(1);
+    const notificationOpen = await messaging.getInitialNotification();
+    console.log(2);
     if (notificationOpen) {
+      console.log("2-1");
       handleNotification("initial")(notificationOpen);
     }
+    console.log(3);
     const channel = new firebase.notifications.Android.Channel(
       "local",
       "local notification",
       firebase.notifications.Android.Importance.Max,
     );
-    await messaging().android.createChannel(channel);
+    console.log(4);
+    await messaging.android.createChannel(channel);
+    console.log(5);
   };
 
 
@@ -71,6 +77,10 @@ const usePushNotification = () => {
 
   const handleNotification = (type) => {
     return (notification) => {
+      console.log("ノーティフィケーション");
+      console.log("ノーティフィケーション");
+      console.log("ノーティフィケーション");
+      console.log("ノーティフィケーション");
       console.log(type, notification);
       if (type === "onNotification") {
         if (Platform.OS === "android") {
@@ -79,9 +89,9 @@ const usePushNotification = () => {
             .android.setSmallIcon("ic_stat_ic_notification")
             .android.setColor("#1A73E8")
             .android.setPriority(firebase.notifications.Android.Priority.High);
-          messaging().displayNotification(localNotification);
+          messaging.displayNotification(localNotification);
         } else if (Platform.OS === "ios") {
-          messaging().displayNotification(notification);
+          messaging.displayNotification(notification);
         }
       }
       Alert.alert("NOTIFICATION", type);
@@ -96,4 +106,5 @@ const usePushNotification = () => {
 export default usePushNotification;
 
 
-// d-Ba-1eavkDYv10jvPUqnk:APA91bEBzvfhqdmuNJmY2DRpUVZZp0RkV4rE_YoWNoAQW7wwZ1e6_hq7D_XgVxpsTxxE5dYhqo-YhitDzfxxBi3ZoD2lT0N5oiqEUyZZnXlJoG-RqSfWfIa36aMCCTpln6cP7aj2RE9T 
+// d-Ba-1eavkDYv10jvPUqnk:APA91bEBzvfhqdmuNJmY2DRpUVZZp0RkV4rE_YoWNoAQW7wwZ1e6_hq7D_XgVxpsTxxE5dYhqo-YhitDzfxxBi3ZoD2lT0N5oiqEUyZZnXlJoG-RqSfWfIa36aMCCTpln6cP7aj2RE9T
+// d-Ba-1eavkDYv10jvPUqnk:APA91bEBzvfhqdmuNJmY2DRpUVZZp0RkV4rE_YoWNoAQW7wwZ1e6_hq7D_XgVxpsTxxE5dYhqo-YhitDzfxxBi3ZoD2lT0N5oiqEUyZZnXlJoG-RqSfWfIa36aMCCTpln6cP7aj2RE9T
