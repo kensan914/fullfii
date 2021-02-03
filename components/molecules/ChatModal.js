@@ -68,8 +68,8 @@ const ChatModal = (props) => {
       okButton: "停止する",
       onPress: () => {
         logEvent("stop_talk_button", {
-          job: profileState.profile.job?.label,
-        });
+          job: profileState.profile?.job?.label,
+        }, profileState);
         setIsShowSpinner(true);
         request({
           data: {
@@ -99,8 +99,7 @@ const ChatModal = (props) => {
           is_speaker: isSpeaker,
           can_talk_heterosexual: canTalkHeterosexual,
           can_talk_different_job: canTalkDifferentJob,
-          job: profileState.profile.job?.label,
-        });
+        }, profileState);
         setIsShowSpinner(true);
         request({
           data: {

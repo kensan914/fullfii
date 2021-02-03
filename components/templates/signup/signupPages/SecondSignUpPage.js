@@ -5,7 +5,7 @@ import SignUpPageTemplate from "./SignUpPageTemplate";
 import { useAuthDispatch } from "../../../contexts/AuthContext";
 import { useProfileState } from "../../../contexts/ProfileContext";
 import BubbleList from "../../../organisms/BubbleList";
-import logEvent from "../../../modules/firebase/logEvent"
+import { logEvent } from "../../../modules/firebase/logEvent"
 
 
 const { width, height } = Dimensions.get("screen");
@@ -28,7 +28,9 @@ const SecondSignUpPage = (props) => {
     authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: false, });
     authDispatch({ type: "SET_WORRIES_BUFFER", worries: Object.values(worriesCollection), });
     logEvent("intro_worry_bubble", {
-      worries: Object.values(worriesCollection),
+      worries: Object.values(worriesCollection).map(worry => {
+        return worry?.label
+      }).join(", "),
     });
 
     goToPage(progressNum + 1);

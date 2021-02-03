@@ -74,7 +74,9 @@ const ThirdSignUpPage = (props) => {
   const pressButton = () => {
     logEvent("intro_user_info_button", {
       username: username,
-      genre_of_worries: authState.signupBuffer.worries,
+      genre_of_worries: authState.signupBuffer.worries.map(worry => {
+        return worry?.label
+      }).join(", "),
       gender: gender,
       job: job,
     });
@@ -151,7 +153,7 @@ const ThirdSignUpPage = (props) => {
                   >
                     {renderGenderInputButton(iconNames[genderObj.key], genderObj.label, gender === genderObj.key, genderObj.key)}
                   </Block> :
-                  <Block/>
+                  <Block />
                 );
               })}
           </Block>

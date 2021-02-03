@@ -11,7 +11,8 @@ import { useAxios } from "../modules/axios";
 import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
 import { AdMobInterstitial } from "react-native-admob";
 import { useAuthDispatch } from "../contexts/AuthContext";
-import {logEvent} from "../modules/firebase/logEvents"
+import { logEvent } from "../modules/firebase/logEvent";
+import { useProfileState } from "../contexts/ProfileContext";
 
 
 const { width, height } = Dimensions.get("screen");
@@ -35,10 +36,17 @@ export const CommonMessage = (props) => {
 export const TalkMenuButton = (props) => {
   const { talkTicketKey } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const profileState = useProfileState();
 
   return (
     <>
-      <TouchableOpacity style={[styles.TalkMenuButton]} onPress={() => setIsOpen(true)}>
+      <TouchableOpacity
+        style={[styles.TalkMenuButton]}
+        onPress={() => {
+          setIsOpen(true);
+          logEvent("shuffle_option_button", {}, profileState);
+        }}
+      >
         <Icon family="MaterialIcons" size={25} name="loop" color="gray" />
         <ChatModal
           isOpen={isOpen}
@@ -55,6 +63,7 @@ export const EndTalkScreen = (props) => {
   const { isOpen, roomId, token, closeChatModal } = props;
   const scrollView = useRef(null);
   const authDispatch = useAuthDispatch();
+  const profileState = useProfileState();
 
   const { request } = useAxios(URLJoin(BASE_URL, "rooms/", roomId, "close/"), "post", {
     data: {
@@ -97,7 +106,7 @@ export const EndTalkScreen = (props) => {
     let pushed = false;
     const pushThunks = () => {
       if (!pushed) {
-        logEvent("thx_button");
+        logEvent("thx_button", {}, profileState);
         pushed = true;
         animation.current.play();
         setTimeout(() => {
@@ -106,7 +115,7 @@ export const EndTalkScreen = (props) => {
       }
     }
     const pushSkip = () => {
-      logEvent("slip_thx_button");
+      logEvent("skip_thx_button", {}, profileState);
       request({
         data: {
           has_thunks: false,

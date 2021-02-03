@@ -9,6 +9,7 @@ import { generateUuid4, fmtfromDateToStr, isObject } from "../modules/support";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import ProfileModal from "../molecules/ProfileModal";
 import { logEvent } from "../modules/firebase/logEvent";
+import { useProfileState } from "../contexts/ProfileContext";
 
 const { width } = Dimensions.get("screen");
 
@@ -24,6 +25,7 @@ const ChatTemplate = (props) => {
   const existUser = isObject(user) && Object.keys(user).length;
   const chatDispatch = useChatDispatch();
   const chatState = useChatState();
+  const profileState = useProfileState();
 
   useEffect(() => {
     handleScroll();
@@ -118,8 +120,8 @@ const ChatTemplate = (props) => {
       }
       logEvent("send_message_button", {
         message: message,
-        talkTicketKey: talkTicketKey
-      });
+        talkTicketKey: talkTicketKey,
+      }, profileState);
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");

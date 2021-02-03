@@ -34,11 +34,11 @@ const ProfileModal = (props) => {
     },
     thenCallback: res => {
       const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
-      chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket: newTalkTicket });
       (async () => {
         await WebBrowser.openBrowserAsync(REPORT_URL);
+        chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket: newTalkTicket });
+        props.navigation.navigate("Home");
       })();
-      props.navigation.navigate("Home");
     },
     token: authState.token,
     limitRequest: 1,
