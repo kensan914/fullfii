@@ -29,8 +29,7 @@ import { LogBox } from "react-native";
 LogBox.ignoreAllLogs(true);
 
 const assetImages = {
-  top: require("./assets/images/top.jpg"),
-  logo: require("./assets/images/logo.png"),
+  logo: require("./assets/images/icon_2/ios/Icon-512.png"),
 };
 
 function cacheImages(images) {

@@ -3,7 +3,6 @@ import { Platform, StatusBar, Image } from "react-native";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
-// import SplashScreen from "react-native-splash-screen";
 
 // Before rendering any navigation stack
 import { enableScreens } from "react-native-screens";
@@ -29,8 +28,7 @@ import { isExpo, setIsExpo } from "./constants/env";
 LogBox.ignoreAllLogs(true);
 
 const assetImages = {
-  top: require("./assets/images/top.jpg"),
-  logo: require("./assets/images/logo.png"),
+  logo: require("./assets/images/icon_2/ios/Icon-512.png"),
 };
 
 function cacheImages(images) {
