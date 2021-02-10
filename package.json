@@ -85,7 +85,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.{ts,js}": [
+    "components/**/*.{ts,js}": [
       "npm run lint"
     ]
   }
