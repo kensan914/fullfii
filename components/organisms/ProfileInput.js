@@ -333,7 +333,6 @@ export const SubmitProfileButton = (props) => {
               onPress: () => {
                 submit();
               },
-              cancelOnPress: () => {},
             });
           } else {
             submit();

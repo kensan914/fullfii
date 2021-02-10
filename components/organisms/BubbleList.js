@@ -114,7 +114,9 @@ const BubbleList = (props) => {
     limitLines = 3,
     margin = 2.0,
     activeKeys = [],
-    pressBubble = () => {},
+    pressBubble = () => {
+      return;
+    },
   } = props;
 
   // itemsの二次元配列

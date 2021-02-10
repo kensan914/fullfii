@@ -12,7 +12,7 @@ const chatReducer = (prevState, action) => {
   let _talkTicketCollection;
   let _talkTicket;
   switch (action.type) {
-    case "UPDATE_TALK_TICKETS":
+    case "UPDATE_TALK_TICKETS": {
       /** update talkTickets to talkTicketCollection.(worry.keyをkeyに持つObjectに変換)
        * action.talkTicketsをtalkTicketCollectionにマージ. すでに存在する同一keyのtalkTicketがtalkingだった時、更新しない.
        * @param {Object} action [type, talkTickets] */
@@ -26,10 +26,11 @@ const chatReducer = (prevState, action) => {
         }
 
         if (
-          _talkTicketCollection[talkTicket.worry.key] &&
-          _talkTicketCollection[talkTicket.worry.key].status.key === "talking"
+          !(
+            _talkTicketCollection[talkTicket.worry.key] &&
+            _talkTicketCollection[talkTicket.worry.key].status.key === "talking"
+          )
         ) {
-        } else {
           if (talkTicket.status.key === "waiting") {
             talkTicket.room.messages = [geneCommonMessage("waiting")];
           } else if (talkTicket.status.key === "stopping") {
@@ -44,8 +45,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "START_TALK":
+    case "START_TALK": {
       /** トーク開始時(init)に実行. initMessage追加 & set ws.
        * @param {Object} action [type, talkTicketKey, ws] */
 
@@ -76,8 +78,9 @@ const chatReducer = (prevState, action) => {
           talkTicketCollection: _talkTicketCollection,
         };
       }
+    }
 
-    case "RESTART_TALK":
+    case "RESTART_TALK": {
       /** トーク再接続時に実行. messagesのtimeのインスタンス化 & offlineMessages = [] & set ws.
        * @param {Object} action [type, talkTicketKey, ws] */
 
@@ -105,8 +108,9 @@ const chatReducer = (prevState, action) => {
           talkTicketCollection: _talkTicketCollection,
         };
       }
+    }
 
-    case "RESTART_TALK_ONLY_MESSAGE":
+    case "RESTART_TALK_ONLY_MESSAGE": {
       /** トーク再接続時に実行(相手が退出済みのみ). messagesのtimeのインスタンス化 & offlineMessages = [].
        * @param {Object} action [type, talkTicketKey] */
 
@@ -123,8 +127,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "RECONNECT_TALK":
+    case "RECONNECT_TALK": {
       /** wsをset. wsが切断され再接続された際に実行
        * @param {Object} action [type, ws, talkTicketKey] */
 
@@ -136,8 +141,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "APPEND_MESSAGE":
+    case "APPEND_MESSAGE": {
       /** messageを作成し, 追加. 未読値をインクリメント ストア通知
        * @param {Object} action [type, talkTicketKey, messageID, message, isMe, time(str or Date), token] */
 
@@ -174,8 +180,9 @@ const chatReducer = (prevState, action) => {
         talkTicketCollection: _talkTicketCollection,
         totalUnreadNum: prevState.totalUnreadNum + incrementNum_AM,
       };
+    }
 
-    case "DELETE_OFFLINE_MESSAGE":
+    case "DELETE_OFFLINE_MESSAGE": {
       /** 受け取ったmessageIDに該当するofflineMessageを削除
        * @param {Object} action [type, talkTicketKey, messageID] */
 
@@ -195,8 +202,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "MERGE_MESSAGES":
+    case "MERGE_MESSAGES": {
       /** 受け取ったmessagesを統合 未読値をインクリメント ストア通知 (messagesの中身は全てスネークケース)
        * @param {Object} action [type, talkTicketKey, messages, token] */
 
@@ -231,8 +239,9 @@ const chatReducer = (prevState, action) => {
         talkTicketCollection: _talkTicketCollection,
         totalUnreadNum: prevState.totalUnreadNum + incrementNum_MM,
       };
+    }
 
-    case "APPEND_COMMON_MESSAGE":
+    case "APPEND_COMMON_MESSAGE": {
       /** common message を追加
        * @param {Object} action [type, talkTicketKey, alert] */
 
@@ -251,8 +260,9 @@ const chatReducer = (prevState, action) => {
           talkTicketCollection: _talkTicketCollection,
         };
       } else return { ...prevState };
+    }
 
-    case "END_TALK":
+    case "END_TALK": {
       /** end talk. messages, offlineMessagesの削除, unreadNum, totalUnreadNumの変更., ws.close()
        * @param {Object} action [type, talkTicketKey, (timeOut)] */
 
@@ -279,8 +289,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "APPEND_OFFLINE_MESSAGE":
+    case "APPEND_OFFLINE_MESSAGE": {
       /** offlineMessageを作成し、追加
        * @param {Object} action [type, talkTicketKey, messageID, message] */
 
@@ -305,8 +316,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "READ_BY_ROOM":
+    case "READ_BY_ROOM": {
       /** チャットルームごとの既読処理 該当のチャットルームの全てのmessageを既読に チャットルームを開いたときに実行
        * @param {Object} action [type, talkTicketKey] */
 
@@ -323,8 +335,9 @@ const chatReducer = (prevState, action) => {
         talkTicketCollection: _talkTicketCollection,
         totalUnreadNum: totalUnreadNum,
       };
+    }
 
-    case "OVERWRITE_TALK_TICKET":
+    case "OVERWRITE_TALK_TICKET": {
       /** 強制的にtalkTicketを上書き. 既存のtalkTicketが削除されるので、トークが完全に終了している場合のみに使用。
        * @param {Object} action [type, talkTicket] */
 
@@ -348,8 +361,9 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
-    case "REMOVE_TALK_TICKETS":
+    case "REMOVE_TALK_TICKETS": {
       /** talkTicketsを削除
        * @param {Object} action [type, talkTicketKeys] */
 
@@ -372,6 +386,7 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
+    }
 
     default:
       console.warn(`Not found "${action.type}" action.type.`);
@@ -402,23 +417,26 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
     time: new Date(Date.now()),
   };
   switch (type) {
-    case "initSpeak":
+    case "initSpeak": {
       message["id"] = 0;
       message[
         "message"
       ] = `話し相手が見つかりました！${user_name}さんに話を聞いてもらいましょう。`;
       break;
-    case "initListen":
+    }
+    case "initListen": {
       message["id"] = 0;
       message[
         "message"
       ] = `話し相手が見つかりました！${user_name}さんのお話を聞いてあげましょう。`;
       break;
-    case "alert":
+    }
+    case "alert": {
       message["id"] = 2;
       message["message"] = "残り5分で自動退室となります。";
       break;
-    case "end":
+    }
+    case "end": {
       message["id"] = -1;
       if (timeOut) {
         message["message"] =
@@ -429,18 +447,20 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
         ] = `${user_name}さんが退室しました。右上のボタンからトークを更新または終了してください。`;
       }
       break;
-
-    case "waiting":
+    }
+    case "waiting": {
       const now = new Date();
       const hour = now.getHours();
       const min = (now.getMinutes() < 10 ? "0" : "") + now.getMinutes();
       message["id"] = 0;
       message["message"] = `話し相手を探し中...。（最終更新：${hour}:${min}）`;
       break;
-    case "stopping":
+    }
+    case "stopping": {
       message["id"] = 0;
       message["message"] = "ただいま話し相手の検索を停止しています。";
       break;
+    }
   }
   return message;
 };

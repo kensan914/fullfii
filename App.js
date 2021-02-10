@@ -12,11 +12,7 @@ enableScreens();
 import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
-import {
-  asyncGetItem,
-  asyncGetJson,
-  asyncRemoveItem,
-} from "./components/modules/support";
+import { asyncGetItem, asyncGetJson } from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { NotificationProvider } from "./components/contexts/NotificationContext";
 import { ChatProvider } from "./components/contexts/ChatContext";

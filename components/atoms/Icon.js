@@ -4,7 +4,6 @@ import { createIconSetFromIcoMoon } from "@expo/vector-icons";
 import { Icon } from "galio-framework";
 
 import GalioConfig from "../../assets/fonts/galioExtra";
-const GalioExtra = require("../../assets/fonts/galioExtra.ttf");
 const IconGalioExtra = createIconSetFromIcoMoon(GalioConfig, "GalioExtra");
 
 export default class IconExtra extends React.Component {
@@ -13,7 +12,10 @@ export default class IconExtra extends React.Component {
   };
 
   async componentDidMount() {
-    await Font.loadAsync({ GalioExtra: GalioExtra });
+    const galioExtra = await import("../../assets/fonts/galioExtra.ttf");
+    await Font.loadAsync({
+      GalioExtra: galioExtra.default,
+    });
     this.setState({ fontLoaded: true });
   }
 

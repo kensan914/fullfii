@@ -72,6 +72,7 @@ const Header = (props) => {
               />
             );
         }
+        break;
       case "Home":
       case "WorryList":
       case "Talk":

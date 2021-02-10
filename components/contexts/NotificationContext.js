@@ -8,7 +8,7 @@ import {
 const NotificationReducer = (prevState, action) => {
   const notifications = prevState.notifications.concat();
   switch (action.type) {
-    case "ADD":
+    case "ADD": {
       /** 1つのnotificationを追加
        * @param {Object} action [type, notification] */
 
@@ -23,8 +23,9 @@ const NotificationReducer = (prevState, action) => {
         notifications: notifications,
         unreadNum: prevState.unreadNum + incrementNum,
       };
+    }
 
-    case "MERGE":
+    case "MERGE": {
       /** 受け取ったnotificationsを統合 重複・順序を考慮し、重複が発見されなければaction.notDuplicateFunc()を実行
        * @param {Object} action [type, notifications, notDuplicateFunc] */
 
@@ -59,8 +60,9 @@ const NotificationReducer = (prevState, action) => {
         notifications: mergedNotifications,
         unreadNum: unreadNum,
       };
+    }
 
-    case "PUT_READ":
+    case "PUT_READ": {
       /** 未読のnotificationのIDリストをPUT 事前にSET_WSを実行し、wsをsetする必要がある
        * @param {Object} action [type, token] */
 
@@ -88,8 +90,9 @@ const NotificationReducer = (prevState, action) => {
         ...prevState,
         tempNotifications: tempNotifications,
       };
+    }
 
-    case "COMPLETE_READ":
+    case "COMPLETE_READ": {
       /** 既読処理 全てのnotificationを既読に 事前にPUT_READを実行し、tempNotificationsを作成する必要がある
        * @param {Object} action [type] */
 
@@ -104,8 +107,9 @@ const NotificationReducer = (prevState, action) => {
       } else {
         return { ...prevState };
       }
+    }
 
-    case "SET_WS":
+    case "SET_WS": {
       /** set ws。 もしwsにすでにwsオブジェクトがあれば, closeし上書きする。
        * @param {Object} action [type, ws] */
 
@@ -116,8 +120,9 @@ const NotificationReducer = (prevState, action) => {
         ...prevState,
         ws: action.ws,
       };
+    }
 
-    case "RESET":
+    case "RESET": {
       /** リセット wsの切断
        * @param {Object} action [type] */
 
@@ -130,6 +135,7 @@ const NotificationReducer = (prevState, action) => {
         tempNotifications: [],
         ws: null,
       };
+    }
 
     default:
       console.warn(`Not found "${action.type}" action.type.`);

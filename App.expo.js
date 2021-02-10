@@ -23,7 +23,7 @@ import StartUpManager from "./screens/StartUpManager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 // import { logEvent } from "./components/modules/firebase";
 import { LogBox } from "react-native";
-import { isExpo, setIsExpo } from "./constants/env";
+import { setIsExpo } from "./constants/env";
 
 LogBox.ignoreAllLogs(true);
 

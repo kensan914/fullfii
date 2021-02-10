@@ -136,7 +136,7 @@ const ThirdSignUpPage = (props) => {
             autoCapitalize="none"
             style={[
               styles.usernameInput,
-              Boolean(username)
+              username
                 ? { borderBottomColor: COLORS.PINK }
                 : { borderBottomColor: "silver" },
               isActiveUsername ? styles.usernameInputActive : null,

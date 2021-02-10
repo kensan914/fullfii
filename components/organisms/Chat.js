@@ -63,6 +63,14 @@ export const EndTalkScreen = (props) => {
   const scrollView = useRef(null);
   const authDispatch = useAuthDispatch();
   const profileState = useProfileState();
+  const [lottieHeartSource, setLottieHeartSource] = useState(null);
+
+  useState(async () => {
+    import("../../assets/animations/1087-heart.json").then((source) => {
+      console.log(source);
+      setLottieHeartSource(source.default);
+    });
+  }, []);
 
   const { request } = useAxios(
     URLJoin(BASE_URL, "rooms/", roomId, "close/"),
@@ -150,15 +158,17 @@ export const EndTalkScreen = (props) => {
             >
               ハートをタップして、話をしてくれた方にありがとうを伝えましょう
             </Text>
-            <LottieView
-              ref={animation}
-              style={{
-                position: "absolute",
-                backgroundColor: "transparent",
-              }}
-              loop={false}
-              source={require("../../assets/animations/1087-heart.json")}
-            />
+            {lottieHeartSource && (
+              <LottieView
+                ref={animation}
+                style={{
+                  position: "absolute",
+                  backgroundColor: "transparent",
+                }}
+                loop={false}
+                source={lottieHeartSource}
+              />
+            )}
             <Button
               round
               shadowless

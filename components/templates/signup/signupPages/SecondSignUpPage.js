@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Dimensions } from "react-native";
 
 import SignUpPageTemplate from "./SignUpPageTemplate";
@@ -6,6 +6,7 @@ import { useAuthDispatch } from "../../../contexts/AuthContext";
 import { useProfileState } from "../../../contexts/ProfileContext";
 import BubbleList from "../../../organisms/BubbleList";
 import { logEvent } from "../../../modules/firebase/logEvent";
+import { hasProperty } from "../../../modules/support";
 
 const { width, height } = Dimensions.get("screen");
 
@@ -47,7 +48,7 @@ const SecondSignUpPage = (props) => {
 
   const pressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
-    if (_worriesCollection.hasOwnProperty(key)) {
+    if (hasProperty(_worriesCollection, key)) {
       delete _worriesCollection[key];
     } else {
       _worriesCollection[key] = genreOfWorries[key];

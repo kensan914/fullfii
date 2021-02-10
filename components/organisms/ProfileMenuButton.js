@@ -4,11 +4,12 @@ import * as WebBrowser from "expo-web-browser";
 
 import Icon from "../../components/atoms/Icon";
 import { useAuthState } from "../contexts/AuthContext";
-import { alertModal } from "../modules/support";
+import { alertModal, showToast, URLJoin } from "../modules/support";
 import { TouchableOpacity } from "react-native";
 import { MenuModal } from "../molecules/Menu";
 import Spinner from "react-native-loading-spinner-overlay";
-import { REPORT_URL } from "../../constants/env";
+import { BASE_URL, REPORT_URL } from "../../constants/env";
+import authAxios from "../modules/axios";
 
 export const ProfileMenuButton = (props) => {
   const { user } = props;

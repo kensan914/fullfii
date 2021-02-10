@@ -22,7 +22,6 @@ const initProfile = {
   all: true,
   me: true,
   birthday: { text: "", year: 0, month: 0, day: 0 },
-  age: 0,
 };
 Object.freeze(initProfile);
 

@@ -18,7 +18,7 @@ export const URLJoin = (...args) => {
   }
   return args
     .join("/")
-    .replace(/[\/]+/g, "/")
+    .replace(/[/]+/g, "/")
     .replace(/^(.+):\//, "$1://")
     .replace(/^file:/, "file:/")
     .replace(/\/(\?|&|#[^!])/g, "$1")
@@ -216,7 +216,7 @@ export const alertModal = ({
   cancelButton,
   okButton,
   onPress,
-  cancelOnPress = () => {},
+  cancelOnPress,
 }) => {
   Alert.alert(mainText ? mainText : "", subText ? subText : "", [
     {
@@ -273,12 +273,16 @@ export const initWs = (wsSettings, dispatches) => {
           clearTimeout(connectInterval);
           wsSettings.onopen(e, ws);
         }
-      : (e) => {};
+      : (e) => {
+          return e;
+        };
     ws.onmessage = wsSettings.onmessage
       ? (e) => {
           wsSettings.onmessage(e, ws, isReconnect);
         }
-      : (e) => {};
+      : (e) => {
+          return e;
+        };
     ws.onclose = wsSettings.onclose
       ? (e) => {
           if (!e.wasClean) {
@@ -296,8 +300,9 @@ export const initWs = (wsSettings, dispatches) => {
           }
           wsSettings.onclose(e, ws);
         }
-      : (e) => {};
-
+      : (e) => {
+          return e;
+        };
     wsSettings.registerWs && wsSettings.registerWs(ws);
   };
 
@@ -307,7 +312,9 @@ export const initWs = (wsSettings, dispatches) => {
 // ios環境でclosecodeが1001で固定されてしまうため対処
 export const closeWsSafely = (ws) => {
   if (isObject(ws) && Object.keys(ws).length) {
-    ws.onclose = (e) => {};
+    ws.onclose = (e) => {
+      return e;
+    };
     ws.close();
   } else {
     console.error("ws is empty object");
@@ -395,8 +402,12 @@ export const exeIntroStep = (
           },
           profileDispatch,
           profileState,
-          () => {},
-          () => {}
+          () => {
+            return;
+          },
+          () => {
+            return;
+          }
         );
       },
     });
@@ -436,4 +447,12 @@ export const generatePassword = (length = 12) => {
     password += string.charAt(Math.floor(Math.random() * string.length));
   }
   return password;
+};
+
+/**
+ * 単純にobj.hasOwnProperty(key)だとESLintが怒るので
+ * https://qiita.com/qoAop/items/9605de1186c4b1a79965
+ */
+export const hasProperty = (obj, key) => {
+  return !!obj && Object.prototype.hasOwnProperty.call(obj, key);
 };

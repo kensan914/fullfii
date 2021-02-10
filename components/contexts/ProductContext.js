@@ -20,6 +20,7 @@ import {
   useNotificationDispatch,
   useNotificationState,
 } from "./NotificationContext";
+import { Platform } from "react-native";
 
 const productReducer = (prevState, action) => {
   switch (action.type) {

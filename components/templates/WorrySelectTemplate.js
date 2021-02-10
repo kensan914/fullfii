@@ -10,6 +10,7 @@ import {
   alertModal,
   deepCvtKeyFromSnakeToCamel,
   URLJoin,
+  hasProperty,
 } from "../modules/support";
 import {
   ADMOB_BANNER_HEIGHT,
@@ -60,7 +61,7 @@ const WorrySelectTemplate = (props) => {
     } else {
       if (
         Object.keys(initWorriesCollection.current).some(
-          (key) => !worriesCollection.hasOwnProperty(key)
+          (key) => !hasProperty(worriesCollection, key)
         )
       ) {
         setCanSubmit(true);
@@ -72,7 +73,7 @@ const WorrySelectTemplate = (props) => {
 
   const pressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
-    if (_worriesCollection.hasOwnProperty(key)) {
+    if (hasProperty(_worriesCollection, key)) {
       delete _worriesCollection[key];
     } else {
       _worriesCollection[key] = genreOfWorries[key];
@@ -121,7 +122,6 @@ const WorrySelectTemplate = (props) => {
           },
         });
       },
-      cancelOnPress: () => {},
     });
   };
 
