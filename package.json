@@ -79,6 +79,12 @@
     "prettier": "^2.2.1",
     "react-test-renderer": "~16.9.0"
   },
+  "eslintIgnore": [
+    "/.eslintrc.js",
+    "/.prettierrc.js",
+    "/babel.config.js",
+    "/metro.config.js"
+  ],
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -90,4 +96,3 @@
     ]
   }
 }
-
