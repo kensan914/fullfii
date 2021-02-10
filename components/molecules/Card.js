@@ -50,7 +50,7 @@ const Card = (props) => {
           </Block> :
 
           <Block flex style={styles.content}>
-            {(item.content && item.content.includes("話し相手が見つかりました！") && item.content.length <= 1) && <StatusIcon />}
+            {(item.content && item.content.includes("話し相手が見つかりました！")) && <StatusIcon />}
             <Block row style={[styles.titleContainer, { height: titleSize + 5 }]}>
               <Text
                 bold
