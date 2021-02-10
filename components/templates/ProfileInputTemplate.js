@@ -4,8 +4,10 @@ import { Block, theme, Text } from "galio-framework";
 import { ScrollView } from "react-native-gesture-handler";
 import { useAuthState } from "../contexts/AuthContext";
 import { InputBlock, SubmitProfileButton } from "../organisms/ProfileInput";
-import { useProfileDispatch, useProfileState } from "../contexts/ProfileContext";
-
+import {
+  useProfileDispatch,
+  useProfileState,
+} from "../contexts/ProfileContext";
 
 const ProfileInputTemplate = (props) => {
   const { prevValue, screen } = props.route.params;
@@ -21,17 +23,36 @@ const ProfileInputTemplate = (props) => {
     <>
       <ScrollView>
         <Block style={styles.container}>
-          <InputBlock screen={screen} prevValue={prevValue} setCanSubmit={setCanSubmit} value={value} setValue={setValue} />
-          <Text color="red" style={{ paddingHorizontal: 10, paddingVertical: 3 }}>{validationText}</Text>
+          <InputBlock
+            screen={screen}
+            prevValue={prevValue}
+            setCanSubmit={setCanSubmit}
+            value={value}
+            setValue={setValue}
+          />
+          <Text
+            color="red"
+            style={{ paddingHorizontal: 10, paddingVertical: 3 }}
+          >
+            {validationText}
+          </Text>
         </Block>
       </ScrollView>
-      <SubmitProfileButton screen={screen} value={value} canSubmit={canSubmit} token={authState.token} profileDispatch={profileDispatch} profileState={profileState} setValidationText={setValidationText} {...props} />
+      <SubmitProfileButton
+        screen={screen}
+        value={value}
+        canSubmit={canSubmit}
+        token={authState.token}
+        profileDispatch={profileDispatch}
+        profileState={profileState}
+        setValidationText={setValidationText}
+        {...props}
+      />
     </>
   );
-}
+};
 
 export default ProfileInputTemplate;
-
 
 const styles = StyleSheet.create({
   container: {

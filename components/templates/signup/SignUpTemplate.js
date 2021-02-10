@@ -10,14 +10,15 @@ import SecondPage from "./signupPages/SecondSignUpPage";
 import ThirdPage from "./signupPages/ThirdSignUpPage";
 import { useAuthState } from "../../contexts/AuthContext";
 
-
 const { width } = Dimensions.get("window");
 
 const SignUpTemplate = (props) => {
   const authState = useAuthState();
   const [initPage] = useState(
     // didProgressNumは完了済みのページ番号なのでその次のページから(+1)
-    authState.signupBuffer.didProgressNum ? authState.signupBuffer.didProgressNum + 1 : 1
+    authState.signupBuffer.didProgressNum
+      ? authState.signupBuffer.didProgressNum + 1
+      : 1
   );
   const [currentPage, scrollViewRef, goToPage] = useSlideView(initPage);
 
@@ -39,7 +40,8 @@ const SignUpTemplate = (props) => {
       end={{ x: 0.25, y: 1.1 }}
       locations={[0.2, 1]}
       colors={["white", "white"]}
-      style={[styles.container, { flex: 1, paddingTop: theme.SIZES.BASE * 4 }]}>
+      style={[styles.container, { flex: 1, paddingTop: theme.SIZES.BASE * 4 }]}
+    >
       <ScrollView
         ref={scrollViewRef}
         style={styles.signupScrollView}
@@ -51,11 +53,10 @@ const SignUpTemplate = (props) => {
         </Block>
       </ScrollView>
     </LinearGradient>
-  )
-}
+  );
+};
 
 export default SignUpTemplate;
-
 
 const styles = StyleSheet.create({
   container: {

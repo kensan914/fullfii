@@ -2,25 +2,23 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { checkCorrectKey } from "./support";
 
-
 const authAxios = (token) => {
   const _authAxios = axios.create({
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
       Authorization: `JWT ${token}`,
-    }
+    },
   });
 
-  _authAxios.interceptors.request.use(request => {
+  _authAxios.interceptors.request.use((request) => {
     return request;
   });
 
   return _authAxios;
-}
+};
 
 export default authAxios;
-
 
 /** axiosを使用したリクエストのカスタムフック
  * @param {string} url
@@ -43,11 +41,20 @@ export const useAxios = (url, method, action) => {
   //---------- constants ----------//
   const axiosRequestMethods = ["get", "post", "delete", "put", "patch"];
   // ↓変更があれば都度追加していく↓
-  const correctActionKeys = ["data", "thenCallback", "catchCallback", "finallyCallback", "didRequestCallback", "token", "shouldRequestDidMount", "limitRequest"];
+  const correctActionKeys = [
+    "data",
+    "thenCallback",
+    "catchCallback",
+    "finallyCallback",
+    "didRequestCallback",
+    "token",
+    "shouldRequestDidMount",
+    "limitRequest",
+  ];
   const correctRequestActionKeys = ["url", "data"];
   //---------- constants ----------//
 
-  const methodText = method.toLowerCase();  // httpメソッドの整形
+  const methodText = method.toLowerCase(); // httpメソッドの整形
   const actionKeys = Object.keys(action);
 
   const axiosSettings = {
@@ -56,11 +63,14 @@ export const useAxios = (url, method, action) => {
   };
 
   // set token
-  const authHeaders = actionKeys.indexOf("token") !== -1 ? {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    Authorization: `JWT ${action.token}`,
-  } : {};
+  const authHeaders =
+    actionKeys.indexOf("token") !== -1
+      ? {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `JWT ${action.token}`,
+        }
+      : {};
   axiosSettings["headers"] = authHeaders;
 
   // set data
@@ -71,7 +81,7 @@ export const useAxios = (url, method, action) => {
 
   // set didRequestCallback
   if (actionKeys.indexOf("didRequestCallback") !== -1) {
-    axiosInstance.interceptors.request.use(request => {
+    axiosInstance.interceptors.request.use((request) => {
       action.didRequestCallback(request);
       return request;
     });
@@ -80,9 +90,9 @@ export const useAxios = (url, method, action) => {
   const [resData, setResData] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [limitRequest] = useState(
-    actionKeys.indexOf("limitRequest") !== -1 && !isNaN(action.limitRequest) ?
-      Number(action.limitRequest) : // limitRequestが指定されている、かつ数値変換可能である
-      -1 // それ以外は-1(リクエスト無制限)
+    actionKeys.indexOf("limitRequest") !== -1 && !isNaN(action.limitRequest)
+      ? Number(action.limitRequest) // limitRequestが指定されている、かつ数値変換可能である
+      : -1 // それ以外は-1(リクエスト無制限)
   );
   const requestNum = useRef(0);
 
@@ -93,7 +103,9 @@ export const useAxios = (url, method, action) => {
   const request = (reAction = null) => {
     // リクエスト回数制限
     if (++requestNum.current > limitRequest && limitRequest >= 0) {
-      console.warn(`The request limit set to ${limitRequest} has been exceeded. Abort the request.`);
+      console.warn(
+        `The request limit set to ${limitRequest} has been exceeded. Abort the request.`
+      );
       if (actionKeys.indexOf("catchCallback") !== -1) action.catchCallback(err);
       return;
     }
@@ -104,19 +116,22 @@ export const useAxios = (url, method, action) => {
     if (reAction !== null) {
       const reActionKeys = Object.keys(reAction);
       // actionのエラーハンドリング
-      checkCorrectKey(correctRequestActionKeys, reAction, incorrectkey => {
+      checkCorrectKey(correctRequestActionKeys, reAction, (incorrectkey) => {
         console.error(`"${incorrectkey}" action key is not supported.`);
       });
-      if (reActionKeys.indexOf("url") !== -1) _axiosSettings["url"] = reAction.url;
-      if (reActionKeys.indexOf("data") !== -1) _axiosSettings["data"] = reAction.data;
+      if (reActionKeys.indexOf("url") !== -1)
+        _axiosSettings["url"] = reAction.url;
+      if (reActionKeys.indexOf("data") !== -1)
+        _axiosSettings["data"] = reAction.data;
     }
 
-    axiosInstance.request(_axiosSettings)
-      .then(res => {
+    axiosInstance
+      .request(_axiosSettings)
+      .then((res) => {
         if (actionKeys.indexOf("thenCallback") !== -1) action.thenCallback(res);
         setResData(res.data);
       })
-      .catch(err => {
+      .catch((err) => {
         requestNum.current--; // リクエスト無効
 
         if (err.response) {
@@ -124,27 +139,33 @@ export const useAxios = (url, method, action) => {
         } else {
           console.error(err);
         }
-        if (actionKeys.indexOf("catchCallback") !== -1) action.catchCallback(err);
+        if (actionKeys.indexOf("catchCallback") !== -1)
+          action.catchCallback(err);
       })
       .finally(() => {
-        if (actionKeys.indexOf("finallyCallback") !== -1) action.finallyCallback();
+        if (actionKeys.indexOf("finallyCallback") !== -1)
+          action.finallyCallback();
         setIsLoading(false);
       });
-  }
+  };
 
   useEffect(() => {
     // http methodのエラーハンドリング
-    if (!axiosRequestMethods.includes(methodText)) console.error(`"${methodText}" HTTP method is not supported.`);
+    if (!axiosRequestMethods.includes(methodText))
+      console.error(`"${methodText}" HTTP method is not supported.`);
 
     // actionのエラーハンドリング
-    checkCorrectKey(correctActionKeys, action, incorrectkey => {
+    checkCorrectKey(correctActionKeys, action, (incorrectkey) => {
       console.error(`"${incorrectkey}" action key is not supported.`);
     });
 
-    if (actionKeys.indexOf("shouldRequestDidMount") !== -1 && action.shouldRequestDidMount) {
+    if (
+      actionKeys.indexOf("shouldRequestDidMount") !== -1 &&
+      action.shouldRequestDidMount
+    ) {
       request();
     }
   }, []);
 
   return { isLoading, resData, request };
-}
+};

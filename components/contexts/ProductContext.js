@@ -1,18 +1,25 @@
-import React, { createContext, useReducer, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useReducer,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { BASE_URL, PRODUCT_ID_LIST } from "../../constants/env";
 import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
 } from "react-native-iap";
 import authAxios from "../modules/axios";
-import { showToast, URLJoin } from "../modules/support";
+import { URLJoin } from "../modules/support";
 import { useProfileDispatch, useProfileState } from "./ProfileContext";
 import { startUpLoggedin } from "../../screens/StartUpManager";
 import { useChatDispatch, useChatState } from "./ChatContext";
 import { useAuthDispatch, useAuthState } from "./AuthContext";
-import { useNotificationDispatch, useNotificationState } from "./NotificationContext";
-import useAllContext from "./ContextUtils";
-
+import {
+  useNotificationDispatch,
+  useNotificationState,
+} from "./NotificationContext";
 
 const productReducer = (prevState, action) => {
   switch (action.type) {
@@ -103,7 +110,7 @@ export const ProductProvider = ({ children, token }) => {
     notificationDispatch: useNotificationDispatch(),
     chatDispatch: useChatDispatch(),
     productDispatch: productDispatch,
-  }
+  };
   const states = {
     authState: useAuthState(),
     profileState: useProfileState(),
@@ -113,7 +120,10 @@ export const ProductProvider = ({ children, token }) => {
   };
   // const [states, dispatches] = useAllContext();
 
-  const [purchaseUpdateSubscription, setPurchaseUpdateSubscription] = useState();
+  const [
+    purchaseUpdateSubscription,
+    setPurchaseUpdateSubscription,
+  ] = useState();
   const [purchaseErrorSubscription, setPurchaseErrorSubscription] = useState();
 
   useEffect(() => {
@@ -125,63 +135,14 @@ export const ProductProvider = ({ children, token }) => {
     RNIap.initConnection().then(() => {
       // 私たちは、"ghost"の保留中の支払いが削除されていることを確認します
       // (ghostとは、Google のネイティブベンディングモジュールのキャッシュに保留中としてマークされたままの、失敗した保留中の支払いのことです)。
-      RNIap.flushFailedPurchasesCachedAsPendingAndroid().catch(() => {
-        // 例外は以下の場合に発生します。
-        // まだ保留中の購入がある場合 (保留中の購入を消費することはできません) いずれにしても、エラーで特別なことをする必要はないかもしれません。
-      }).then(() => {
-        if (purchaseUpdateSubscription) {
-          ("purchaseUpdateSubscriptionを初期化します。");
-          purchaseUpdateSubscription.remove();
-          setPurchaseUpdateSubscription(null);
-        }
-        if (purchaseErrorSubscription) {
-          purchaseErrorSubscription.remove();
-          setPurchaseErrorSubscription(null);
-        }
-        setPurchaseUpdateSubscription(purchaseUpdatedListener(async (purchase) => {
-          // TODO Debug時、失敗したpurchaseが溜まるのでリセット
-          // await RNIap.finishTransaction(purchase);
-
-          const receipt = purchase.transactionReceipt;
-          if (receipt) {
-            requestPostPurchase(purchase, states.authState.token)
-              .then(async (res) => {
-                // これを怠ると、Androidでは購入したものが返金され、以下のことを成功させるまでアプリを再起動するたびに購入イベントが再表示されます。
-                // また、これを行わない限り、ユーザーは消耗品を再度購入することはできません。
-                if (Platform.OS === "ios") {
-                  await RNIap.finishTransactionIOS(purchase.transactionId);
-                } else if (Platform.OS === "android") {
-                  // If consumable (can be purchased again)
-                  await RNIap.consumePurchaseAndroid(purchase.purchaseToken);
-                  // If not consumable
-                  await RNIap.acknowledgePurchaseAndroid(purchase.purchaseToken);
-                }
-                await RNIap.finishTransaction(purchase);
-                productDispatch({
-                  type: "SUCCESS_PURCHASE", profile: res.data["profile"], profileDispatch: dispatches.profileDispatch, token: states.authState.token,
-                  authDispatch: dispatches.authDispatch, startUpLoggedin: () => startUpLoggedin(states.authState.token, states, dispatches),
-                });
-              })
-              .catch(async (err) => {
-                if (err.response.status === 404 || err.response.status === 409) {
-                  if (err.response.message) {
-                    productDispatch({ type: "SET_WILL_ALERT", text: err.response.message });
-                  }
-                  await RNIap.finishTransaction(purchase);
-                }
-                productDispatch({ type: "FAILED_PURCHASE" });
-                console.log(err.response);
-              });
-          }
-        }));
-
-        setPurchaseErrorSubscription(purchaseErrorListener((error) => {
-          productDispatch({ type: "FAILED_PURCHASE" });
-          console.warn("purchaseErrorListener", error);
-        }));
-
-        return (() => {
+      RNIap.flushFailedPurchasesCachedAsPendingAndroid()
+        .catch(() => {
+          // 例外は以下の場合に発生します。
+          // まだ保留中の購入がある場合 (保留中の購入を消費することはできません) いずれにしても、エラーで特別なことをする必要はないかもしれません。
+        })
+        .then(() => {
           if (purchaseUpdateSubscription) {
+            ("purchaseUpdateSubscriptionを初期化します。");
             purchaseUpdateSubscription.remove();
             setPurchaseUpdateSubscription(null);
           }
@@ -189,8 +150,82 @@ export const ProductProvider = ({ children, token }) => {
             purchaseErrorSubscription.remove();
             setPurchaseErrorSubscription(null);
           }
+          setPurchaseUpdateSubscription(
+            purchaseUpdatedListener(async (purchase) => {
+              // TODO Debug時、失敗したpurchaseが溜まるのでリセット
+              // await RNIap.finishTransaction(purchase);
+
+              const receipt = purchase.transactionReceipt;
+              if (receipt) {
+                requestPostPurchase(purchase, states.authState.token)
+                  .then(async (res) => {
+                    // これを怠ると、Androidでは購入したものが返金され、以下のことを成功させるまでアプリを再起動するたびに購入イベントが再表示されます。
+                    // また、これを行わない限り、ユーザーは消耗品を再度購入することはできません。
+                    if (Platform.OS === "ios") {
+                      await RNIap.finishTransactionIOS(purchase.transactionId);
+                    } else if (Platform.OS === "android") {
+                      // If consumable (can be purchased again)
+                      await RNIap.consumePurchaseAndroid(
+                        purchase.purchaseToken
+                      );
+                      // If not consumable
+                      await RNIap.acknowledgePurchaseAndroid(
+                        purchase.purchaseToken
+                      );
+                    }
+                    await RNIap.finishTransaction(purchase);
+                    productDispatch({
+                      type: "SUCCESS_PURCHASE",
+                      profile: res.data["profile"],
+                      profileDispatch: dispatches.profileDispatch,
+                      token: states.authState.token,
+                      authDispatch: dispatches.authDispatch,
+                      startUpLoggedin: () =>
+                        startUpLoggedin(
+                          states.authState.token,
+                          states,
+                          dispatches
+                        ),
+                    });
+                  })
+                  .catch(async (err) => {
+                    if (
+                      err.response.status === 404 ||
+                      err.response.status === 409
+                    ) {
+                      if (err.response.message) {
+                        productDispatch({
+                          type: "SET_WILL_ALERT",
+                          text: err.response.message,
+                        });
+                      }
+                      await RNIap.finishTransaction(purchase);
+                    }
+                    productDispatch({ type: "FAILED_PURCHASE" });
+                    console.log(err.response);
+                  });
+              }
+            })
+          );
+
+          setPurchaseErrorSubscription(
+            purchaseErrorListener((error) => {
+              productDispatch({ type: "FAILED_PURCHASE" });
+              console.warn("purchaseErrorListener", error);
+            })
+          );
+
+          return () => {
+            if (purchaseUpdateSubscription) {
+              purchaseUpdateSubscription.remove();
+              setPurchaseUpdateSubscription(null);
+            }
+            if (purchaseErrorSubscription) {
+              purchaseErrorSubscription.remove();
+              setPurchaseErrorSubscription(null);
+            }
+          };
         });
-      });
     });
   }, [states.authState]);
 
@@ -210,7 +245,6 @@ export const ProductProvider = ({ children, token }) => {
   );
 };
 
-
 const requestGetProducts = async (productDispatch) => {
   try {
     const productIDs = Platform.select({
@@ -221,17 +255,14 @@ const requestGetProducts = async (productDispatch) => {
   } catch (err) {
     console.warn(err); // standardized err.code and err.message available
   }
-}
+};
 
 const requestPostPurchase = async (purchase, token) => {
   const { productId, transactionReceipt } = purchase;
   if (transactionReceipt !== undefined) {
     const url = URLJoin(BASE_URL, "products/", productId, "purchase/");
-    return (
-      authAxios(token)
-        .post(url, {
-          receipt: transactionReceipt,
-        })
-    );
+    return authAxios(token).post(url, {
+      receipt: transactionReceipt,
+    });
   }
-}
+};

@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { Dimensions } from "react-native";
 
-
 const { width } = Dimensions.get("window");
 
 /**
@@ -18,9 +17,9 @@ const useSlideView = (initPage) => {
       animated: true,
     });
     setCurrentPage(toPageNum);
-  }
+  };
 
   return [currentPage, scrollViewRef, goToPage];
-}
+};
 
 export default useSlideView;

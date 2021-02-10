@@ -1,6 +1,10 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { isString, cvtKeyFromSnakeToCamel, asyncStoreTalkCollection, asyncRemoveItem, geneArrPushedWithoutDup, closeWsSafely, asyncStoreJson, asyncStoreTalkTicketCollection, isObject } from "../modules/support";
-
+import {
+  isString,
+  closeWsSafely,
+  asyncStoreTalkTicketCollection,
+  isObject,
+} from "../modules/support";
 
 const chatReducer = (prevState, action) => {
   let _messages;
@@ -14,7 +18,7 @@ const chatReducer = (prevState, action) => {
        * @param {Object} action [type, talkTickets] */
 
       _talkTicketCollection = prevState.talkTicketCollection;
-      action.talkTickets.forEach(talkTicket => {
+      action.talkTickets.forEach((talkTicket) => {
         if (talkTicket.room === null) {
           talkTicket.room = { ...initRoomBase, ...initRoomAdd };
         } else {
@@ -24,7 +28,8 @@ const chatReducer = (prevState, action) => {
         if (
           _talkTicketCollection[talkTicket.worry.key] &&
           _talkTicketCollection[talkTicket.worry.key].status.key === "talking"
-        ) { } else {
+        ) {
+        } else {
           if (talkTicket.status.key === "waiting") {
             talkTicket.room.messages = [geneCommonMessage("waiting")];
           } else if (talkTicket.status.key === "stopping") {
@@ -46,8 +51,10 @@ const chatReducer = (prevState, action) => {
 
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
-      if (/* 空objectはtrueを返すため */
-        isObject(_talkTicket.room.ws) && Object.keys(_talkTicket.room.ws).length
+      if (
+        /* 空objectはtrueを返すため */
+        isObject(_talkTicket.room.ws) &&
+        Object.keys(_talkTicket.room.ws).length
       ) {
         // WSの重複を防ぐ
         closeWsSafely(action.ws);
@@ -57,9 +64,9 @@ const chatReducer = (prevState, action) => {
 
         // initMessage付与。
         _talkTicket.room.messages = [
-          _talkTicket.isSpeaker ?
-            geneCommonMessage("initSpeak", _talkTicket.room.user.name) :
-            geneCommonMessage("initListen", _talkTicket.room.user.name)
+          _talkTicket.isSpeaker
+            ? geneCommonMessage("initSpeak", _talkTicket.room.user.name)
+            : geneCommonMessage("initListen", _talkTicket.room.user.name),
         ];
 
         _talkTicketCollection[action.talkTicketKey] = _talkTicket;
@@ -76,8 +83,10 @@ const chatReducer = (prevState, action) => {
 
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
-      if (/* 空objectはtrueを返すため */
-        isObject(_talkTicket.room.ws) && Object.keys(_talkTicket.room.ws).length
+      if (
+        /* 空objectはtrueを返すため */
+        isObject(_talkTicket.room.ws) &&
+        Object.keys(_talkTicket.room.ws).length
       ) {
         // WSの重複を防ぐ
         closeWsSafely(action.ws);
@@ -85,7 +94,7 @@ const chatReducer = (prevState, action) => {
       } else {
         _talkTicket.room.ws = action.ws;
         _talkTicket.room.messages.forEach((message, index) => {
-          _talkTicket.room.messages[index].time = new Date(message.time)
+          _talkTicket.room.messages[index].time = new Date(message.time);
         });
         _talkTicket.room.offlineMessages = [];
 
@@ -99,12 +108,12 @@ const chatReducer = (prevState, action) => {
 
     case "RESTART_TALK_ONLY_MESSAGE":
       /** トーク再接続時に実行(相手が退出済みのみ). messagesのtimeのインスタンス化 & offlineMessages = [].
-      * @param {Object} action [type, talkTicketKey] */
+       * @param {Object} action [type, talkTicketKey] */
 
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
       _talkTicket.room.messages.forEach((message, index) => {
-        _talkTicket.room.messages[index].time = new Date(message.time)
+        _talkTicket.room.messages[index].time = new Date(message.time);
       });
       _talkTicket.room.offlineMessages = [];
 
@@ -114,7 +123,6 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
-
 
     case "RECONNECT_TALK":
       /** wsをset. wsが切断され再接続された際に実行
@@ -148,11 +156,18 @@ const chatReducer = (prevState, action) => {
       const incrementNum_AM = action.isMe ? 0 : 1;
 
       _talkTicketCollection[action.talkTicketKey].room.messages = _messages;
-      _talkTicketCollection[action.talkTicketKey].room.unreadNum = prevUnreadNum_AM + incrementNum_AM;
+      _talkTicketCollection[action.talkTicketKey].room.unreadNum =
+        prevUnreadNum_AM + incrementNum_AM;
 
       // store message data. and report that it was stored safely to the server.
       asyncStoreTalkTicketCollection(_talkTicketCollection);
-      _talkTicket.room.ws.send(JSON.stringify({ type: "store", message_id: action.messageID, token: action.token }))
+      _talkTicket.room.ws.send(
+        JSON.stringify({
+          type: "store",
+          message_id: action.messageID,
+          token: action.token,
+        })
+      );
 
       return {
         ...prevState,
@@ -168,8 +183,12 @@ const chatReducer = (prevState, action) => {
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
 
       const prevOfflineMessages = _talkTicket.room.offlineMessages;
-      _offlineMessages = prevOfflineMessages.filter(elm => elm.id !== action.messageID);
-      _talkTicketCollection[action.talkTicketKey].room.offlineMessages = _offlineMessages;
+      _offlineMessages = prevOfflineMessages.filter(
+        (elm) => elm.id !== action.messageID
+      );
+      _talkTicketCollection[
+        action.talkTicketKey
+      ].room.offlineMessages = _offlineMessages;
 
       asyncStoreTalkTicketCollection(_talkTicketCollection);
       return {
@@ -189,7 +208,7 @@ const chatReducer = (prevState, action) => {
           message: elm.message,
           isMe: elm.is_me,
           time: isString(elm.time) ? new Date(elm.time) : elm.time,
-        }
+        };
       });
 
       _talkTicketCollection = prevState.talkTicketCollection;
@@ -198,12 +217,14 @@ const chatReducer = (prevState, action) => {
       _messages = _talkTicket.room.messages.concat(messages);
       const prevUnreadNum_MM = _talkTicket.room.unreadNum;
       _talkTicketCollection[action.talkTicketKey].room.messages = _messages;
-      _talkTicketCollection[action.talkTicketKey].room.unreadNum = prevUnreadNum_MM + incrementNum_MM;
-
+      _talkTicketCollection[action.talkTicketKey].room.unreadNum =
+        prevUnreadNum_MM + incrementNum_MM;
 
       // store message data. and report that it was stored safely to the server.
       asyncStoreTalkTicketCollection(_talkTicketCollection);
-      _talkTicket.room.ws.send(JSON.stringify({ type: "store_by_room", token: action.token }))
+      _talkTicket.room.ws.send(
+        JSON.stringify({ type: "store_by_room", token: action.token })
+      );
 
       return {
         ...prevState,
@@ -219,7 +240,9 @@ const chatReducer = (prevState, action) => {
         _talkTicketCollection = prevState.talkTicketCollection;
         _talkTicket = _talkTicketCollection[action.talkTicketKey];
 
-        _messages = _talkTicket.room.messages.concat([geneCommonMessage("alert")]);
+        _messages = _talkTicket.room.messages.concat([
+          geneCommonMessage("alert"),
+        ]);
         _talkTicketCollection[action.talkTicketKey].room.messages = _messages;
 
         asyncStoreTalkTicketCollection(_talkTicketCollection);
@@ -236,7 +259,16 @@ const chatReducer = (prevState, action) => {
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
 
-      _talkTicket.room.messages = [..._talkTicket.room.messages, ...[geneCommonMessage("end", _talkTicket.room.user.name, Boolean(action.timeOut))]];
+      _talkTicket.room.messages = [
+        ..._talkTicket.room.messages,
+        ...[
+          geneCommonMessage(
+            "end",
+            _talkTicket.room.user.name,
+            Boolean(action.timeOut)
+          ),
+        ],
+      ];
       _talkTicket.room.offlineMessages = [];
       _talkTicket.room.isEnd = true;
       closeWsSafely(_talkTicket.room.ws);
@@ -261,8 +293,12 @@ const chatReducer = (prevState, action) => {
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
 
-      _offlineMessages = _talkTicket.room.offlineMessages.concat([offlineMessage]);
-      _talkTicketCollection[action.talkTicketKey].room.offlineMessages = _offlineMessages;
+      _offlineMessages = _talkTicket.room.offlineMessages.concat([
+        offlineMessage,
+      ]);
+      _talkTicketCollection[
+        action.talkTicketKey
+      ].room.offlineMessages = _offlineMessages;
 
       asyncStoreTalkTicketCollection(_talkTicketCollection);
       return {
@@ -290,7 +326,7 @@ const chatReducer = (prevState, action) => {
 
     case "OVERWRITE_TALK_TICKET":
       /** 強制的にtalkTicketを上書き. 既存のtalkTicketが削除されるので、トークが完全に終了している場合のみに使用。
-      * @param {Object} action [type, talkTicket] */
+       * @param {Object} action [type, talkTicket] */
 
       _talkTicketCollection = prevState.talkTicketCollection;
       _talkTicket = action.talkTicket;
@@ -315,13 +351,17 @@ const chatReducer = (prevState, action) => {
 
     case "REMOVE_TALK_TICKETS":
       /** talkTicketsを削除
-      * @param {Object} action [type, talkTicketKeys] */
+       * @param {Object} action [type, talkTicketKeys] */
 
       _talkTicketCollection = prevState.talkTicketCollection;
 
-      action.talkTicketKeys.forEach(talkTicketKey => {
+      action.talkTicketKeys.forEach((talkTicketKey) => {
         _talkTicket = _talkTicketCollection[talkTicketKey];
-        if (isObject(_talkTicket.room?.ws) && Object.keys(_talkTicket.room?.ws).length) { // null || {} の場合があり得る
+        if (
+          isObject(_talkTicket.room?.ws) &&
+          Object.keys(_talkTicket.room?.ws).length
+        ) {
+          // null || {} の場合があり得る
           closeWsSafely(_talkTicket.room.ws);
         }
         delete _talkTicketCollection[talkTicketKey];
@@ -332,7 +372,6 @@ const chatReducer = (prevState, action) => {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
       };
-
 
     default:
       console.warn(`Not found "${action.type}" action.type.`);
@@ -365,11 +404,15 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
   switch (type) {
     case "initSpeak":
       message["id"] = 0;
-      message["message"] = `話し相手が見つかりました！${user_name}さんに話を聞いてもらいましょう。`;
+      message[
+        "message"
+      ] = `話し相手が見つかりました！${user_name}さんに話を聞いてもらいましょう。`;
       break;
     case "initListen":
       message["id"] = 0;
-      message["message"] = `話し相手が見つかりました！${user_name}さんのお話を聞いてあげましょう。`;
+      message[
+        "message"
+      ] = `話し相手が見つかりました！${user_name}さんのお話を聞いてあげましょう。`;
       break;
     case "alert":
       message["id"] = 2;
@@ -378,16 +421,19 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
     case "end":
       message["id"] = -1;
       if (timeOut) {
-        message["message"] = "トークが開始されてから2週間が経過したため、自動退室されました。右上のボタンからトークを更新または終了してください。";
+        message["message"] =
+          "トークが開始されてから2週間が経過したため、自動退室されました。右上のボタンからトークを更新または終了してください。";
       } else {
-        message["message"] = `${user_name}さんが退室しました。右上のボタンからトークを更新または終了してください。`;
+        message[
+          "message"
+        ] = `${user_name}さんが退室しました。右上のボタンからトークを更新または終了してください。`;
       }
       break;
 
     case "waiting":
-      const now = new Date()
+      const now = new Date();
       const hour = now.getHours();
-      const min = ((now.getMinutes() < 10 ? '0' : '') + now.getMinutes())
+      const min = (now.getMinutes() < 10 ? "0" : "") + now.getMinutes();
       message["id"] = 0;
       message["message"] = `話し相手を探し中...。（最終更新：${hour}:${min}）`;
       break;
@@ -397,7 +443,7 @@ const geneCommonMessage = (type, user_name = "", timeOut = false) => {
       break;
   }
   return message;
-}
+};
 
 const ChatStateContext = createContext({
   totalUnreadNum: 0,

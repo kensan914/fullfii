@@ -1,6 +1,9 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncStoreJson, asyncRemoveItem, closeWsSafely } from "../modules/support";
-
+import {
+  asyncStoreJson,
+  asyncRemoveItem,
+  closeWsSafely,
+} from "../modules/support";
 
 const NotificationReducer = (prevState, action) => {
   const notifications = prevState.notifications.concat();
@@ -27,20 +30,23 @@ const NotificationReducer = (prevState, action) => {
 
       let isDuplicate = false;
       let unreadNum = 0;
-      const notificationsIDObj = [...notifications, ...action.notifications]
-        .reduce((obj, notification) => {
-          if (obj[notification.id]) {
-            // 重複発見
-            isDuplicate = true;
-          } else {
-            if (!notification.read) unreadNum += 1;
-          }
-          obj[notification.id] = notification;
-          return obj;
-        }, {});
+      const notificationsIDObj = [
+        ...notifications,
+        ...action.notifications,
+      ].reduce((obj, notification) => {
+        if (obj[notification.id]) {
+          // 重複発見
+          isDuplicate = true;
+        } else {
+          if (!notification.read) unreadNum += 1;
+        }
+        obj[notification.id] = notification;
+        return obj;
+      }, {});
       let mergedNotifications = Object.values(notificationsIDObj);
       mergedNotifications.sort((a, b) => {
-        const dateA = new Date(a.date), dateB = new Date(b.date);
+        const dateA = new Date(a.date),
+          dateB = new Date(b.date);
         if (dateA > dateB) return -1;
         if (dateA < dateB) return 1;
         return 0;
@@ -68,7 +74,13 @@ const NotificationReducer = (prevState, action) => {
           }
         }
         if (unreadIDList.length > 0) {
-          prevState.ws.send(JSON.stringify({ type: "read", notification_ids: unreadIDList, token: action.token }));
+          prevState.ws.send(
+            JSON.stringify({
+              type: "read",
+              notification_ids: unreadIDList,
+              token: action.token,
+            })
+          );
           tempNotifications = notifications;
         }
       }
@@ -94,7 +106,7 @@ const NotificationReducer = (prevState, action) => {
       }
 
     case "SET_WS":
-      /** set ws。 もしwsにすでにwsオブジェクトがあれば, closeし上書きする。 
+      /** set ws。 もしwsにすでにwsオブジェクトがあれば, closeし上書きする。
        * @param {Object} action [type, ws] */
 
       if (prevState.ws !== null) {
@@ -143,12 +155,15 @@ export const useNotificationDispatch = () => {
 };
 
 export const NotificationProvider = ({ children, notifications }) => {
-  const [notificationState, notificationDispatch] = useReducer(NotificationReducer, {
-    notifications: notifications ? notifications : [],
-    unreadNum: getUnreadNum(notifications ? notifications : []),
-    tempNotifications: [],
-    ws: null,
-  });
+  const [notificationState, notificationDispatch] = useReducer(
+    NotificationReducer,
+    {
+      notifications: notifications ? notifications : [],
+      unreadNum: getUnreadNum(notifications ? notifications : []),
+      tempNotifications: [],
+      ws: null,
+    }
+  );
 
   return (
     <NotificationStateContext.Provider value={notificationState}>
@@ -165,4 +180,4 @@ const getUnreadNum = (notifications) => {
     if (!notification.read) unreadNum += 1;
   }
   return unreadNum;
-}
+};

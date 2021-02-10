@@ -1,9 +1,11 @@
-import { useAuthDispatch, useAuthState } from "./AuthContext"
-import { useChatDispatch, useChatState } from "./ChatContext"
-import { useNotificationDispatch, useNotificationState } from "./NotificationContext"
-import { useProductDispatch, useProductState } from "./ProductContext"
-import { useProfileDispatch, useProfileState } from "./ProfileContext"
-
+import { useAuthDispatch, useAuthState } from "./AuthContext";
+import { useChatDispatch, useChatState } from "./ChatContext";
+import {
+  useNotificationDispatch,
+  useNotificationState,
+} from "./NotificationContext";
+import { useProductDispatch, useProductState } from "./ProductContext";
+import { useProfileDispatch, useProfileState } from "./ProfileContext";
 
 const useAllContext = () => {
   const dispatches = {
@@ -12,16 +14,16 @@ const useAllContext = () => {
     notificationDispatch: useNotificationDispatch(),
     chatDispatch: useChatDispatch(),
     productDispatch: useProductDispatch(),
-  }
+  };
   const states = {
     authState: useAuthState(),
     profileState: useProfileState(),
     notificationState: useNotificationState(),
     chatState: useChatState(),
     productState: useProductState(),
-  }
+  };
 
   return [states, dispatches];
-}
+};
 
 export default useAllContext;

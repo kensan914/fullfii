@@ -14,7 +14,6 @@ import { useAuthDispatch } from "../contexts/AuthContext";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
 
-
 const { width, height } = Dimensions.get("screen");
 
 export const CommonMessage = (props) => {
@@ -22,7 +21,7 @@ export const CommonMessage = (props) => {
   return (
     <Block style={styles.commonMessage}>
       <Text
-        style={{ alignSelf: "center", lineHeight: 18, }}
+        style={{ alignSelf: "center", lineHeight: 18 }}
         bold
         size={14}
         color="#F69896"
@@ -31,7 +30,7 @@ export const CommonMessage = (props) => {
       </Text>
     </Block>
   );
-}
+};
 
 export const TalkMenuButton = (props) => {
   const { talkTicketKey } = props;
@@ -54,10 +53,10 @@ export const TalkMenuButton = (props) => {
           talkTicketKey={talkTicketKey}
           EndTalkScreen={EndTalkScreen}
         />
-      </TouchableOpacity >
+      </TouchableOpacity>
     </>
   );
-}
+};
 
 export const EndTalkScreen = (props) => {
   const { isOpen, roomId, token, closeChatModal } = props;
@@ -65,41 +64,45 @@ export const EndTalkScreen = (props) => {
   const authDispatch = useAuthDispatch();
   const profileState = useProfileState();
 
-  const { request } = useAxios(URLJoin(BASE_URL, "rooms/", roomId, "close/"), "post", {
-    data: {
-      has_thunks: true,
-    },
-    thenCallback: res => {
-      closeChatModal();
-      authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
-
-      if (!isExpo) {
-        AdMobInterstitial.setAdUnitID(ADMOB_UNIT_ID_AFTER_THX);
-        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-        AdMobInterstitial.requestAd()
-          .then(() => {
-            AdMobInterstitial.showAd();
-          })
-          .catch(e => {
-            console.error(e)
-          })
-          .finally(() => {
-            authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-          });
-      } else {
-        authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-      }
-    },
-    catchCallback: err => {
-      if (err.response.status === 404) {
-        alert("ありがとうの送信に失敗しました。");
+  const { request } = useAxios(
+    URLJoin(BASE_URL, "rooms/", roomId, "close/"),
+    "post",
+    {
+      data: {
+        has_thunks: true,
+      },
+      thenCallback: (res) => {
         closeChatModal();
-        authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-      }
-    },
-    token: token,
-    limitRequest: 1,
-  });
+        authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
+
+        if (!isExpo) {
+          AdMobInterstitial.setAdUnitID(ADMOB_UNIT_ID_AFTER_THX);
+          AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+          AdMobInterstitial.requestAd()
+            .then(() => {
+              AdMobInterstitial.showAd();
+            })
+            .catch((e) => {
+              console.error(e);
+            })
+            .finally(() => {
+              authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+            });
+        } else {
+          authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+        }
+      },
+      catchCallback: (err) => {
+        if (err.response.status === 404) {
+          alert("ありがとうの送信に失敗しました。");
+          closeChatModal();
+          authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+        }
+      },
+      token: token,
+      limitRequest: 1,
+    }
+  );
 
   const renderFirstPage = () => {
     const animation = useRef(null);
@@ -113,7 +116,7 @@ export const EndTalkScreen = (props) => {
           request();
         }, 800);
       }
-    }
+    };
     const pushSkip = () => {
       logEvent("skip_thx_button", {}, profileState);
       request({
@@ -121,16 +124,32 @@ export const EndTalkScreen = (props) => {
           has_thunks: false,
         },
       });
-    }
+    };
 
     return (
-      <Block style={styles.endTalkContainer} >
+      <Block style={styles.endTalkContainer}>
         <Block style={styles.endTalkHeader}>
-          <Text bold size={26} color="gray">トークを終了しました</Text>
+          <Text bold size={26} color="gray">
+            トークを終了しました
+          </Text>
         </Block>
         <Block style={styles.endTalkContents}>
-          <Block style={{ position: "relative", width: width, height: "100%", alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ width: "55%", position: "absolute", top: 0 }} size={20} color="gray">ハートをタップして、話をしてくれた方にありがとうを伝えましょう</Text>
+          <Block
+            style={{
+              position: "relative",
+              width: width,
+              height: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text
+              style={{ width: "55%", position: "absolute", top: 0 }}
+              size={20}
+              color="gray"
+            >
+              ハートをタップして、話をしてくれた方にありがとうを伝えましょう
+            </Text>
             <LottieView
               ref={animation}
               style={{
@@ -140,12 +159,26 @@ export const EndTalkScreen = (props) => {
               loop={false}
               source={require("../../assets/animations/1087-heart.json")}
             />
-            <Button round shadowless color="transparent" style={{ position: "absolute", width: 100, height: 100 }} onPress={pushThunks} ></Button>
+            <Button
+              round
+              shadowless
+              color="transparent"
+              style={{ position: "absolute", width: 100, height: 100 }}
+              onPress={pushThunks}
+            ></Button>
           </Block>
         </Block>
         <Block style={styles.endTalkFooter}>
-          <Button size="small" round shadowless color="lightgray" onPress={pushSkip}>
-            <Text bold color="white" size={18}>スキップ</Text>
+          <Button
+            size="small"
+            round
+            shadowless
+            color="lightgray"
+            onPress={pushSkip}
+          >
+            <Text bold color="white" size={18}>
+              スキップ
+            </Text>
           </Button>
         </Block>
       </Block>
@@ -153,10 +186,7 @@ export const EndTalkScreen = (props) => {
   };
 
   return (
-    <Modal
-      backdropOpacity={0.3}
-      isVisible={isOpen}
-      style={styles.endTalkModal}>
+    <Modal backdropOpacity={0.3} isVisible={isOpen} style={styles.endTalkModal}>
       <ScrollView
         ref={scrollView}
         style={styles.endTalkScrollView}
@@ -169,7 +199,7 @@ export const EndTalkScreen = (props) => {
       </ScrollView>
     </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
   commonMessage: {

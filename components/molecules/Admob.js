@@ -1,7 +1,6 @@
 import React from "react";
 import { AdMobBanner } from "react-native-admob";
 
-
 const Admob = (props) => {
   const { adSize, adUnitID } = props;
 
@@ -10,10 +9,9 @@ const Admob = (props) => {
       adSize={adSize}
       adUnitID={adUnitID}
       testDevices={[AdMobBanner.simulatorId]}
-      onAdFailedToLoad={error => console.error(error)}
+      onAdFailedToLoad={(error) => console.error(error)}
     />
   );
-}
-
+};
 
 export default Admob;

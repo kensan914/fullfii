@@ -10,7 +10,7 @@ const IconGalioExtra = createIconSetFromIcoMoon(GalioConfig, "GalioExtra");
 export default class IconExtra extends React.Component {
   state = {
     fontLoaded: false,
-  }
+  };
 
   async componentDidMount() {
     await Font.loadAsync({ GalioExtra: GalioExtra });

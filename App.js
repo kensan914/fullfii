@@ -12,7 +12,11 @@ enableScreens();
 import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
-import { asyncGetItem, asyncGetJson, asyncRemoveItem } from "./components/modules/support";
+import {
+  asyncGetItem,
+  asyncGetJson,
+  asyncRemoveItem,
+} from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { NotificationProvider } from "./components/contexts/NotificationContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
@@ -22,7 +26,6 @@ import { ProductProvider } from "./components/contexts/ProductContext";
 import { LogBox } from "react-native";
 // import usePushNotification from "./components/modules/firebase/pushNotification";
 
-
 LogBox.ignoreAllLogs(true);
 
 const assetImages = {
@@ -31,7 +34,7 @@ const assetImages = {
 };
 
 function cacheImages(images) {
-  return images.map(image => {
+  return images.map((image) => {
     if (typeof image === "string") {
       return Image.prefetch(image);
     } else {
@@ -46,31 +49,33 @@ const App = (props) => {
   //   console.error(deviceToken);
   // }, [deviceToken]);
 
-
-  const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);
+  const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
+    false
+  );
   const [assets, setAssets] = useState({});
 
   const loadResourcesAsync = async () => {
-    return Promise.all([
-      ...cacheImages(Object.values(assetImages)),
-    ]);
+    return Promise.all([...cacheImages(Object.values(assetImages))]);
   };
 
   useEffect(() => {
-    loadResourcesAsync()
-      .then((assetList) => {
-        const downloadedAssets = {};
-        assetList.forEach(elm => {
-          downloadedAssets[elm.name] = elm;
-        });
-        setAssets(downloadedAssets);
-        setIsFinishLoadingResources(true);
+    loadResourcesAsync().then((assetList) => {
+      const downloadedAssets = {};
+      assetList.forEach((elm) => {
+        downloadedAssets[elm.name] = elm;
       });
+      setAssets(downloadedAssets);
+      setIsFinishLoadingResources(true);
+    });
   }, []);
 
-  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} assets={assets} />;
-}
-
+  return (
+    <RootNavigator
+      isFinishLoadingResources={isFinishLoadingResources}
+      assets={assets}
+    />
+  );
+};
 
 const RootNavigator = (props) => {
   const [status, setStatus] = useState();
@@ -98,7 +103,9 @@ const RootNavigator = (props) => {
       const _notifications = await asyncGetJson("notifications");
       setNotifications(_notifications ? _notifications : null);
       const _talkTicketCollection = await asyncGetJson("talkTicketCollection");
-      setTalkTicketCollection(_talkTicketCollection ? _talkTicketCollection : null);
+      setTalkTicketCollection(
+        _talkTicketCollection ? _talkTicketCollection : null
+      );
     })();
 
     // send event to firebase
@@ -129,7 +136,9 @@ const RootNavigator = (props) => {
                 <ProductProvider token={token}>
                   <GalioProvider theme={materialTheme}>
                     <Manager>
-                      {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                      {Platform.OS === "ios" && (
+                        <StatusBar barStyle="default" />
+                      )}
                       <Screens {...props} />
                     </Manager>
                   </GalioProvider>
@@ -141,7 +150,6 @@ const RootNavigator = (props) => {
       </NavigationContainer>
     );
   }
-}
-
+};
 
 export default App;

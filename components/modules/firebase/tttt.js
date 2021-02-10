@@ -1,13 +1,20 @@
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, Clipboard, Alert } from 'react-native';
-import firebase from 'react-native-firebase';
+import React, { Component } from "react";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  Clipboard,
+  Alert,
+} from "react-native";
+import firebase from "react-native-firebase";
 
 const messaging = firebase.messaging();
 const notifications = firebase.notifications();
 
 export default class App extends Component {
   state = {
-    deviceToken: null
+    deviceToken: null,
   };
 
   componentDidMount() {
@@ -15,7 +22,8 @@ export default class App extends Component {
   }
 
   componentWillUnmount() {
-    this.listenerRemovingFunctions && this.listenerRemovingFunctions.forEach(remove => remove());
+    this.listenerRemovingFunctions &&
+      this.listenerRemovingFunctions.forEach((remove) => remove());
   }
 
   componentDidUpdate() {
@@ -41,18 +49,22 @@ export default class App extends Component {
     this.setState({ deviceToken });
     this.listenerRemovingFunctions = [
       messaging.onTokenRefresh(this.onFcmTokenRefresh),
-      notifications.onNotification(this.handleNotification('onNotification')),
-      notifications.onNotificationOpened(this.handleNotification('onNotificationOpened')),
-      notifications.onNotificationDisplayed(this.handleNotification('onNotificationDisplayed')),
-      messaging.onMessage(this.onMessage)
+      notifications.onNotification(this.handleNotification("onNotification")),
+      notifications.onNotificationOpened(
+        this.handleNotification("onNotificationOpened")
+      ),
+      notifications.onNotificationDisplayed(
+        this.handleNotification("onNotificationDisplayed")
+      ),
+      messaging.onMessage(this.onMessage),
     ];
     const notificationOpen = await notifications.getInitialNotification();
     if (notificationOpen) {
-      this.handleNotification('initial')(notificationOpen);
+      this.handleNotification("initial")(notificationOpen);
     }
     const channel = new firebase.notifications.Android.Channel(
-      'local',
-      'local notification',
+      "local",
+      "local notification",
       firebase.notifications.Android.Importance.Max
     );
     await notifications.android.createChannel(channel);
@@ -63,28 +75,26 @@ export default class App extends Component {
   };
 
   onMessage = (message) => {
-    Alert.alert('MESSAGE', JSON.stringify(message));
-    this.setState({ notificationType: 'message' });
+    Alert.alert("MESSAGE", JSON.stringify(message));
+    this.setState({ notificationType: "message" });
   };
 
   handleNotification = (type) => {
     return (notification) => {
       console.log(type, notification);
-      if (type === 'onNotification') {
-        if (Platform.OS === 'android') {
-          const localNotification = notification
-            .android.setChannelId('local')
-            .android.setSmallIcon('ic_stat_ic_notification')
-            .android.setColor('#1A73E8')
+      if (type === "onNotification") {
+        if (Platform.OS === "android") {
+          const localNotification = notification.android
+            .setChannelId("local")
+            .android.setSmallIcon("ic_stat_ic_notification")
+            .android.setColor("#1A73E8")
             .android.setPriority(firebase.notifications.Android.Priority.High);
-          notifications
-            .displayNotification(localNotification);
-        } else if (Platform.OS === 'ios') {
-          notifications
-            .displayNotification(notification);
+          notifications.displayNotification(localNotification);
+        } else if (Platform.OS === "ios") {
+          notifications.displayNotification(notification);
         }
       }
-      Alert.alert('NOTIFICATION', type);
+      Alert.alert("NOTIFICATION", type);
       this.setState({ notificationType: type });
     };
   };
@@ -103,8 +113,8 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF'
-  }
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5FCFF",
+  },
 });

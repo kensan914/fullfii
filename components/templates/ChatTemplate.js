@@ -1,5 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, Image, Dimensions, StyleSheet, FlatList, KeyboardAvoidingView, TouchableWithoutFeedback, TouchableNativeFeedback, TouchableOpacity } from "react-native";
+import {
+  View,
+  Image,
+  Dimensions,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  TouchableNativeFeedback,
+  TouchableOpacity,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Input, Block, Text, Button, theme } from "galio-framework";
 import Icon from "../atoms/Icon";
@@ -13,9 +23,17 @@ import { useProfileState } from "../contexts/ProfileContext";
 
 const { width } = Dimensions.get("screen");
 
-
 const ChatTemplate = (props) => {
-  const { user, messages, appendOfflineMessage, ws, sendWsMessage, token, talkTicketKey, isEnd } = props;
+  const {
+    user,
+    messages,
+    appendOfflineMessage,
+    ws,
+    sendWsMessage,
+    token,
+    talkTicketKey,
+    isEnd,
+  } = props;
 
   const messagesScroll = useRef(null);
   const [message, setMessage] = useState("");
@@ -32,19 +50,21 @@ const ChatTemplate = (props) => {
     chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
   }, [messages.length]);
 
-  const itemLayout = (data, index) => (
-    { length: (messages.length - 1), offset: 32 * index, index }
-  )
+  const itemLayout = (data, index) => ({
+    length: messages.length - 1,
+    offset: 32 * index,
+    index,
+  });
 
   const handleScroll = () => {
     setTimeout(() => {
       messagesScroll.current?.scrollToOffset({ offset: height });
     }, 1);
-  }
+  };
 
   const onContentSizeChange = (width, height) => {
     setHeight(height);
-  }
+  };
 
   const renderMessage = (message, index) => {
     if (message.common) {
@@ -57,36 +77,50 @@ const ChatTemplate = (props) => {
       return (
         <Block key={index}>
           <Block row space={message.isMe ? "between" : null}>
-            {message.isMe ?
-              <Image source={null} style={[styles.avatar, styles.shadow]} /> :
-              <TouchableOpacity onPress={() => setIsOpenProfile(true)} >
-                <Avatar size={40} image={user.image} style={[styles.avatar, styles.shadow]} />
+            {message.isMe ? (
+              <Image source={null} style={[styles.avatar, styles.shadow]} />
+            ) : (
+              <TouchableOpacity onPress={() => setIsOpenProfile(true)}>
+                <Avatar
+                  size={40}
+                  image={user.image}
+                  style={[styles.avatar, styles.shadow]}
+                />
               </TouchableOpacity>
-            }
+            )}
             <Block style={styles.messageCardWrapper}>
-              {!message.isMe ?
-                <Block style={[styles.messageCard, { backgroundColor: "lavenderblush" }]}>
+              {!message.isMe ? (
+                <Block
+                  style={[
+                    styles.messageCard,
+                    { backgroundColor: "lavenderblush" },
+                  ]}
+                >
                   <Text>{message.message}</Text>
-                </Block> :
+                </Block>
+              ) : (
                 <LinearGradient
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   colors={["#F69896", "#F69896"]}
-                  style={[styles.messageCard, styles.shadow]}>
+                  style={[styles.messageCard, styles.shadow]}
+                >
                   <Text color={theme.COLORS.WHITE}>{message.message}</Text>
                 </LinearGradient>
-              }
+              )}
               <Block right>
-                {message.time &&
-                  <Text style={styles.time}>{fmtfromDateToStr(message.time, "hh:mm")}</Text>
-                }
+                {message.time && (
+                  <Text style={styles.time}>
+                    {fmtfromDateToStr(message.time, "hh:mm")}
+                  </Text>
+                )}
               </Block>
             </Block>
           </Block>
         </Block>
       );
     }
-  }
+  };
 
   const renderMessages = () => {
     const insetBottom = messages.length * (theme.SIZES.BASE * 6.5) + 64; // total messages x message height
@@ -94,7 +128,7 @@ const ChatTemplate = (props) => {
       <FlatList
         ref={messagesScroll}
         data={messages}
-        keyExtractor={item => `${item.id}`}
+        keyExtractor={(item) => `${item.id}`}
         showsVerticalScrollIndicator={false}
         getItemLayout={itemLayout}
         contentContainerStyle={[styles.messagesWrapper]}
@@ -102,12 +136,12 @@ const ChatTemplate = (props) => {
         onContentSizeChange={onContentSizeChange}
         keyExtractor={(item, index) => index.toString()}
       />
-    )
-  }
+    );
+  };
 
   const handleMessageChange = (text) => {
     setMessage(text);
-  }
+  };
 
   const handleMessage = () => {
     if (typeof message !== "undefined" && message.length > 0) {
@@ -118,21 +152,36 @@ const ChatTemplate = (props) => {
         alert("話し相手が見つかりません。");
         return;
       }
-      logEvent("send_message_button", {
-        message: message,
-        talkTicketKey: talkTicketKey,
-      }, profileState);
+      logEvent(
+        "send_message_button",
+        {
+          message: message,
+          talkTicketKey: talkTicketKey,
+        },
+        profileState
+      );
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
       sendWsMessage(ws, messageID, message, token);
     }
-  }
+  };
 
   const messageForm = () => {
     return (
-      <View style={[styles.messageFormContainer, { height: inputHeight + theme.SIZES.BASE * 4.6 }]}>
-        <Block flex row middle space="evenly" style={{ alignItems: "flex-end", paddingLeft: 15 }} >
+      <View
+        style={[
+          styles.messageFormContainer,
+          { height: inputHeight + theme.SIZES.BASE * 4.6 },
+        ]}
+      >
+        <Block
+          flex
+          row
+          middle
+          space="evenly"
+          style={{ alignItems: "flex-end", paddingLeft: 15 }}
+        >
           <Input
             borderless
             color="#9fa5aa"
@@ -146,7 +195,7 @@ const ChatTemplate = (props) => {
             onContentSizeChange={(event) => {
               setInputHeight(event.nativeEvent.contentSize.height);
             }}
-            onChangeText={text => handleMessageChange(text)}
+            onChangeText={(text) => handleMessageChange(text)}
           />
           <Button
             round
@@ -154,13 +203,14 @@ const ChatTemplate = (props) => {
             radius={28}
             opacity={0.9}
             style={styles.sedButton}
-            onPress={handleMessage}>
+            onPress={handleMessage}
+          >
             <Icon size={20} name="send" family="font-awesome" color="#F69896" />
           </Button>
         </Block>
       </View>
     );
-  }
+  };
 
   const [isOpenProfile, setIsOpenProfile] = useState(false);
   return (
@@ -169,30 +219,31 @@ const ChatTemplate = (props) => {
         enabled
         behavior="padding"
         style={{ flex: 1 }}
-        keyboardVerticalOffset={theme.SIZES.BASE * 3}>
+        keyboardVerticalOffset={theme.SIZES.BASE * 3}
+      >
         {renderMessages()}
         {messageForm()}
       </KeyboardAvoidingView>
 
-      {existUser ?
+      {existUser ? (
         <ProfileModal
           isOpen={isOpenProfile}
           setIsOpen={setIsOpenProfile}
           profile={user}
           talkTicket={chatState.talkTicketCollection[talkTicketKey]}
-        /> :
+        />
+      ) : (
         <></>
-      }
+      )}
     </Block>
   );
-}
+};
 
 export default ChatTemplate;
 
-
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   messageFormContainer: {
     maxHeight: theme.SIZES.BASE * 12 + 10,
@@ -240,7 +291,7 @@ const styles = StyleSheet.create({
     shadowColor: "rgba(0, 0, 0, 0.12)",
     shadowOffset: { width: 0, height: 7 },
     shadowRadius: 20,
-    shadowOpacity: 1
+    shadowOpacity: 1,
   },
   time: {
     fontSize: 11,

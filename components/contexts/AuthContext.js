@@ -1,6 +1,9 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { asyncStoreItem, asyncRemoveAll, asyncRemoveItem, asyncStoreJson } from "../modules/support";
-
+import {
+  asyncStoreItem,
+  asyncRemoveItem,
+  asyncStoreJson,
+} from "../modules/support";
 
 const authReducer = (prevState, action) => {
   let _status = prevState.status;
@@ -73,7 +76,7 @@ const authReducer = (prevState, action) => {
 
     case "SET_IS_SHOW_SPINNER":
       /** set isShowSpinner.
-        * @param {Object} action [type, value] */
+       * @param {Object} action [type, value] */
 
       return {
         ...prevState,

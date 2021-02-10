@@ -1,17 +1,11 @@
 import React, { createContext, useReducer, useContext, useEffect } from "react";
 import { BASE_URL } from "../../constants/env";
 import { useAxios } from "../modules/axios";
-import { asyncStoreJson, cvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
-
-
-// イントロステップの完了状態
-// const initIntroStep = {
-//   1: true,
-//   2: true,
-//   3: true,
-//   4: true,
-// };
-// Object.freeze(initIntroStep);
+import {
+  asyncStoreJson,
+  cvtKeyFromSnakeToCamel,
+  URLJoin,
+} from "../modules/support";
 
 const initProfile = {
   id: 0,
@@ -27,12 +21,10 @@ const initProfile = {
   scaleOfWorries: {},
   all: true,
   me: true,
-  birthday: { text: "", year: 0, month: 0, day: 0, },
+  birthday: { text: "", year: 0, month: 0, day: 0 },
   age: 0,
-  // introStep: { ...initIntroStep },
-}
+};
 Object.freeze(initProfile);
-
 
 const ProfileReducer = (prevState, action) => {
   let _profile;
@@ -41,7 +33,7 @@ const ProfileReducer = (prevState, action) => {
       /** profileをset
        * @param {Object} action [type, profile] */
 
-      _profile = { ...initProfile, ...cvtKeyFromSnakeToCamel(action.profile) }
+      _profile = { ...initProfile, ...cvtKeyFromSnakeToCamel(action.profile) };
       asyncStoreJson("profile", _profile);
       return {
         ...prevState,
@@ -96,7 +88,7 @@ export const ProfileProvider = ({ children, profile }) => {
 
   // fetch profile params
   useAxios(URLJoin(BASE_URL, "profile-params/"), "get", {
-    thenCallback: res => {
+    thenCallback: (res) => {
       profileDispatch({ type: "SET_PARAMS", profileParams: res.data });
     },
     shouldRequestDidMount: true,

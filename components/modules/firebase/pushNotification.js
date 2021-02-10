@@ -3,8 +3,6 @@ import { Platform, Alert } from "react-native";
 import firebase from "@react-native-firebase/app";
 import messaging from "@react-native-firebase/messaging";
 
-
-
 const usePushNotification = () => {
   const [messaging] = useState(firebase.messaging());
 
@@ -14,10 +12,10 @@ const usePushNotification = () => {
 
   useEffect(() => {
     initPushNotification();
-    return (() => {
+    return () => {
       listenerRemovingFunctions.current &&
         listenerRemovingFunctions.current.forEach((remove) => remove());
-    });
+    };
   }, []);
 
   const initPushNotification = async () => {
@@ -33,7 +31,7 @@ const usePushNotification = () => {
         console.log(e);
       }
     }
-  }
+  };
 
   const initFcm = async () => {
     const _deviceToken = await messaging.getToken();
@@ -43,8 +41,12 @@ const usePushNotification = () => {
     listenerRemovingFunctions.current = [
       messaging.onTokenRefresh(onFcmTokenRefresh),
       messaging.onNotification(handleNotification("onNotification")),
-      messaging.onNotificationOpened(handleNotification("onNotificationOpened")),
-      messaging.onNotificationDisplayed(handleNotification("onNotificationDisplayed")),
+      messaging.onNotificationOpened(
+        handleNotification("onNotificationOpened")
+      ),
+      messaging.onNotificationDisplayed(
+        handleNotification("onNotificationDisplayed")
+      ),
       messaging.onMessage(onMessage),
     ];
     console.log(1);
@@ -58,13 +60,12 @@ const usePushNotification = () => {
     const channel = new firebase.notifications.Android.Channel(
       "local",
       "local notification",
-      firebase.notifications.Android.Importance.Max,
+      firebase.notifications.Android.Importance.Max
     );
     console.log(4);
     await messaging.android.createChannel(channel);
     console.log(5);
   };
-
 
   const onFcmTokenRefresh = (_deviceToken) => {
     setDeviceToken(_deviceToken);
@@ -100,11 +101,9 @@ const usePushNotification = () => {
   };
 
   return [deviceToken, notificationType];
-}
-
+};
 
 export default usePushNotification;
-
 
 // d-Ba-1eavkDYv10jvPUqnk:APA91bEBzvfhqdmuNJmY2DRpUVZZp0RkV4rE_YoWNoAQW7wwZ1e6_hq7D_XgVxpsTxxE5dYhqo-YhitDzfxxBi3ZoD2lT0N5oiqEUyZZnXlJoG-RqSfWfIa36aMCCTpln6cP7aj2RE9T
 // d-Ba-1eavkDYv10jvPUqnk:APA91bEBzvfhqdmuNJmY2DRpUVZZp0RkV4rE_YoWNoAQW7wwZ1e6_hq7D_XgVxpsTxxE5dYhqo-YhitDzfxxBi3ZoD2lT0N5oiqEUyZZnXlJoG-RqSfWfIa36aMCCTpln6cP7aj2RE9T

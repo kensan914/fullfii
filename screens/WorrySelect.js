@@ -3,11 +3,8 @@ import { withNavigation } from "@react-navigation/compat";
 
 import WorrySelectTemplate from "../components/templates/WorrySelectTemplate";
 
-
 const WorrySelect = (props) => {
-  return (
-    <WorrySelectTemplate />
-  );
-}
+  return <WorrySelectTemplate />;
+};
 
 export default withNavigation(WorrySelect);

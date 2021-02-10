@@ -5,36 +5,29 @@ import { useNavigation } from "@react-navigation/native";
 
 import Header from "../components/organisms/Header";
 import HomeScreen from "../screens/Home";
-import ProfileScreen from "../screens/Profile";
 import ChatScreen from "../screens/Chat";
-import PlanScreen from "../screens/Plan";
 import ProfileEditorScreen from "../screens/ProfileEditor";
 import ProfileInputScreen from "../screens/ProfileInput";
 import SettingsScreen from "../screens/Settings";
-import SettingsInputScreen from "../screens/SettingsInput";
-import AppIntroScreen from "../screens/AppIntro";
 import SignUpScreen from "../screens/SignUp";
-import SignInScreen from "../screens/SignIn";
-import WorryScreen from "../screens/Worry";
-import WorryPostScreen from "../screens/WorryPost";
 import WorrySelectScreen from "../screens/WorrySelect";
-// import ModalTestScreen from "../screens/ModalTest";
-import { useAuthState, AUTHENTICATED, UNAUTHENTICATED } from "../components/contexts/AuthContext";
+import {
+  useAuthState,
+  AUTHENTICATED,
+} from "../components/contexts/AuthContext";
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useChatState } from "../components/contexts/ChatContext";
 import Spinner from "../components/atoms/Spinner";
 
-
 const { width, height } = Dimensions.get("screen");
 const Stack = createStackNavigator();
-
 
 const HomeStack = (props) => {
   const profileState = useProfileState();
   const chatState = useChatState();
 
   return (
-    <Stack.Navigator mode="card" headerMode="screen" >
+    <Stack.Navigator mode="card" headerMode="screen">
       <Stack.Screen
         name="Home"
         component={HomeScreen}
@@ -50,9 +43,10 @@ const HomeStack = (props) => {
                   navigation={navigation}
                   scene={scene}
                   profile={profileState.profile}
-                />);
-            }
-          }
+                />
+              );
+            },
+          };
         }}
       />
       <Stack.Screen
@@ -67,7 +61,7 @@ const HomeStack = (props) => {
               scene={scene}
               profile={profileState.profile}
             />
-          )
+          ),
         }}
       />
       <Stack.Screen
@@ -82,7 +76,7 @@ const HomeStack = (props) => {
               scene={scene}
               profile={profileState.profile}
             />
-          )
+          ),
         }}
       />
       <Stack.Screen
@@ -98,8 +92,9 @@ const HomeStack = (props) => {
                 navigation={navigation}
                 scene={scene}
                 profile={profileState.profile}
-              />);
-          }
+              />
+            );
+          },
         })}
       />
       <Stack.Screen
@@ -123,7 +118,7 @@ const HomeStack = (props) => {
                 />
               );
             },
-          }
+          };
         }}
       />
       <Stack.Screen
@@ -138,57 +133,52 @@ const HomeStack = (props) => {
                 navigation={navigation}
                 scene={scene}
                 profile={profileState.profile}
-              />);
-          }
+              />
+            );
+          },
         }}
       />
-    </Stack.Navigator >
+    </Stack.Navigator>
   );
-}
-
+};
 
 const AppStack = (props) => {
   const authState = useAuthState();
 
   return (
     <>
-      {authState.status === AUTHENTICATED ?
-        <Stack.Navigator mode="card" headerMode="" >
-
+      {authState.status === AUTHENTICATED ? (
+        <Stack.Navigator mode="card" headerMode="">
           <Stack.Screen name="Authenticated">
             {(props) => (
               <>
                 <HomeStack {...props} />
-                {authState.isShowSpinner &&
-                  <Spinner />
-                }
+                {authState.isShowSpinner && <Spinner />}
               </>
             )}
           </Stack.Screen>
-        </Stack.Navigator> :
-
+        </Stack.Navigator>
+      ) : (
         <Stack.Navigator
           // mode="card"
           mode="modal"
           headerMode=""
-          screenOptions={{
-            // gestureEnabled: false,  // backを可能に。
-          }}
+          screenOptions={
+            {
+              // gestureEnabled: false,  // backを可能に。
+            }
+          }
         >
-
-          {/* {(!authState.status || authState.status === UNAUTHENTICATED) && */}
           <Stack.Screen name="SignUp">
             {() => {
               const navigation = useNavigation();
-              return <SignUpScreen {...props} navigation={navigation} />
+              return <SignUpScreen {...props} navigation={navigation} />;
             }}
           </Stack.Screen>
-          {/* } */}
-          {/* <Stack.Screen name="S" component={SignUpScreen} /> */}
         </Stack.Navigator>
-      }
+      )}
     </>
   );
-}
+};
 
 export default AppStack;

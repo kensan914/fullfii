@@ -13,27 +13,45 @@ const Avatar = (props) => {
 
   if (!image) {
     return (
-      <Block style={[avatarStyle, style, { alignSelf: "center", justifyContent: "center", backgroundColor: "darkgray" }]} >
-        <Icon family="font-awesome" size={size} name="user-circle-o" color="whitesmoke" />
+      <Block
+        style={[
+          avatarStyle,
+          style,
+          {
+            alignSelf: "center",
+            justifyContent: "center",
+            backgroundColor: "darkgray",
+          },
+        ]}
+      >
+        <Icon
+          family="font-awesome"
+          size={size}
+          name="user-circle-o"
+          color="whitesmoke"
+        />
       </Block>
     );
   } else if (border) {
     const additionalSize = 10;
     return (
-      <Block style={[styles.avatarContainer, {
-        height: size + additionalSize,
-        width: size + additionalSize,
-        borderRadius: (size + additionalSize) / 2,
-      }]}>
+      <Block
+        style={[
+          styles.avatarContainer,
+          {
+            height: size + additionalSize,
+            width: size + additionalSize,
+            borderRadius: (size + additionalSize) / 2,
+          },
+        ]}
+      >
         <Image source={{ uri: image }} style={[avatarStyle, style]} />
       </Block>
     );
   } else {
-    return (
-      <Image source={{ uri: image }} style={[avatarStyle, style]} />
-    );
+    return <Image source={{ uri: image }} style={[avatarStyle, style]} />;
   }
-}
+};
 
 export default Avatar;
 

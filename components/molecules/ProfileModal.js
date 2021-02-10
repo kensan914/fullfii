@@ -4,17 +4,20 @@ import { Block, Text, theme, Button } from "galio-framework";
 import Modal from "react-native-modal";
 import * as WebBrowser from "expo-web-browser";
 
-import Avatar from "../atoms/Avatar"
+import Avatar from "../atoms/Avatar";
 import Icon from "../atoms/Icon";
 import { withNavigation } from "@react-navigation/compat";
 import { useProfileState } from "../contexts/ProfileContext";
 import ModalButton from "../atoms/ModalButton";
-import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
+import {
+  alertModal,
+  deepCvtKeyFromSnakeToCamel,
+  URLJoin,
+} from "../modules/support";
 import { useAxios } from "../modules/axios";
 import { BASE_URL, REPORT_URL } from "../../constants/env";
 import { useChatDispatch } from "../contexts/ChatContext";
 import { useAuthState } from "../contexts/AuthContext";
-
 
 /**
  *
@@ -28,21 +31,28 @@ const ProfileModal = (props) => {
 
   const authState = useAuthState();
   const chatDispatch = useChatDispatch();
-  const { request: requestReport } = useAxios(URLJoin(BASE_URL, "talk-ticket/", talkTicket?.id), "post", {
-    data: {
-      status: "waiting",
-    },
-    thenCallback: res => {
-      const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
-      (async () => {
-        await WebBrowser.openBrowserAsync(REPORT_URL);
-        chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket: newTalkTicket });
-        props.navigation.navigate("Home");
-      })();
-    },
-    token: authState.token,
-    limitRequest: 1,
-  });
+  const { request: requestReport } = useAxios(
+    URLJoin(BASE_URL, "talk-ticket/", talkTicket?.id),
+    "post",
+    {
+      data: {
+        status: "waiting",
+      },
+      thenCallback: (res) => {
+        const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
+        (async () => {
+          await WebBrowser.openBrowserAsync(REPORT_URL);
+          chatDispatch({
+            type: "OVERWRITE_TALK_TICKET",
+            talkTicket: newTalkTicket,
+          });
+          props.navigation.navigate("Home");
+        })();
+      },
+      token: authState.token,
+      limitRequest: 1,
+    }
+  );
   const onPressReport = () => {
     setCanPressBackdrop(false);
     alertModal({
@@ -56,23 +66,27 @@ const ProfileModal = (props) => {
       },
       cancelOnPress: () => setCanPressBackdrop(true),
     });
-  }
+  };
 
-  const { request: requestBlock } = useAxios(URLJoin(BASE_URL, "users/", user.id, "block/"), "patch", {
-    data: {
-      status: "waiting",
-    },
-    thenCallback: async res => {
-      alert(`${user.name}さんをブロックしました。`);
-    },
-    catchCallback: err => {
-      if (err.response.data.type === "have_already_blocked") {
-        alert(err.response.data.message);
-      }
-    },
-    token: authState.token,
-    limitRequest: 1,
-  });
+  const { request: requestBlock } = useAxios(
+    URLJoin(BASE_URL, "users/", user.id, "block/"),
+    "patch",
+    {
+      data: {
+        status: "waiting",
+      },
+      thenCallback: async (res) => {
+        alert(`${user.name}さんをブロックしました。`);
+      },
+      catchCallback: (err) => {
+        if (err.response.data.type === "have_already_blocked") {
+          alert(err.response.data.message);
+        }
+      },
+      token: authState.token,
+      limitRequest: 1,
+    }
+  );
   const onPressBlock = () => {
     alertModal({
       mainText: `${user.name}さんをブロックしますか？`,
@@ -85,7 +99,7 @@ const ProfileModal = (props) => {
       },
       cancelOnPress: () => setCanPressBackdrop(true),
     });
-  }
+  };
 
   const [canPressBackdrop, setCanPressBackdrop] = useState(true);
   return (
@@ -93,30 +107,43 @@ const ProfileModal = (props) => {
       backdropOpacity={0.3}
       isVisible={isOpen}
       onBackdropPress={() => {
-        if (canPressBackdrop || typeof canPressBackdrop === "undefined") setIsOpen(false);
+        if (canPressBackdrop || typeof canPressBackdrop === "undefined")
+          setIsOpen(false);
       }}
       style={styles.modal}
     >
       <Block style={styles.modalContents}>
         <Block row center style={{ marginTop: 24, marginHorizontal: 15 }}>
           <Block flex={0.4} center>
-            <Text bold size={15} color="dimgray">{user.name}</Text>
+            <Text bold size={15} color="dimgray">
+              {user.name}
+            </Text>
           </Block>
           <Block flex={0.4} center>
             <Avatar size={75} image={user.image} border={false} />
           </Block>
           <Block flex={0.4} center>
-            <Text bold size={15} color="dimgray">{user.job.label}</Text>
+            <Text bold size={15} color="dimgray">
+              {user.job.label}
+            </Text>
           </Block>
         </Block>
 
-        {user.me &&
-          <Block row center style={{ marginVertical: 28, }}>
+        {user.me && (
+          <Block row center style={{ marginVertical: 28 }}>
             <Block center column center>
-              <Text bold size={16} color="#333333">{user.numOfThunks}</Text>
+              <Text bold size={16} color="#333333">
+                {user.numOfThunks}
+              </Text>
               <Text muted size={15}>
-                <Icon name="heart" family="font-awesome" color="#F69896" size={15} />{" "}ありがとう
-                  </Text>
+                <Icon
+                  name="heart"
+                  family="font-awesome"
+                  color="#F69896"
+                  size={15}
+                />{" "}
+                ありがとう
+              </Text>
             </Block>
             {/* <Block flex={0.5} column center>
               <Text bold size={16} color="#333333">{user.plan.label}</Text>
@@ -125,13 +152,15 @@ const ProfileModal = (props) => {
                   </Text>
             </Block> */}
           </Block>
-        }
+        )}
 
         <Block center>
-          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{user.introduction}</Text>
+          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>
+            {user.introduction}
+          </Text>
         </Block>
 
-        {user.me ?
+        {user.me ? (
           <Block center>
             <Button
               round
@@ -144,11 +173,17 @@ const ProfileModal = (props) => {
               }}
             >
               <Text color="white" size={16}>
-                <Icon name="pencil" family="font-awesome" color="white" size={16} />{" "}プロフィールを編集する
-            </Text>
+                <Icon
+                  name="pencil"
+                  family="font-awesome"
+                  color="white"
+                  size={16}
+                />{" "}
+                プロフィールを編集する
+              </Text>
             </Button>
-          </Block> :
-
+          </Block>
+        ) : (
           <Block row center style={{ marginVertical: theme.SIZES.BASE * 2 }}>
             <Block flex={0.45} center>
               <ModalButton
@@ -168,16 +203,13 @@ const ProfileModal = (props) => {
               />
             </Block>
           </Block>
-        }
-
+        )}
       </Block>
-    </Modal >
+    </Modal>
   );
-}
-
+};
 
 export default withNavigation(ProfileModal);
-
 
 const styles = StyleSheet.create({
   modal: {

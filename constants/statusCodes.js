@@ -1,7 +1,5 @@
 export const CODE = Object.freeze({
-  HTTP: {
-
-  },
+  HTTP: {},
   WS: {
     UNAUTHORIZED: 4001,
   },

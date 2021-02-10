@@ -5,8 +5,7 @@ import * as Permissions from "expo-permissions";
 import { Linking } from "expo";
 import { alertModal } from "./support";
 
-
-const PHOTO = "@photo"
+const PHOTO = "@photo";
 
 export const onLoad = async () => {
   try {
@@ -18,7 +17,7 @@ export const onLoad = async () => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 export const onSave = async (photo) => {
   try {
@@ -27,11 +26,13 @@ export const onSave = async (photo) => {
   } catch (e) {
     console.log(e);
   }
-}
+};
 
 export const getPermissionAsync = async () => {
   if (Constants.platform.ios) {
-    const { status } = await ImagePicker.requestCameraRollPermissionsAsync(Permissions.CAMERA_ROLL);
+    const { status } = await ImagePicker.requestCameraRollPermissionsAsync(
+      Permissions.CAMERA_ROLL
+    );
     if (status !== "granted") {
       alertModal({
         mainText: "写真への許可が無効になっています",
