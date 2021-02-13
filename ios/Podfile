@@ -37,13 +37,13 @@ target 'fullfii' do
   pod 'DoubleConversion', :podspec => "#{rnPrefix}/third-party-podspecs/DoubleConversion.podspec"
   pod 'glog', :podspec => "#{rnPrefix}/third-party-podspecs/glog.podspec"
   pod 'Folly', :podspec => "#{rnPrefix}/third-party-podspecs/Folly.podspec"
-  pod 'RNFBApp', :path => "../node_modules/@react-native-firebase/app"
-  pod 'RNFBAnalytics', :path => "../node_modules/@react-native-firebase/analytics"
-  pod 'Firebase/Analytics'  # https://firebase.google.com/docs/ios/setup
-  pod 'Firebase' # https://qiita.com/sh-suzuki0301/items/305d7fca8a401ac4b73a#9fcm%E3%81%8B%E3%82%89%E3%83%86%E3%82%B9%E3%83%88%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8%E3%82%92%E9%85%8D%E4%BF%A1
-  pod 'Firebase/Messaging' # https://qiita.com/sh-suzuki0301/items/305d7fca8a401ac4b73a#9fcm%E3%81%8B%E3%82%89%E3%83%86%E3%82%B9%E3%83%88%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8%E3%82%92%E9%85%8D%E4%BF%A1
-  pod 'react-native-admob', path: "../node_modules/react-native-admob" # https://github.com/sbugert/react-native-admob
-  pod 'Google-Mobile-Ads-SDK'
+  # pod 'RNFBApp', :path => "../node_modules/@react-native-firebase/app"
+  # pod 'RNFBAnalytics', :path => "../node_modules/@react-native-firebase/analytics"
+  # pod 'Firebase/Analytics'  # https://firebase.google.com/docs/ios/setup
+  # pod 'Firebase' # https://qiita.com/sh-suzuki0301/items/305d7fca8a401ac4b73a#9fcm%E3%81%8B%E3%82%89%E3%83%86%E3%82%B9%E3%83%88%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8%E3%82%92%E9%85%8D%E4%BF%A1
+  # pod 'Firebase/Messaging' # https://qiita.com/sh-suzuki0301/items/305d7fca8a401ac4b73a#9fcm%E3%81%8B%E3%82%89%E3%83%86%E3%82%B9%E3%83%88%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8%E3%82%92%E9%85%8D%E4%BF%A1
+  # pod 'react-native-admob', path: "../node_modules/react-native-admob" # https://github.com/sbugert/react-native-admob
+  # pod 'Google-Mobile-Ads-SDK'
   # Other native modules
 
   # Automatically detect installed unimodules
