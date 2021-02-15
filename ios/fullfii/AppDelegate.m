@@ -29,7 +29,6 @@
 
 @end
 
-@import GoogleMobileAds; // 21/01/27
 
 @implementation AppDelegate
 
@@ -77,7 +76,7 @@
     [application registerForRemoteNotifications];
   }
 
-  [[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
+  //[[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
 
   /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
