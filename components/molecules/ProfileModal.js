@@ -34,6 +34,7 @@ const ProfileModal = (props) => {
   const { request: requestReport } = useAxios(
     URLJoin(BASE_URL, "talk-ticket/", talkTicket?.id),
     "post",
+    null, // TODO:
     {
       data: {
         status: "waiting",
@@ -71,6 +72,7 @@ const ProfileModal = (props) => {
   const { request: requestBlock } = useAxios(
     URLJoin(BASE_URL, "users/", user.id, "block/"),
     "patch",
+    null, // TODO:
     {
       data: {
         status: "waiting",

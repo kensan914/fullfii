@@ -4,19 +4,42 @@ import { Block } from "galio-framework";
 import useAllContext from "../components/contexts/ContextUtils";
 import { BASE_URL, BASE_URL_WS } from "../constants/env";
 import {
-  deepCvtKeyFromSnakeToCamel,
   initWs,
   URLJoin,
   asyncGetJson,
+  closeWsSafely,
 } from "../components/modules/support";
-import authAxios from "../components/modules/axios";
+import requestAxios from "../components/modules/axios";
+import {
+  Dispatches,
+  MeProfile,
+  ProfileDispatch,
+  MeProfileIoTs,
+  States,
+  TalkInfoJson,
+  TalkInfoJsonIoTs,
+  TalkTicketCollectionJson,
+  TalkTicketCollectionJsonIoTs,
+  ChatState,
+  ChatDispatch,
+  TalkTicketKey,
+} from "../components/types/Types.context";
+import {
+  WsResChat,
+  WsResChatIoTs,
+  WsSettings,
+  WsResNotificationIoTs,
+  WsResNotification,
+} from "../components/types/Types";
+import { Alert } from "react-native";
 
-const StartUpManager = (props) => {
+const StartUpManager: React.FC = (props) => {
   const { children } = props;
   const [states, dispatches] = useAllContext();
 
   useEffect(() => {
-    startUpLoggedin(states.authState.token, states, dispatches);
+    states.authState.token &&
+      startUpLoggedin(states.authState.token, states, dispatches);
   }, []);
 
   return <Block flex>{children}</Block>;
@@ -26,50 +49,56 @@ export default StartUpManager;
 
 /**
  * ログイン済みでアプリを起動した時、またはsignup成功時に実行 */
-export const startUpLoggedin = (token, states, dispatches) => {
+export const startUpLoggedin = (
+  token: string,
+  states: States,
+  dispatches: Dispatches
+): void => {
   if (typeof token !== "undefined") {
     requestGetProfile(token, dispatches.profileDispatch);
-    // requestGetProfileParams(token, dispatches.profileDispatch);
     connectWsNotification(token, states, dispatches);
     updateTalk(token, states, dispatches);
   }
 };
 
-const requestGetProfile = (token, profileDispatch) => {
-  authAxios(token)
-    .get(URLJoin(BASE_URL, "me/"))
-    .then((res) => {
-      profileDispatch({ type: "SET_ALL", profile: res.data });
-    })
-    .catch((err) => {
-      console.error(err.response);
-    });
+const requestGetProfile = (
+  token: string,
+  profileDispatch: ProfileDispatch
+): void => {
+  requestAxios(URLJoin(BASE_URL, "me/"), "get", MeProfileIoTs, {
+    token: token,
+    thenCallback: (resData) => {
+      profileDispatch({ type: "SET_ALL", profile: resData as MeProfile });
+    },
+  });
 };
 
 /**
  * me/talk-info/をgetし、最新のtalk_tickets情報を更新。wsのconnect。
- * @param {*} token
- * @param {*} states
- * @param {*} dispatches
+ * @param token
+ * @param states
+ * @param dispatches
  */
-const updateTalk = (token, states, dispatches) => {
-  authAxios(token)
-    .get(URLJoin(BASE_URL, "me/talk-info/"))
-    .then(async (res) => {
-      const resData = deepCvtKeyFromSnakeToCamel(res.data);
-      const talkTickets = resData["talkTickets"];
+const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
+  requestAxios(URLJoin(BASE_URL, "me/talk-info/"), "get", TalkInfoJsonIoTs, {
+    token: token,
+    thenCallback: async (resData) => {
+      const _resData = resData as TalkInfoJson;
+      const talkTickets = _resData["talkTickets"];
 
       // connect wsChat
       const prevTalkTicketCollection = await asyncGetJson(
-        "talkTicketCollection"
+        "talkTicketCollection",
+        TalkTicketCollectionJsonIoTs
       );
       if (prevTalkTicketCollection) {
         // 毎起動時
+        const _prevTalkTicketCollection = prevTalkTicketCollection as TalkTicketCollectionJson;
         talkTickets
           .filter((talkTicket) => talkTicket.status.key === "talking")
           .forEach((talkTicket) => {
             if (
-              prevTalkTicketCollection[talkTicket.worry.key]?.status?.key ===
+              _prevTalkTicketCollection[talkTicket.worry.key].status.key ===
               "talking"
             ) {
               // 既にトークは開始されているが、wsは接続されていない
@@ -77,26 +106,29 @@ const updateTalk = (token, states, dispatches) => {
                 !states.chatState.talkTicketCollection[talkTicket.worry.key]
                   .room.ws
               )
-                reconnectWsChat(
-                  talkTicket.room?.id,
+                if (talkTicket.room)
+                  reconnectWsChat(
+                    talkTicket.room.id,
+                    token,
+                    states,
+                    dispatches,
+                    talkTicket.worry.key
+                  );
+            } else {
+              // トークが開始されていない
+              if (talkTicket.room) {
+                dispatches.chatDispatch({
+                  type: "UPDATE_TALK_TICKETS",
+                  talkTickets: [talkTicket],
+                });
+                initConnectWsChat(
+                  talkTicket.room.id,
                   token,
                   states,
                   dispatches,
                   talkTicket.worry.key
                 );
-            } else {
-              // トークが開始されていない
-              dispatches.chatDispatch({
-                type: "UPDATE_TALK_TICKETS",
-                talkTickets: [talkTicket],
-              });
-              initConnectWsChat(
-                talkTicket.room.id,
-                token,
-                states,
-                dispatches,
-                talkTicket.worry.key
-              );
+              }
             }
           });
 
@@ -104,7 +136,7 @@ const updateTalk = (token, states, dispatches) => {
           .filter((talkTicket) => talkTicket.status.key !== "talking")
           .forEach((talkTicket) => {
             if (
-              prevTalkTicketCollection[talkTicket.worry.key].status.key ===
+              _prevTalkTicketCollection[talkTicket.worry.key].status.key ===
               "talking"
             ) {
               // 既にトークは開始されているが、バックでは終了している
@@ -115,7 +147,7 @@ const updateTalk = (token, states, dispatches) => {
             }
           });
 
-        Object.keys(prevTalkTicketCollection).forEach((key) => {
+        Object.keys(_prevTalkTicketCollection).forEach((key) => {
           if (!talkTickets.some((talkTicket) => talkTicket.worry.key === key)) {
             dispatches.chatDispatch({
               type: "REMOVE_TALK_TICKETS",
@@ -132,34 +164,30 @@ const updateTalk = (token, states, dispatches) => {
         talkTickets
           .filter((talkTicket) => talkTicket.status.key === "talking")
           .forEach((talkTicket) => {
-            initConnectWsChat(
-              talkTicket.room.id,
-              token,
-              states,
-              dispatches,
-              talkTicket.worry.key
-            );
+            if (talkTicket.room) {
+              initConnectWsChat(
+                talkTicket.room.id,
+                token,
+                states,
+                dispatches,
+                talkTicket.worry.key
+              );
+            }
           });
       }
-    })
-    .catch((err) => {
-      console.error(err);
-    });
+    },
+  });
 };
 
 const handleChatMessage = (
-  data,
-  chatState,
-  chatDispatch,
-  token,
-  talkTicketKey
+  data: WsResChat,
+  chatState: ChatState,
+  chatDispatch: ChatDispatch,
+  token: string,
+  talkTicketKey: TalkTicketKey
 ) => {
   if (data.type === "chat_message") {
-    // const roomID = data.room_id;
-    const messageID = data.message.message_id;
-    const message = data.message.message;
-    const isMe = data.message.is_me;
-    const time = data.message.time;
+    const { messageId, message, isMe, time } = data.message;
 
     // (謎)chatStateが更新されない←原因は救命できていない。talkTicketCollectionはObjectでアドレスは一定しているので成り立っている。
     const talkTicket = chatState.talkTicketCollection[talkTicketKey];
@@ -168,13 +196,13 @@ const handleChatMessage = (
     if (isMe) {
       // appendMessage → offlineMessagesの該当messageを削除
       const offlineMsgIDs = offlineMessages.map(
-        (offlineMessage) => offlineMessage.id
+        (offlineMessage) => offlineMessage.messageId
       );
-      if (offlineMsgIDs.indexOf(messageID) >= 0) {
+      if (offlineMsgIDs.indexOf(messageId) >= 0) {
         chatDispatch({
           type: "APPEND_MESSAGE",
           talkTicketKey,
-          messageID,
+          messageId: messageId,
           message,
           isMe,
           time,
@@ -183,34 +211,43 @@ const handleChatMessage = (
         chatDispatch({
           type: "DELETE_OFFLINE_MESSAGE",
           talkTicketKey,
-          messageID,
+          messageId: messageId,
         });
       } else {
+        chatDispatch({
+          type: "APPEND_MESSAGE",
+          talkTicketKey,
+          messageId: messageId,
+          message,
+          isMe,
+          time,
+          token,
+        });
       }
-    } else {
-      chatDispatch({
-        type: "APPEND_MESSAGE",
-        talkTicketKey,
-        messageID,
-        message,
-        isMe,
-        time,
-        token,
-      });
     }
-  } else if (data.type === "multi_chat_messages") {
-    // const roomID = data.room_id;
+  }
+  // TODO: ネストの深さ変更・要確認
+  else if (data.type === "multi_chat_messages") {
     const messages = data.messages;
     chatDispatch({ type: "MERGE_MESSAGES", talkTicketKey, messages, token });
   }
 };
 
+type WsProps = {
+  roomId: string;
+  token: string;
+  states: States;
+  dispatches: Dispatches;
+  init: boolean;
+  callbackSuccess: (data: WsResChat, ws: WebSocket) => void;
+  talkTicketKey: string;
+};
 /**
  * response talk request.
  * If you are a request user and you are starting a talk, init is true. */
-const _connectWsChat = (wsProps) => {
+const _connectWsChat = (wsProps: WsProps) => {
   const {
-    roomID,
+    roomId,
     token,
     states,
     dispatches,
@@ -219,14 +256,14 @@ const _connectWsChat = (wsProps) => {
     talkTicketKey,
   } = wsProps;
 
-  const wsSettings = {
-    url: URLJoin(BASE_URL_WS, "chat/", roomID),
-
-    onopen: (e, ws) => {
+  const wsSettings: WsSettings = {
+    url: URLJoin(BASE_URL_WS, "chat/", roomId),
+    typeIoTsOfResData: WsResChatIoTs,
+    onopen: (ws: WebSocket) => {
       ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
     },
-    onmessage: (e, ws, isReconnect) => {
-      const data = JSON.parse(e.data);
+    onmessage: (eData, e, ws, isReconnect) => {
+      const data = eData as WsResChat;
       switch (data.type) {
         case "auth":
           if (isReconnect) {
@@ -278,7 +315,7 @@ const _connectWsChat = (wsProps) => {
 
         case "error":
           data;
-          if (data.message) alert(data.message);
+          if (data.message) Alert.alert(data.message);
           closeWsSafely(ws);
           break;
 
@@ -293,21 +330,23 @@ const _connectWsChat = (wsProps) => {
         talkTicketKey
       );
     },
-    onclose: (e, ws) => {},
+    onclose: () => {
+      return void 0;
+    },
   };
 
-  initWs(wsSettings, dispatches);
+  initWs(wsSettings);
 };
 
 const initConnectWsChat = (
-  roomID,
-  token,
-  states,
-  dispatches,
-  talkTicketKey
+  roomId: string,
+  token: string,
+  states: States,
+  dispatches: Dispatches,
+  talkTicketKey: TalkTicketKey
 ) => {
   _connectWsChat({
-    roomID,
+    roomId,
     token,
     states,
     dispatches,
@@ -319,10 +358,16 @@ const initConnectWsChat = (
   });
 };
 
-const reconnectWsChat = (roomID, token, states, dispatches, talkTicketKey) => {
-  if (roomID) {
+const reconnectWsChat = (
+  roomId: string,
+  token: string,
+  states: States,
+  dispatches: Dispatches,
+  talkTicketKey: TalkTicketKey
+) => {
+  if (roomId) {
     _connectWsChat({
-      roomID,
+      roomId: roomId,
       token,
       states,
       dispatches,
@@ -341,16 +386,19 @@ const reconnectWsChat = (roomID, token, states, dispatches, talkTicketKey) => {
   }
 };
 
-const connectWsNotification = (token, states, dispatches) => {
-  const wsSettings = {
+const connectWsNotification = (
+  token: string,
+  states: States,
+  dispatches: Dispatches
+) => {
+  const wsSettings: WsSettings = {
     url: URLJoin(BASE_URL_WS, "notification/"),
-
-    onopen: (e, ws) => {
+    typeIoTsOfResData: WsResNotificationIoTs,
+    onopen: (ws) => {
       ws.send(JSON.stringify({ type: "auth", token: token }));
     },
-    onmessage: (e, ws, isReconnect) => {
-      const data = JSON.parse(e.data);
-
+    onmessage: (eData) => {
+      const data = eData as WsResNotification;
       if (data.type === "auth") {
         dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
       } else if (data.type === "notice_talk") {
@@ -361,12 +409,10 @@ const connectWsNotification = (token, states, dispatches) => {
         }
       }
     },
-    onclose: (e, ws) => {},
-
-    registerWs: (ws) => {
-      dispatches.notificationDispatch({ type: "SET_WS", ws: ws });
+    onclose: () => {
+      return void 0;
     },
   };
 
-  initWs(wsSettings, dispatches);
+  initWs(wsSettings);
 };

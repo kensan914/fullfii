@@ -48,4 +48,6 @@ export const ADMOB_BANNER_WIDTH = 320;
 export const ADMOB_BANNER_HEIGHT = 50;
 
 export let isExpo = false;
-export const setIsExpo = (val) => (isExpo = val);
+export const setIsExpo = (val: boolean): void => {
+  isExpo = val;
+};

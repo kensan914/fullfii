@@ -1,5 +1,6 @@
 import React from "react";
-import authAxios from "../components/modules/axios";
+
+import requestAxios from "../components/modules/axios";
 import { URLJoin } from "../components/modules/support";
 import {
   BASE_URL,
@@ -8,25 +9,22 @@ import {
   ADMOB_BANNER_HEIGHT,
   isExpo,
 } from "../constants/env";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { Block } from "galio-framework";
 import Admob from "../components/molecules/Admob";
 import { ProfileEditorTemplate } from "../components/templates/ProfileEditorTemplate";
+import { RequestPostProfileImage } from "../components/types/Types";
+import { MeProfile, MeProfileIoTs } from "../components/types/Types.context";
 
-const ProfileEditor = (props) => {
-  const { navigation } = props;
-
+const ProfileEditor: React.FC = () => {
   return (
     <Block flex style={styles.container}>
       <ProfileEditorTemplate
-        navigation={navigation}
         requestPostProfileImage={requestPostProfileImage}
       />
 
       <Block style={styles.adMobBanner}>
-        {!isExpo && (
-          <Admob adSize={"banner"} adUnitID={ADMOB_UNIT_ID_EDIT_PROFILE} />
-        )}
+        {!isExpo && <Admob adUnitId={ADMOB_UNIT_ID_EDIT_PROFILE} />}
       </Block>
     </Block>
   );
@@ -34,7 +32,7 @@ const ProfileEditor = (props) => {
 
 export default ProfileEditor;
 
-const requestPostProfileImage = (
+const requestPostProfileImage: RequestPostProfileImage = (
   token,
   image,
   profileDispatch,
@@ -51,20 +49,20 @@ const requestPostProfileImage = (
     type: "image/jpg",
   });
 
-  authAxios(token)
-    .post(url, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then((res) => {
-      profileDispatch({ type: "SET_ALL", profile: res.data });
+  requestAxios(url, "post", MeProfileIoTs, {
+    token,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    thenCallback: (resData) => {
+      profileDispatch({ type: "SET_ALL", profile: resData as MeProfile });
       successSubmit();
-    })
-    .catch((err) => {
-      console.log(err.response);
+    },
+    catchCallback: (err) => {
       errorSubmit(err);
-    });
+    },
+  });
 };
 
 const styles = StyleSheet.create({

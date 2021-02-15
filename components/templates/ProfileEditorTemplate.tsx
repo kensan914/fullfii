@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -10,21 +10,30 @@ import { Block, Text, theme } from "galio-framework";
 
 import Hr from "../atoms/Hr";
 import Icon from "../atoms/Icon";
-import { getPermissionAsync, onLoad, pickImage } from "../modules/imagePicker";
+import { getPermissionAsync, pickImage } from "../modules/imagePicker";
 import Avatar from "../atoms/Avatar";
 import {
   useProfileState,
   useProfileDispatch,
 } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
+import { useNavigation } from "@react-navigation/native";
+import {
+  ProfileEditorNavigationPros,
+  RequestPostProfileImage,
+} from "../types/Types";
 
 const { width } = Dimensions.get("screen");
 const ProfileHr = () => <Hr h={1} mb={5} color="#e6e6e6" />;
 const profileImageHeight = 500;
 const editButtonRate = { content: 9, button: 1 };
 
-export const ProfileEditorTemplate = (props) => {
-  const { navigation, requestPostProfileImage } = props;
+type Props = {
+  requestPostProfileImage: RequestPostProfileImage;
+};
+export const ProfileEditorTemplate: React.FC<Props> = (props) => {
+  const { requestPostProfileImage } = props;
+  const navigation = useNavigation<ProfileEditorNavigationPros>();
   const profileState = useProfileState();
   const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
@@ -67,9 +76,9 @@ export const ProfileEditorTemplate = (props) => {
             onPress={async () => {
               const result = await getPermissionAsync();
               if (result) {
-                onLoad();
+                // onLoad();
                 pickImage().then((image) => {
-                  if (image) {
+                  if (image && authState.token) {
                     setIsLoadingImage(true);
                     requestPostProfileImage(
                       authState.token,
@@ -78,7 +87,7 @@ export const ProfileEditorTemplate = (props) => {
                       () => {
                         setIsLoadingImage(false);
                       },
-                      (err) => {
+                      () => {
                         setIsLoadingImage(false);
                       }
                     );
@@ -141,7 +150,13 @@ export const ProfileEditorTemplate = (props) => {
   );
 };
 
-const EditorBlock = (props) => {
+type PropsEditorBlock = {
+  onPress: () => void;
+  content: ReactElement;
+  isImage?: boolean;
+  isLoadingImage?: boolean;
+};
+const EditorBlock: React.FC<PropsEditorBlock> = (props) => {
   const { onPress, content, isImage, isLoadingImage } = props;
   return isImage ? (
     <TouchableOpacity onPress={onPress} style={{ flex: 1, width: "100%" }}>

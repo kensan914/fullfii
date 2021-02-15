@@ -1,14 +1,23 @@
 import React from "react";
+import { useRoute } from "@react-navigation/native";
+
 import ChatTemplate from "../components/templates/ChatTemplate";
 import { useAuthState } from "../components/contexts/AuthContext";
 import {
   useChatState,
   useChatDispatch,
 } from "../components/contexts/ChatContext";
+import {
+  AppendOfflineMessage,
+  ChatRouteProp,
+  SendWsMessage,
+} from "../components/types/Types";
 
-const Chat = (props) => {
-  const talkTicketKey = props.route.params.talkTicketKey;
-  const talkTicket = useChatState().talkTicketCollection[talkTicketKey];
+const Chat: React.FC = () => {
+  const route = useRoute<ChatRouteProp>();
+  const talkTicketKey = route.params.talkTicketKey;
+  const talkTicketCollection = useChatState().talkTicketCollection;
+  const talkTicket = talkTicketCollection[talkTicketKey];
 
   const chatDispatch = useChatDispatch();
   const authState = useAuthState();
@@ -20,12 +29,15 @@ const Chat = (props) => {
     const ws = talkTicket.room.ws;
     const isEnd = talkTicket.room.isEnd;
 
-    const appendOfflineMessage = (messageID, message) => {
+    const appendOfflineMessage: AppendOfflineMessage = (
+      messageId,
+      messageText
+    ) => {
       chatDispatch({
         type: "APPEND_OFFLINE_MESSAGE",
         talkTicketKey,
-        messageID,
-        message,
+        messageId,
+        messageText,
       });
     };
 
@@ -46,12 +58,12 @@ const Chat = (props) => {
 
 export default Chat;
 
-const sendWsMessage = (ws, messageID, message, token) => {
+const sendWsMessage: SendWsMessage = (ws, messageId, messageText, token) => {
   ws.send(
     JSON.stringify({
       type: "chat_message",
-      message_id: messageID,
-      message,
+      message_id: messageId,
+      message: messageText,
       token,
     })
   );

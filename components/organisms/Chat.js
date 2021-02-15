@@ -75,6 +75,7 @@ export const EndTalkScreen = (props) => {
   const { request } = useAxios(
     URLJoin(BASE_URL, "rooms/", roomId, "close/"),
     "post",
+    null, // TODO:
     {
       data: {
         has_thunks: true,

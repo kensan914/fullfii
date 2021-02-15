@@ -4,10 +4,20 @@ import {
   asyncRemoveItem,
   asyncStoreJson,
 } from "../modules/support";
+import {
+  AuthenticatedType,
+  AuthenticatingType,
+  AuthState,
+  UnauthenticatedType,
+  SignupBufferType,
+  AuthStatus,
+  AuthActionType,
+  AuthDispatch,
+} from "../types/Types.context";
 
-const authReducer = (prevState, action) => {
+const authReducer = (prevState: AuthState, action: AuthActionType) => {
   let _status = prevState.status;
-  let _signupBuffer = prevState.signupBuffer;
+  const _signupBuffer = prevState.signupBuffer;
 
   switch (action.type) {
     case "TO_PROGRESS_SIGNUP":
@@ -55,7 +65,6 @@ const authReducer = (prevState, action) => {
       if (prevState.token) return { ...prevState };
       asyncStoreItem("token", action.token);
       asyncStoreItem("password", action.password);
-      // action.startUpLoggedin();
 
       return {
         ...prevState,
@@ -84,51 +93,63 @@ const authReducer = (prevState, action) => {
       };
 
     default:
-      console.warn(`Not found "${action.type}" action.type.`);
-      return;
+      console.warn(`Not found this action.type`);
+      return { ...prevState };
   }
 };
 
-const initSignupBuffer = {
+const initSignupBuffer: SignupBufferType = Object.freeze({
   didProgressNum: 0,
   worries: [],
-};
-Object.freeze(initSignupBuffer);
+});
 
-export const UNAUTHENTICATED = "Unauthenticated"; // signup処理前. AppIntro描画
-export const AUTHENTICATING = "Authenticating"; // signup処理中. SignUp描画
-export const AUTHENTICATED = "Authenticated"; // signup処理後. Home描画
+export const UNAUTHENTICATED: UnauthenticatedType = "Unauthenticated"; // signup処理前. AppIntro描画
+export const AUTHENTICATING: AuthenticatingType = "Authenticating"; // signup処理中. SignUp描画
+export const AUTHENTICATED: AuthenticatedType = "Authenticated"; // signup処理後. Home描画
 
-const AuthStateContext = createContext({
+const authStateContext = createContext<AuthState>({
   status: UNAUTHENTICATED,
-  token: undefined,
+  token: null,
   signupBuffer: { ...initSignupBuffer },
   isShowSpinner: false,
 });
-const AuthDispatchContext = createContext(undefined);
+const authDispatchContext = createContext<AuthDispatch>(() => {
+  return void 0;
+});
 
-export const useAuthState = () => {
-  const context = useContext(AuthStateContext);
+export const useAuthState = (): AuthState => {
+  const context = useContext(authStateContext);
   return context;
 };
-export const useAuthDispatch = () => {
-  const context = useContext(AuthDispatchContext);
+export const useAuthDispatch = (): AuthDispatch => {
+  const context = useContext(authDispatchContext);
   return context;
 };
 
-export const AuthProvider = ({ children, status, token, signupBuffer }) => {
-  const [authState, authDispatch] = useReducer(authReducer, {
+type Props = {
+  status: AuthStatus;
+  token: string;
+  signupBuffer: SignupBufferType;
+};
+export const AuthProvider: React.FC<Props> = ({
+  children,
+  status,
+  token,
+  signupBuffer,
+}) => {
+  const initAuthState: AuthState = {
     status: status ? status : UNAUTHENTICATED,
-    token: token ? token : undefined,
+    token: token ? token : null,
     signupBuffer: signupBuffer ? signupBuffer : { ...initSignupBuffer },
     isShowSpinner: false,
-  });
+  };
+  const [authState, authDispatch] = useReducer(authReducer, initAuthState);
 
   return (
-    <AuthStateContext.Provider value={authState}>
-      <AuthDispatchContext.Provider value={authDispatch}>
+    <authStateContext.Provider value={authState}>
+      <authDispatchContext.Provider value={authDispatch}>
         {children}
-      </AuthDispatchContext.Provider>
-    </AuthStateContext.Provider>
+      </authDispatchContext.Provider>
+    </authStateContext.Provider>
   );
 };

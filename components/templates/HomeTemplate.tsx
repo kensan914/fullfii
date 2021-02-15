@@ -4,10 +4,14 @@ import { Block, theme } from "galio-framework";
 
 import Card from "../molecules/Card";
 import { ADMOB_BANNER_HEIGHT } from "../../constants/env";
+import { HomeItems } from "../types/Types";
 
 const { width, height } = Dimensions.get("screen");
 
-const HomeTemplate = (props) => {
+type Props = {
+  items: HomeItems;
+};
+const HomeTemplate: React.FC<Props> = (props) => {
   const numColumns = 2;
   const { items } = props;
 
@@ -39,12 +43,12 @@ const HomeTemplate = (props) => {
                   marginBottom: mb,
                 },
               ]}
-              key={item.key}
+              key={index}
             >
               <Card
                 item={item}
                 onPress={item.onPress}
-                countNum={item.countNum}
+                countNum={"countNum" in item ? item.countNum : 0}
               />
             </Block>
           );

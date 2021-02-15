@@ -1,7 +1,7 @@
 import React from "react";
 import SignUpTemplate from "../components/templates/signup/SignUpTemplate";
 
-const SignUp = (props) => {
+const SignUp: React.FC = () => {
   return <SignUpTemplate />;
 };
 

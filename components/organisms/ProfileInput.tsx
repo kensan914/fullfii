@@ -1,16 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { TextInput } from "react-native";
+import {
+  TextInput,
+  StyleSheet,
+  Dimensions,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { Block, Input, Text, Checkbox, theme } from "galio-framework";
+import { useNavigation } from "@react-navigation/native";
+
 import SubmitButton from "../atoms/SubmitButton";
-import { TouchableWithoutFeedback } from "react-native";
 import { useProfileState } from "../contexts/ProfileContext";
 import { alertModal } from "../modules/support";
-import { StyleSheet } from "react-native";
-import { Dimensions } from "react-native";
+import { ProfileInputNavigationProps } from "../../navigation/Screens";
+import { RequestPatchProfile } from "../../screens/ProfileInput";
 
 const { width, height } = Dimensions.get("screen");
 
-export const InputBlock = (props) => {
+type InputBlockProps = {
+  screen: any;
+};
+export const InputBlock: React.FC<InputBlockProps> = (props) => {
   const { screen } = props;
   let maxLength;
 
@@ -29,7 +38,7 @@ export const InputBlock = (props) => {
     case "InputGender":
       return <RadioInputBlock {...props} />;
     default:
-      return;
+      return <></>;
   }
 };
 
@@ -121,7 +130,15 @@ const RadioInputBlock = (props) => {
   );
 };
 
-const TextInputBlock = (props) => {
+type TextInputBlockProps = {
+  maxLength: any;
+  textarea: any;
+  prevValue: any;
+  setCanSubmit: any;
+  value: any;
+  setValue: any;
+};
+const TextInputBlock: React.FC<TextInputBlockProps> = (props) => {
   const {
     maxLength,
     textarea,
@@ -186,10 +203,16 @@ const TextInputBlock = (props) => {
   );
 };
 
-const CheckBoxInputBlock = (props) => {
+type CheckBoxInputBlockProps = {
+  screen: any;
+  prevValue: any;
+  setCanSubmit: any;
+  setValue: any;
+};
+const CheckBoxInputBlock: React.FC<CheckBoxInputBlockProps> = (props) => {
   const { screen, prevValue, setCanSubmit, setValue } = props;
 
-  let prevCheckedItems = {};
+  const prevCheckedItems = {};
   const [checkedItems, setCheckedItems] = useState(prevCheckedItems);
   const profileState = useProfileState();
   let checkBoxItemsOriginal;
@@ -224,7 +247,7 @@ const CheckBoxInputBlock = (props) => {
     const prevCheckedItemsJSON = JSON.stringify(prevCheckedItems);
     const checkedItemsJSON = JSON.stringify(checkedItems);
     setCanSubmit(prevCheckedItemsJSON !== checkedItemsJSON);
-    let _value = [];
+    const _value = [];
     Object.keys(checkedItems).map((key) => {
       if (checkedItems[key]) {
         _value.push(checkBoxItemsOriginal[key]);
@@ -255,7 +278,19 @@ const CheckBoxInputBlock = (props) => {
   );
 };
 
-export const SubmitProfileButton = (props) => {
+type SubmitProfileButtonProps = {
+  screen: any;
+  value: any;
+  canSubmit: any;
+  token: any;
+  profileDispatch: any;
+  profileState: any;
+  setValidationText: any;
+  requestPatchProfile: RequestPatchProfile;
+};
+export const SubmitProfileButton: React.FC<SubmitProfileButtonProps> = (
+  props
+) => {
   const {
     screen,
     value,
@@ -263,10 +298,10 @@ export const SubmitProfileButton = (props) => {
     token,
     profileDispatch,
     profileState,
-    requestPatchProfile,
-    navigation,
     setValidationText,
+    requestPatchProfile,
   } = props;
+  const navigation = useNavigation<ProfileInputNavigationProps>();
   const [isLoading, setIsLoading] = useState(false);
 
   let data;

@@ -4,16 +4,13 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
-  Switch,
 } from "react-native";
 import { Block, theme, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import Icon from "../components/atoms/Icon";
 import Hr from "../components/atoms/Hr";
-import { URLJoin } from "../components/modules/support";
 import {
-  BASE_URL,
   USER_POLICY_URL,
   VERSION,
   GOOGLE_FORM_URL,
@@ -23,12 +20,12 @@ import {
   ADMOB_BANNER_WIDTH,
   isExpo,
 } from "../constants/env";
-import authAxios from "../components/modules/axios";
 import Admob from "../components/molecules/Admob";
+import { OnPress } from "../components/types/Types";
 
 const { width, height } = Dimensions.get("screen");
 
-const Settings = (props) => {
+const Settings: React.FC = () => {
   const _handleOpenWithWebBrowser = () => {
     WebBrowser.openBrowserAsync(USER_POLICY_URL);
   };
@@ -51,7 +48,6 @@ const Settings = (props) => {
           title="プライバシーポリシー"
           onPress={_handleOpenWithWebBrowserPrivacyPolicy}
         />
-        {/* <SettingsCard title="特定商取引法に基づく表示" onPress={_handleOpenWithWebBrowser} /> */}
         <SettingsCard
           title="お問い合わせ"
           onPress={_handleOpenWithWebBrowserContactUsForm}
@@ -59,9 +55,7 @@ const Settings = (props) => {
       </ScrollView>
 
       <Block style={styles.adMobBanner}>
-        {!isExpo && (
-          <Admob adSize={"banner"} adUnitID={ADMOB_UNIT_ID_SETTINGS} />
-        )}
+        {!isExpo && <Admob adUnitId={ADMOB_UNIT_ID_SETTINGS} />}
       </Block>
     </Block>
   );
@@ -69,7 +63,7 @@ const Settings = (props) => {
 
 export default Settings;
 
-const SettingsTitle = (props) => {
+const SettingsTitle: React.FC<{ title: string }> = (props) => {
   const { title } = props;
   return (
     <Block
@@ -83,26 +77,7 @@ const SettingsTitle = (props) => {
   );
 };
 
-const SettingsExplain = (props) => {
-  const { explain } = props;
-  return (
-    <Block
-      flex
-      style={{
-        paddingHorizontal: 15,
-        paddingTop: 5,
-        paddingBottom: 25,
-        marginTop: 5,
-      }}
-    >
-      <Text size={12} bold color="gray">
-        {explain}
-      </Text>
-    </Block>
-  );
-};
-
-const SettingsCard = (props) => {
+const SettingsCard: React.FC<{ title: string; onPress: OnPress }> = (props) => {
   const { title, onPress } = props;
   return (
     <TouchableOpacity onPress={onPress}>
@@ -129,7 +104,7 @@ const SettingsCard = (props) => {
   );
 };
 
-const SettingsLabel = (props) => {
+const SettingsLabel: React.FC<{ title: string; content: string }> = (props) => {
   const { title, content } = props;
   return (
     <>
@@ -148,77 +123,6 @@ const SettingsLabel = (props) => {
       <Hr h={1} color="whitesmoke" />
     </>
   );
-};
-
-const SettingsSwitch = (props) => {
-  const { title, onChange, value } = props;
-  return (
-    <>
-      <Block flex row space="between" style={styles.settingsCard}>
-        <Block>
-          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>
-            {title}
-          </Text>
-        </Block>
-        <Block style={{ alignItems: "center", justifyContent: "center" }}>
-          <Switch
-            trackColor={{ false: "dimgray", true: "#F69896" }}
-            ios_backgroundColor={"gray"}
-            // initialValue={value}
-            value={value}
-            style={{ marginVertical: 8, marginHorizontal: 15 }}
-            onValueChange={onChange}
-          />
-        </Block>
-      </Block>
-      <Hr h={1} color="whitesmoke" />
-    </>
-  );
-};
-
-const SettingsButton = (props) => {
-  const { title, onPress, color } = props;
-  return (
-    <TouchableOpacity onPress={onPress}>
-      <Block
-        flex
-        row
-        style={[
-          styles.settingsCard,
-          { justifyContent: "center", height: 50, marginTop: 8 },
-        ]}
-      >
-        <Text bold size={15} color={color} style={{ marginHorizontal: 15 }}>
-          {title}
-        </Text>
-      </Block>
-      <Hr h={1} color="whitesmoke" />
-    </TouchableOpacity>
-  );
-};
-
-const requestDeleteAccount = (
-  token,
-  notificationDispatch,
-  chatDispatch,
-  authDispatch,
-  profileDispatch
-) => {
-  const url = URLJoin(BASE_URL, "me/");
-
-  authAxios(token)
-    .delete(url)
-    .then((res) => {
-      authDispatch({
-        type: "COMPLETE_LOGOUT",
-        notificationDispatch: notificationDispatch,
-        chatDispatch: chatDispatch,
-        profileDispatch: profileDispatch,
-      });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 };
 
 const styles = StyleSheet.create({

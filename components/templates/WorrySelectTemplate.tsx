@@ -6,12 +6,7 @@ import BubbleList from "../organisms/BubbleList";
 import { useProfileState } from "../contexts/ProfileContext";
 import SubmitButton from "../atoms/SubmitButton";
 import { useAxios } from "../modules/axios";
-import {
-  alertModal,
-  deepCvtKeyFromSnakeToCamel,
-  URLJoin,
-  hasProperty,
-} from "../modules/support";
+import { alertModal, URLJoin, hasProperty } from "../modules/support";
 import {
   ADMOB_BANNER_HEIGHT,
   ADMOB_BANNER_WIDTH,
@@ -26,22 +21,33 @@ import { useEffect } from "react";
 import { withNavigation } from "@react-navigation/compat";
 import { useRef } from "react";
 import Admob from "../molecules/Admob";
+import { useNavigation } from "@react-navigation/native";
+import { WorrySelectNavigationProps } from "../types/Types";
+import {
+  GenreOfWorriesCollection,
+  TalkTicketKey,
+  WorriesResJson,
+  WorriesResJsonIoTs,
+} from "../types/Types.context";
 
 const { width, height } = Dimensions.get("screen");
 
-const WorrySelectTemplate = (props) => {
+const WorrySelectTemplate: React.FC = () => {
+  const navigation = useNavigation<WorrySelectNavigationProps>();
   const iPhoneXHeight = 812;
   const isHigherDevice = height >= iPhoneXHeight;
 
   const profileState = useProfileState();
   const genreOfWorries = profileState.profileParams
-    ? JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries))
+    ? (JSON.parse(
+        JSON.stringify(profileState.profileParams.genreOfWorries)
+      ) as GenreOfWorriesCollection)
     : {};
 
   const chatState = useChatState();
   const initWorriesCollection = useRef(
     (() => {
-      const _initWorriesCollection = {};
+      const _initWorriesCollection: GenreOfWorriesCollection = {};
       Object.keys(chatState.talkTicketCollection).forEach((key) => {
         _initWorriesCollection[key] = genreOfWorries[key];
       });
@@ -72,7 +78,7 @@ const WorrySelectTemplate = (props) => {
     }
   }, [worriesCollection]);
 
-  const pressBubble = (key) => {
+  const pressBubble = (key: TalkTicketKey) => {
     const _worriesCollection = { ...worriesCollection };
     if (hasProperty(_worriesCollection, key)) {
       delete _worriesCollection[key];
@@ -87,11 +93,12 @@ const WorrySelectTemplate = (props) => {
   const { isLoading, request } = useAxios(
     URLJoin(BASE_URL, "me/worries/"),
     "post",
+    WorriesResJsonIoTs,
     {
-      thenCallback: (res) => {
-        const resData = deepCvtKeyFromSnakeToCamel(res.data);
-        const addedTalkTickets = resData["addedTalkTickets"];
-        const removedTalkTicketKeys = resData["removedTalkTicketKeys"];
+      thenCallback: (resData) => {
+        const _resData = resData as WorriesResJson;
+        const addedTalkTickets = _resData["addedTalkTickets"];
+        const removedTalkTicketKeys = _resData["removedTalkTicketKeys"];
         // 追加
         addedTalkTickets.forEach((talkTicket) => {
           chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket });
@@ -103,9 +110,9 @@ const WorrySelectTemplate = (props) => {
         });
       },
       finallyCallback: () => {
-        props.navigation.navigate("Home");
+        navigation.navigate("Home");
       },
-      token: authState.token,
+      token: authState.token ? authState.token : "",
       limitRequest: 1,
     }
   );
@@ -148,9 +155,7 @@ const WorrySelectTemplate = (props) => {
       </Block>
 
       <Block style={styles.adMobBanner}>
-        {!isExpo && (
-          <Admob adSize={"banner"} adUnitID={ADMOB_UNIT_ID_SELECT_WORRY} />
-        )}
+        {!isExpo && <Admob adUnitId={ADMOB_UNIT_ID_SELECT_WORRY} />}
       </Block>
     </Block>
   );

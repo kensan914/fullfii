@@ -54,6 +54,7 @@ const ThirdSignUpPage = (props) => {
   const { isLoading, resData, request } = useAxios(
     URLJoin(BASE_URL, "signup/"),
     "post",
+    null, // TODO:
     {
       data: {
         username: username,

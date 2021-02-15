@@ -50,6 +50,7 @@ const ChatModal = (props) => {
   const { request } = useAxios(
     URLJoin(BASE_URL, "talk-ticket/", talkTicket.id),
     "post",
+    null, // TODO:
     {
       thenCallback: (res) => {
         roomId.current = talkTicket.room.id;

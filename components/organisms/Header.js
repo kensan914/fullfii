@@ -8,8 +8,6 @@ import materialTheme from "../../constants/Theme";
 import { TalkMenuButton } from "./Chat";
 import Avatar from "../atoms/Avatar";
 import { useChatDispatch } from "../contexts/ChatContext";
-import { useNotificationDispatch } from "../contexts/NotificationContext";
-import { useAuthState } from "../contexts/AuthContext";
 import { ProfileMenuButton } from "./ProfileMenuButton";
 import { checkiPhoneX } from "../modules/support";
 import { useProfileState } from "../contexts/ProfileContext";
@@ -45,9 +43,7 @@ const Header = (props) => {
     profile,
     talkTicketKey,
   } = props;
-  const authState = useAuthState();
   const profileState = useProfileState();
-  const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
@@ -128,8 +124,6 @@ const Header = (props) => {
         type: "READ_BY_ROOM",
         talkTicketKey: scene.route.params.talkTicketKey,
       });
-    } else if (currentScreenName === "Notification") {
-      notificationDispatch({ type: "PUT_READ", token: authState.token });
     }
   }, [currentScreenName]);
 
@@ -235,7 +229,7 @@ const styles = StyleSheet.create({
     paddingBottom: theme.SIZES.BASE * 1.5,
     paddingTop: checkiPhoneX(Dimensions)
       ? theme.SIZES.BASE * 4
-      : theme.SIZES.BASE,
+      : theme.SIZES.BASE * 3,
     zIndex: 5,
   },
   shadow: {

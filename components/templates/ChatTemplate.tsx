@@ -6,9 +6,8 @@ import {
   StyleSheet,
   FlatList,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  TouchableNativeFeedback,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Input, Block, Text, Button, theme } from "galio-framework";
@@ -20,10 +19,34 @@ import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import ProfileModal from "../molecules/ProfileModal";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
+import {
+  AllMessages,
+  Profile,
+  WsNullable,
+  TokenNullable,
+  TalkTicketKey,
+  AllMessage,
+} from "../types/Types.context";
+import {
+  AppendOfflineMessage,
+  ItemLayout,
+  OnContentSizeChange,
+  SendWsMessage,
+} from "../types/Types";
 
 const { width } = Dimensions.get("screen");
 
-const ChatTemplate = (props) => {
+type Props = {
+  user: Profile;
+  messages: AllMessages;
+  appendOfflineMessage: AppendOfflineMessage;
+  ws: WsNullable;
+  sendWsMessage: SendWsMessage;
+  token: TokenNullable;
+  talkTicketKey: TalkTicketKey;
+  isEnd: boolean;
+};
+const ChatTemplate: React.FC<Props> = (props) => {
   const {
     user,
     messages,
@@ -35,7 +58,7 @@ const ChatTemplate = (props) => {
     isEnd,
   } = props;
 
-  const messagesScroll = useRef(null);
+  const messagesScroll = useRef<FlatList>(null);
   const [message, setMessage] = useState("");
   const [height, setHeight] = useState(0);
   const [inputHeight, setInputHeight] = useState(0);
@@ -50,7 +73,7 @@ const ChatTemplate = (props) => {
     chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
   }, [messages.length]);
 
-  const itemLayout = (data, index) => ({
+  const itemLayout: ItemLayout = (data, index) => ({
     length: messages.length - 1,
     offset: 32 * index,
     index,
@@ -58,16 +81,18 @@ const ChatTemplate = (props) => {
 
   const handleScroll = () => {
     setTimeout(() => {
-      messagesScroll.current?.scrollToOffset({ offset: height });
+      const messagesScrollCurrent = messagesScroll.current;
+      messagesScrollCurrent !== null &&
+        messagesScrollCurrent.scrollToOffset({ offset: height });
     }, 1);
   };
 
-  const onContentSizeChange = (width, height) => {
+  const onContentSizeChange: OnContentSizeChange = (height) => {
     setHeight(height);
   };
 
-  const renderMessage = (message, index) => {
-    if (message.common) {
+  const renderMessage = (message: AllMessage, index: number) => {
+    if ("common" in message) {
       return (
         <Block style={{ marginBottom: 10 }}>
           <CommonMessage message={message.message} />
@@ -78,7 +103,7 @@ const ChatTemplate = (props) => {
         <Block key={index}>
           <Block row space={message.isMe ? "between" : null}>
             {message.isMe ? (
-              <Image source={null} style={[styles.avatar, styles.shadow]} />
+              <Image source={{}} style={[styles.avatar, styles.shadow]} />
             ) : (
               <TouchableOpacity onPress={() => setIsOpenProfile(true)}>
                 <Avatar
@@ -109,7 +134,7 @@ const ChatTemplate = (props) => {
                 </LinearGradient>
               )}
               <Block right>
-                {message.time && (
+                {"time" in message && (
                   <Text style={styles.time}>
                     {fmtfromDateToStr(message.time, "hh:mm")}
                   </Text>
@@ -123,12 +148,12 @@ const ChatTemplate = (props) => {
   };
 
   const renderMessages = () => {
-    const insetBottom = messages.length * (theme.SIZES.BASE * 6.5) + 64; // total messages x message height
+    // const insetBottom = messages.length * (theme.SIZES.BASE * 6.5) + 64; // total messages x message height
     return (
       <FlatList
         ref={messagesScroll}
         data={messages}
-        keyExtractor={(item) => `${item.id}`}
+        // keyExtractor={(item) => `${item.id}`}
         showsVerticalScrollIndicator={false}
         getItemLayout={itemLayout}
         contentContainerStyle={[styles.messagesWrapper]}
@@ -139,17 +164,17 @@ const ChatTemplate = (props) => {
     );
   };
 
-  const handleMessageChange = (text) => {
+  const handleMessageChange = (text: string): void => {
     setMessage(text);
   };
 
   const handleMessage = () => {
     if (typeof message !== "undefined" && message.length > 0) {
       if (isEnd) {
-        alert(`${user.name}さんは退室しています`);
+        Alert.alert(`${user.name}さんは退室しています`);
         return;
       } else if (!existUser) {
-        alert("話し相手が見つかりません。");
+        Alert.alert("話し相手が見つかりません。");
         return;
       }
       logEvent(
@@ -163,7 +188,9 @@ const ChatTemplate = (props) => {
       const messageID = generateUuid4();
       appendOfflineMessage(messageID, message);
       setMessage("");
-      sendWsMessage(ws, messageID, message, token);
+      ws !== null &&
+        token !== null &&
+        sendWsMessage(ws, messageID, message, token);
     }
   };
 
@@ -192,10 +219,11 @@ const ChatTemplate = (props) => {
             textContentType="none"
             placeholderTextColor="#9fa5aa"
             defaultValue={message}
-            onContentSizeChange={(event) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onContentSizeChange={(event: any) => {
               setInputHeight(event.nativeEvent.contentSize.height);
             }}
-            onChangeText={(text) => handleMessageChange(text)}
+            onChangeText={(text: string) => handleMessageChange(text)}
           />
           <Button
             round

@@ -1,10 +1,10 @@
 import React from "react";
 import ProfileInputTemplate from "../components/templates/ProfileInputTemplate";
-import authAxios from "../components/modules/axios";
-import { exeIntroStep, URLJoin } from "../components/modules/support";
+import requestAxios from "../components/modules/axios";
+import { URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 
-const ProfileInput = (props) => {
+const ProfileInput: React.FC = (props) => {
   return (
     <ProfileInputTemplate
       {...props}
@@ -15,24 +15,27 @@ const ProfileInput = (props) => {
 
 export default ProfileInput;
 
-export const requestPatchProfile = (
+export type RequestPatchProfile = (
+  token: any,
+  data: any,
+  profileDispatch: any,
+  successSubmit: any,
+  errorSubmit: any
+) => void;
+export const requestPatchProfile: RequestPatchProfile = (
   token,
   data,
   profileDispatch,
-  profileState,
   successSubmit,
   errorSubmit
 ) => {
   const url = URLJoin(BASE_URL, "me/");
 
-  authAxios(token)
+  requestAxios(token)
     .patch(url, data)
     .then((res) => {
       profileDispatch({ type: "SET_ALL", profile: res.data });
       successSubmit && successSubmit();
-      if (Object.keys(data).indexOf("intro_step") == -1) {
-        // exeIntroStep(2, profileDispatch, profileState, requestPatchProfile, token);
-      }
     })
     .catch((err) => {
       console.log(err.response);

@@ -12,7 +12,7 @@ import { useAuthState } from "../../contexts/AuthContext";
 
 const { width } = Dimensions.get("window");
 
-const SignUpTemplate = (props) => {
+const SignUpTemplate: React.FC = () => {
   const authState = useAuthState();
   const [initPage] = useState(
     // didProgressNumは完了済みのページ番号なのでその次のページから(+1)

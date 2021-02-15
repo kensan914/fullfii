@@ -9,7 +9,7 @@ import { TouchableOpacity } from "react-native";
 import { MenuModal } from "../molecules/Menu";
 import Spinner from "react-native-loading-spinner-overlay";
 import { BASE_URL, REPORT_URL } from "../../constants/env";
-import authAxios from "../modules/axios";
+import requestAxios from "../modules/axios";
 
 export const ProfileMenuButton = (props) => {
   const { user } = props;
@@ -105,7 +105,7 @@ const requestPatchBlock = (token, user, setIsShowSpinner) => {
 
   const url = URLJoin(BASE_URL, "users/", user.id, "block/");
 
-  authAxios(token)
+  requestAxios(token)
     .patch(url)
     .then((res) => {
       showToast({

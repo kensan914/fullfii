@@ -1,7 +1,5 @@
 import React from "react";
-import { Dimensions } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useNavigation } from "@react-navigation/native";
 
 import Header from "../components/organisms/Header";
 import HomeScreen from "../screens/Home";
@@ -18,11 +16,11 @@ import {
 import { useProfileState } from "../components/contexts/ProfileContext";
 import { useChatState } from "../components/contexts/ChatContext";
 import Spinner from "../components/atoms/Spinner";
+import { RootStackParamList } from "../components/types/Types";
 
-const { width, height } = Dimensions.get("screen");
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 
-const HomeStack = (props) => {
+const HomeStack = () => {
   const profileState = useProfileState();
   const chatState = useChatState();
 
@@ -31,15 +29,12 @@ const HomeStack = (props) => {
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        options={({ route, navigation }) => {
+        options={() => {
           return {
             header: ({ navigation, scene }) => {
-              const name = route.state
-                ? route.state.routes[route.state.index].name
-                : "Home";
               return (
                 <Header
-                  name={name}
+                  name={"Home"}
                   navigation={navigation}
                   scene={scene}
                   profile={profileState.profile}
@@ -100,7 +95,7 @@ const HomeStack = (props) => {
       <Stack.Screen
         name="Chat"
         component={ChatScreen}
-        options={({ route, navigation }) => {
+        options={({ route }) => {
           return {
             header: ({ navigation, scene }) => {
               const talkTicketKey = route.params.talkTicketKey;
@@ -142,17 +137,17 @@ const HomeStack = (props) => {
   );
 };
 
-const AppStack = (props) => {
+const AppStack: React.FC = () => {
   const authState = useAuthState();
 
   return (
     <>
       {authState.status === AUTHENTICATED ? (
-        <Stack.Navigator mode="card" headerMode="">
+        <Stack.Navigator mode="card" headerMode="none">
           <Stack.Screen name="Authenticated">
-            {(props) => (
+            {() => (
               <>
-                <HomeStack {...props} />
+                <HomeStack />
                 {authState.isShowSpinner && <Spinner />}
               </>
             )}
@@ -162,7 +157,7 @@ const AppStack = (props) => {
         <Stack.Navigator
           // mode="card"
           mode="modal"
-          headerMode=""
+          headerMode="none"
           screenOptions={
             {
               // gestureEnabled: false,  // backを可能に。
@@ -171,8 +166,7 @@ const AppStack = (props) => {
         >
           <Stack.Screen name="SignUp">
             {() => {
-              const navigation = useNavigation();
-              return <SignUpScreen {...props} navigation={navigation} />;
+              return <SignUpScreen />;
             }}
           </Stack.Screen>
         </Stack.Navigator>

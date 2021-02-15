@@ -24,7 +24,7 @@
 
 @end
 
-@import GoogleMobileAds; // 21/01/27
+// @import GoogleMobileAds; // 21/01/27
 
 @implementation AppDelegate
 
@@ -72,7 +72,7 @@
     [application registerForRemoteNotifications];
   }
 
-  [[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
+  // [[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
   return YES;
 }
 
@@ -83,6 +83,7 @@
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
 
   UIViewController *rootViewController = [UIViewController new];
+  // [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];

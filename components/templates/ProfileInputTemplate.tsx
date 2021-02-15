@@ -2,15 +2,23 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { Block, theme, Text } from "galio-framework";
 import { ScrollView } from "react-native-gesture-handler";
+import { useRoute } from "@react-navigation/native";
+
 import { useAuthState } from "../contexts/AuthContext";
 import { InputBlock, SubmitProfileButton } from "../organisms/ProfileInput";
 import {
   useProfileDispatch,
   useProfileState,
 } from "../contexts/ProfileContext";
+import { ProfileInputRouteProp } from "../../navigation/Screens";
+import { RequestPatchProfile } from "../../screens/ProfileInput";
 
-const ProfileInputTemplate = (props) => {
-  const { prevValue, screen } = props.route.params;
+type Props = {
+  requestPatchProfile: RequestPatchProfile;
+};
+const ProfileInputTemplate: React.FC<Props> = (props) => {
+  const route = useRoute<ProfileInputRouteProp>();
+  const { prevValue, screen } = route.params;
   const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
   const profileState = useProfileState();
@@ -46,7 +54,7 @@ const ProfileInputTemplate = (props) => {
         profileDispatch={profileDispatch}
         profileState={profileState}
         setValidationText={setValidationText}
-        {...props}
+        requestPatchProfile={props.requestPatchProfile}
       />
     </>
   );
