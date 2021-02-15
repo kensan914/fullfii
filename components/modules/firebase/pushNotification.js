@@ -25,7 +25,6 @@ const usePushNotification = () => {
   }, []);
 
   const initPushNotification = async () => {
-    console.log(0);
     const enabled = await messaging().hasPermission();
     if (enabled) {
       initFcm();
@@ -44,7 +43,6 @@ const usePushNotification = () => {
     console.log(`deviceToken: ${_deviceToken}`);
     setDeviceToken(_deviceToken);
 
-    console.log(1);
 
     PushNotification.configure({
       requestPermissions: false,
@@ -53,8 +51,6 @@ const usePushNotification = () => {
         notification.finish(PushNotificationIOS.FetchResult.NoData);
       },
     });
-
-    console.log(2);
 
     listenerRemovingFunctions.current = [
       messaging().onTokenRefresh((token) => {
@@ -74,6 +70,7 @@ const usePushNotification = () => {
       userInfo: message.data,
     });
   };
+  return deviceToken
 };
 
 export default usePushNotification;
