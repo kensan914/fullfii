@@ -14,11 +14,7 @@
 
 /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
 #import <UserNotifications/UNUserNotificationCenter.h>
-/* push notification */
 
-@interface AppDelegate : UMAppDelegateWrapper <RCTBridgeDelegate, EXUpdatesAppControllerDelegate>
-
-/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
 @interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate, UNUserNotificationCenterDelegate>
 /* push notification */
 
