@@ -18,6 +18,11 @@
 
 #import <Firebase.h>
 
+/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+#import <UserNotifications/UserNotifications.h>
+#import <RNCPushNotificationIOS.h>
+/* push notification */
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSDictionary *launchOptions;
