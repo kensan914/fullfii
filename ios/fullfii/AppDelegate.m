@@ -73,8 +73,27 @@
   }
 
   [[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
+
+  /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
+  /* push notification */
+
   return YES;
 }
+
+/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+  completionHandler();
+}
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+}
+  /* push notification */
+
 
 - (RCTBridge *)initializeReactNativeApp
 {

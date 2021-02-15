@@ -13,8 +13,9 @@
 #import <EXUpdates/EXUpdatesAppController.h>
 
 @interface AppDelegate : UMAppDelegateWrapper <RCTBridgeDelegate, EXUpdatesAppControllerDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate, UNUserNotificationCenterDelegate>
 
-@property (nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
-@property (nonatomic, strong) UIWindow *window;
+@property(nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
+@property(nonatomic, strong) UIWindow *window;
 
 @end
