@@ -2,15 +2,18 @@ import React from "react";
 import { useAuthDispatch } from "../../../contexts/AuthContext";
 import SignUpPageTemplate from "./SignUpPageTemplate";
 
-
 const FirstSignUpPage = (props) => {
   const { goToPage } = props;
   const authDispatch = useAuthDispatch();
   const progressNum = 1;
   const pressButton = () => {
-    authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: false, });
+    authDispatch({
+      type: "TO_PROGRESS_SIGNUP",
+      didProgressNum: progressNum,
+      isFinished: false,
+    });
     goToPage(progressNum + 1);
-  }
+  };
 
   return (
     <SignUpPageTemplate
@@ -21,8 +24,7 @@ const FirstSignUpPage = (props) => {
       pressCallback={pressButton}
       buttonTitle="次へ"
     />
-  )
-}
-
+  );
+};
 
 export default FirstSignUpPage;

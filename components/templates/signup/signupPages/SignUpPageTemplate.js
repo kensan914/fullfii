@@ -3,7 +3,6 @@ import { Block, Button, Text } from "galio-framework";
 import { Dimensions, StyleSheet, KeyboardAvoidingView } from "react-native";
 import { COLORS } from "../../../../constants/Theme";
 
-
 const { width } = Dimensions.get("window");
 
 const SignUpPageTemplate = (props) => {
@@ -31,8 +30,12 @@ const SignUpPageTemplate = (props) => {
     <>
       <Block flex middle style={styles.signupContainer}>
         <Block flex={0.15} style={styles.signupTitleContainer}>
-          <Text size={26} bold color={COLORS.PINK} style={styles.title}>{title}</Text>
-          <Text size={14} bold color={COLORS.PINK} style={styles.subTitle}>{subTitle}</Text>
+          <Text size={26} bold color={COLORS.PINK} style={styles.title}>
+            {title}
+          </Text>
+          <Text size={14} bold color={COLORS.PINK} style={styles.subTitle}>
+            {subTitle}
+          </Text>
         </Block>
 
         <Block flex={0.7} style={styles.signupContentsContainer}>
@@ -50,16 +53,17 @@ const SignUpPageTemplate = (props) => {
             loading={isLoading}
             onPress={pressCallback}
           >
-            <Text bold color="white" size={16}>{buttonTitle}</Text>
+            <Text bold color="white" size={16}>
+              {buttonTitle}
+            </Text>
           </Button>
         </Block>
       </Block>
     </>
-  )
-}
+  );
+};
 
 export default SignUpPageTemplate;
-
 
 const styles = StyleSheet.create({
   signupContainer: {

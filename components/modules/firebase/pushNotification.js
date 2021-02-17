@@ -43,7 +43,6 @@ const usePushNotification = () => {
     console.log(`deviceToken: ${_deviceToken}`);
     setDeviceToken(_deviceToken);
 
-
     PushNotification.configure({
       requestPermissions: false,
       onNotification: (notification) => {
@@ -70,7 +69,7 @@ const usePushNotification = () => {
       userInfo: message.data,
     });
   };
-  return deviceToken
+  return deviceToken;
 };
 
 export default usePushNotification;

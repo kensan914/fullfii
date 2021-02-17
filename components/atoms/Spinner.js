@@ -2,7 +2,6 @@ import React from "react";
 import { Block } from "galio-framework";
 import { ActivityIndicator, Dimensions } from "react-native";
 
-
 const { width, height } = Dimensions.get("screen");
 
 /**
@@ -21,12 +20,9 @@ const Spinner = (props) => {
         alignItems: "center",
       }}
     >
-      <ActivityIndicator
-        color="white"
-        size="large"
-      />
+      <ActivityIndicator color="white" size="large" />
     </Block>
-  )
-}
+  );
+};
 
 export default Spinner;

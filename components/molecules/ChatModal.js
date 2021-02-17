@@ -5,17 +5,20 @@ import Modal from "react-native-modal";
 import Spinner from "react-native-loading-spinner-overlay";
 import { withNavigation } from "@react-navigation/compat";
 
-import ModalButton from "../atoms/ModalButton"
+import ModalButton from "../atoms/ModalButton";
 import { useAxios } from "../modules/axios";
-import { alertModal, deepCvtKeyFromSnakeToCamel, URLJoin } from "../modules/support";
+import {
+  alertModal,
+  deepCvtKeyFromSnakeToCamel,
+  URLJoin,
+} from "../modules/support";
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useProfileState } from "../contexts/ProfileContext";
-import { logEvent } from "../modules/firebase/logEvent"
+import { logEvent } from "../modules/firebase/logEvent";
 
 const { width, height } = Dimensions.get("screen");
-
 
 const ChatModal = (props) => {
   const { isOpen, setIsOpen, EndTalkScreen, talkTicketKey } = props;
@@ -30,8 +33,12 @@ const ChatModal = (props) => {
   const talkTicket = chatState.talkTicketCollection[talkTicketKey];
 
   /* state */
-  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(talkTicket.canTalkHeterosexual);
-  const [canTalkDifferentJob, setCanTalkDifferentJob] = useState(talkTicket.canTalkDifferentJob);
+  const [canTalkHeterosexual, setCanTalkHeterosexual] = useState(
+    talkTicket.canTalkHeterosexual
+  );
+  const [canTalkDifferentJob, setCanTalkDifferentJob] = useState(
+    talkTicket.canTalkDifferentJob
+  );
   const [isSpeaker, setIsSpeaker] = useState(talkTicket.isSpeaker);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
@@ -40,24 +47,35 @@ const ChatModal = (props) => {
   /* ref */
   const roomId = useRef();
 
-  const { request } = useAxios(URLJoin(BASE_URL, "talk-ticket/", talkTicket.id), "post", {
-    thenCallback: res => {
-      roomId.current = talkTicket.room.id;
-      const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
-      chatDispatch({ type: "OVERWRITE_TALK_TICKET", talkTicket: newTalkTicket });
-      if (talkTicket.status.key === "talking") {
-        setIsOpenEndTalk(true);
-      } else {
+  const { request } = useAxios(
+    URLJoin(BASE_URL, "talk-ticket/", talkTicket.id),
+    "post",
+    null, // TODO:
+    {
+      thenCallback: (res) => {
+        roomId.current = talkTicket.room.id;
+        const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
+        chatDispatch({
+          type: "OVERWRITE_TALK_TICKET",
+          talkTicket: newTalkTicket,
+        });
+        if (talkTicket.status.key === "talking") {
+          setIsOpenEndTalk(true);
+        } else {
+          closeChatModal();
+        }
+      },
+      catchCallback: (e) => {
+        console.error(e);
         closeChatModal();
-      }
-    },
-    catchCallback: (e) => { console.error(e); closeChatModal(); },
-    finallyCallback: () => {
-      setIsShowSpinner(false);
-    },
-    token: authState.token,
-    // limitRequest: 1,
-  });
+      },
+      finallyCallback: () => {
+        setIsShowSpinner(false);
+      },
+      token: authState.token,
+      // limitRequest: 1,
+    }
+  );
 
   const onPressStop = () => {
     setCanPressBackdrop(false);
@@ -67,9 +85,13 @@ const ChatModal = (props) => {
       cancelButton: "キャンセル",
       okButton: "停止する",
       onPress: () => {
-        logEvent("stop_talk_button", {
-          job: profileState.profile?.job?.label,
-        }, profileState);
+        logEvent(
+          "stop_talk_button",
+          {
+            job: profileState.profile?.job?.label,
+          },
+          profileState
+        );
         setIsShowSpinner(true);
         request({
           data: {
@@ -82,24 +104,32 @@ const ChatModal = (props) => {
       },
       cancelOnPress: () => setCanPressBackdrop(true),
     });
-  }
+  };
 
   const onPressShuffle = () => {
     setCanPressBackdrop(false);
     alertModal({
       mainText: `以下の条件で「${talkTicket.worry.label}」の話し相手を探します。`,
       subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}
-      ・${canTalkDifferentJob ? "全ての職業を許可" : `話し相手を${profileState.profile.job?.label}に絞る`}
+      ・${
+        canTalkDifferentJob
+          ? "全ての職業を許可"
+          : `話し相手を${profileState.profile.job?.label}に絞る`
+      }
       ・${canTalkHeterosexual ? "話し相手に異性を含む" : "話し相手を同性に絞る"}
       \n今までのトーク内容は端末から削除されます。`,
       cancelButton: "キャンセル",
       okButton: "探す",
       onPress: () => {
-        logEvent("shuffle_talk_button", {
-          is_speaker: isSpeaker,
-          can_talk_heterosexual: canTalkHeterosexual,
-          can_talk_different_job: canTalkDifferentJob,
-        }, profileState);
+        logEvent(
+          "shuffle_talk_button",
+          {
+            is_speaker: isSpeaker,
+            can_talk_heterosexual: canTalkHeterosexual,
+            can_talk_different_job: canTalkDifferentJob,
+          },
+          profileState
+        );
         setIsShowSpinner(true);
         request({
           data: {
@@ -112,13 +142,13 @@ const ChatModal = (props) => {
       },
       cancelOnPress: () => setCanPressBackdrop(true),
     });
-  }
+  };
 
   const closeChatModal = () => {
     setIsOpen(false);
     setCanPressBackdrop(true);
     setIsOpenEndTalk(false);
-  }
+  };
 
   return (
     <>
@@ -126,28 +156,46 @@ const ChatModal = (props) => {
         backdropOpacity={0.3}
         isVisible={isOpen}
         onBackdropPress={() => {
-          if (canPressBackdrop || typeof canPressBackdrop === "undefined") closeChatModal();
+          if (canPressBackdrop || typeof canPressBackdrop === "undefined")
+            closeChatModal();
         }}
         style={styles.modal}
       >
-        <Spinner
-          visible={isShowSpinner}
-          overlayColor="rgba(0,0,0,0)"
-        />
+        <Spinner visible={isShowSpinner} overlayColor="rgba(0,0,0,0)" />
 
         <Block style={styles.modalContents}>
           <Block>
             <Block style={{ justifyContent: "center" }}>
-              <ChatSwitch title="話したい" value={isSpeaker} onChange={(val) => setIsSpeaker(val)} />
-              <ChatSwitch title="聞きたい" value={!isSpeaker} onChange={(val) => setIsSpeaker(!val)} />
+              <ChatSwitch
+                title="話したい"
+                value={isSpeaker}
+                onChange={(val) => setIsSpeaker(val)}
+              />
+              <ChatSwitch
+                title="聞きたい"
+                value={!isSpeaker}
+                onChange={(val) => setIsSpeaker(!val)}
+              />
             </Block>
             <Block style={{ justifyContent: "center", marginTop: 10 }}>
               {/* TODO: 内緒処理 */}
-              <ChatSwitch title={`話し相手を${profileState.profile.job?.label}に絞る`} value={!canTalkDifferentJob} onChange={(val) => setCanTalkDifferentJob(!val)} />
-              <ChatSwitch title="話し相手に異性を含む" value={canTalkHeterosexual} onChange={setCanTalkHeterosexual} />
+              <ChatSwitch
+                title={`話し相手を${profileState.profile.job?.label}に絞る`}
+                value={!canTalkDifferentJob}
+                onChange={(val) => setCanTalkDifferentJob(!val)}
+              />
+              <ChatSwitch
+                title="話し相手に異性を含む"
+                value={canTalkHeterosexual}
+                onChange={setCanTalkHeterosexual}
+              />
             </Block>
             <Block />
-            <Block row center style={{ justifyContent: "center", marginTop: 20 }}>
+            <Block
+              row
+              center
+              style={{ justifyContent: "center", marginTop: 20 }}
+            >
               <Block flex={0.45} center>
                 <ModalButton
                   icon="logout"
@@ -177,11 +225,9 @@ const ChatModal = (props) => {
       </Modal>
     </>
   );
-}
-
+};
 
 export default withNavigation(ChatModal);
-
 
 const ChatSwitch = (props) => {
   const { title, onChange, value } = props;
@@ -189,22 +235,23 @@ const ChatSwitch = (props) => {
     <>
       <Block row space="between" style={styles.settingsCard}>
         <Block>
-          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>{title}</Text>
+          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>
+            {title}
+          </Text>
         </Block>
-        <Block style={{ alignItems: "center", justifyContent: "center" }} >
+        <Block style={{ alignItems: "center", justifyContent: "center" }}>
           <Switch
             trackColor={{ false: "dimgray", true: "#F69896" }}
             ios_backgroundColor={"gray"}
             value={value}
-            style={{ marginVertical: 8, marginHorizontal: 15, }}
+            style={{ marginVertical: 8, marginHorizontal: 15 }}
             onValueChange={onChange}
           />
         </Block>
       </Block>
     </>
   );
-}
-
+};
 
 const styles = StyleSheet.create({
   modal: {

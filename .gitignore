@@ -274,3 +274,5 @@ buck-out/
 # Expo
 .expo/*
 web-build/
+
+.DS_Store

@@ -1,15 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Dimensions } from "react-native";
 
 import SignUpPageTemplate from "./SignUpPageTemplate";
 import { useAuthDispatch } from "../../../contexts/AuthContext";
 import { useProfileState } from "../../../contexts/ProfileContext";
 import BubbleList from "../../../organisms/BubbleList";
-import { logEvent } from "../../../modules/firebase/logEvent"
-
+import { logEvent } from "../../../modules/firebase/logEvent";
+import { hasProperty } from "../../../modules/support";
 
 const { width, height } = Dimensions.get("screen");
-
 
 const SecondSignUpPage = (props) => {
   const { goToPage } = props;
@@ -19,31 +18,37 @@ const SecondSignUpPage = (props) => {
 
   const [worriesCollection, setWorriesCollection] = useState({});
   const checkCanNext = () => {
-    return (
-      Object.keys(worriesCollection).length >= 3
-    );
-  }
+    return Object.keys(worriesCollection).length >= 3;
+  };
 
   const pressButton = () => {
-    authDispatch({ type: "TO_PROGRESS_SIGNUP", didProgressNum: progressNum, isFinished: false, });
-    authDispatch({ type: "SET_WORRIES_BUFFER", worries: Object.values(worriesCollection), });
+    authDispatch({
+      type: "TO_PROGRESS_SIGNUP",
+      didProgressNum: progressNum,
+      isFinished: false,
+    });
+    authDispatch({
+      type: "SET_WORRIES_BUFFER",
+      worries: Object.values(worriesCollection),
+    });
     logEvent("intro_worry_bubble", {
-      worries: Object.values(worriesCollection).map(worry => {
-        return worry?.label
-      }).join(", "),
+      worries: Object.values(worriesCollection)
+        .map((worry) => {
+          return worry?.label;
+        })
+        .join(", "),
     });
 
     goToPage(progressNum + 1);
-  }
+  };
 
-  const genreOfWorries =
-    profileState.profileParams ?
-      JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries)) :
-      {};
+  const genreOfWorries = profileState.profileParams
+    ? JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries))
+    : {};
 
   const pressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
-    if (_worriesCollection.hasOwnProperty(key)) {
+    if (hasProperty(_worriesCollection, key)) {
       delete _worriesCollection[key];
     } else {
       _worriesCollection[key] = genreOfWorries[key];
@@ -65,7 +70,7 @@ const SecondSignUpPage = (props) => {
         pressBubble={pressBubble}
       />
     );
-  }
+  };
 
   return (
     <SignUpPageTemplate
@@ -78,8 +83,7 @@ const SecondSignUpPage = (props) => {
       checkCanNext={checkCanNext}
       statesRequired={[worriesCollection]}
     />
-  )
-}
-
+  );
+};
 
 export default SecondSignUpPage;

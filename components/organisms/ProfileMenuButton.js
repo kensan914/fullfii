@@ -3,16 +3,13 @@ import { StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 
 import Icon from "../../components/atoms/Icon";
-import { useProfileDispatch } from "../contexts/ProfileContext";
 import { useAuthState } from "../contexts/AuthContext";
-import { useChatDispatch } from "../contexts/ChatContext";
-import { alertModal } from "../modules/support";
+import { alertModal, showToast, URLJoin } from "../modules/support";
 import { TouchableOpacity } from "react-native";
 import { MenuModal } from "../molecules/Menu";
 import Spinner from "react-native-loading-spinner-overlay";
-import { REPORT_URL } from "../../constants/env";
-import { requestPatchBlock } from "../../screens/Profile";
-
+import { BASE_URL, REPORT_URL } from "../../constants/env";
+import requestAxios from "../modules/axios";
 
 export const ProfileMenuButton = (props) => {
   const { user } = props;
@@ -23,30 +20,46 @@ export const ProfileMenuButton = (props) => {
 
   return (
     <>
-      <TouchableOpacity style={[styles.ProfileMenuButton, {}]} onPress={() => setIsOpen(true)}>
+      <TouchableOpacity
+        style={[styles.ProfileMenuButton, {}]}
+        onPress={() => setIsOpen(true)}
+      >
         <Icon family="font-awesome" size={20} name="ban" color="white" />
-        <MenuModal isOpen={isOpen} setIsOpen={setIsOpen}
+        <MenuModal
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
           items={[
             {
-              title: "ブロックする", onPress: () => handleBlockUser(user, setCanPressBackdrop, authState.token, setIsShowSpinner)
+              title: "ブロックする",
+              onPress: () =>
+                handleBlockUser(
+                  user,
+                  setCanPressBackdrop,
+                  authState.token,
+                  setIsShowSpinner
+                ),
             },
             {
-              title: "通報する", onPress: () => handleReportUser(user, setCanPressBackdrop)
+              title: "通報する",
+              onPress: () => handleReportUser(user, setCanPressBackdrop),
             },
           ]}
           spinnerOverlay={
-            <Spinner
-              visible={isShowSpinner}
-              overlayColor="rgba(0,0,0,0)"
-            />}
+            <Spinner visible={isShowSpinner} overlayColor="rgba(0,0,0,0)" />
+          }
           canPressBackdrop={canPressBackdrop}
         />
-      </TouchableOpacity >
+      </TouchableOpacity>
     </>
   );
-}
+};
 
-const handleBlockUser = (user, setCanPressBackdrop, token, setIsShowSpinner) => {
+const handleBlockUser = (
+  user,
+  setCanPressBackdrop,
+  token,
+  setIsShowSpinner
+) => {
   setCanPressBackdrop(false);
   alertModal({
     mainText: `${user.name}さんをブロックしますか？`,
@@ -59,9 +72,9 @@ const handleBlockUser = (user, setCanPressBackdrop, token, setIsShowSpinner) => 
     },
     cancelOnPress: () => {
       setCanPressBackdrop(true);
-    }
+    },
   });
-}
+};
 
 const handleReportUser = (user, setCanPressBackdrop) => {
   setCanPressBackdrop(false);
@@ -76,10 +89,9 @@ const handleReportUser = (user, setCanPressBackdrop) => {
     },
     cancelOnPress: () => {
       setCanPressBackdrop(true);
-    }
+    },
   });
-}
-
+};
 
 const styles = StyleSheet.create({
   ProfileMenuButton: {
@@ -87,3 +99,29 @@ const styles = StyleSheet.create({
     position: "relative",
   },
 });
+
+const requestPatchBlock = (token, user, setIsShowSpinner) => {
+  setIsShowSpinner(true);
+
+  const url = URLJoin(BASE_URL, "users/", user.id, "block/");
+
+  requestAxios(token)
+    .patch(url)
+    .then((res) => {
+      showToast({
+        text1: `${user.name}さんをブロックしました。`,
+      });
+    })
+    .catch((err) => {
+      if (err.response.data.type === "have_already_blocked") {
+        showToast({
+          type: "error",
+          text1: err.response.data.message,
+        });
+      }
+      console.log(err.response);
+    })
+    .finally(() => {
+      setIsShowSpinner(false);
+    });
+};

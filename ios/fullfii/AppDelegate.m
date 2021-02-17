@@ -29,6 +29,10 @@
 
 @end
 
+<<<<<<< HEAD
+// @import GoogleMobileAds; // 21/01/27
+=======
+>>>>>>> 2.x
 
 @implementation AppDelegate
 
@@ -76,7 +80,6 @@
     [application registerForRemoteNotifications];
   }
 
-
   /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
   center.delegate = self;
@@ -114,7 +117,6 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
 {
   [RNCPushNotificationIOS didReceiveNotificationResponse:response];
 }
-
 /* push notification */
 
 
@@ -125,6 +127,7 @@ didReceiveNotificationResponse:(UNNotificationResponse *)response
   rootView.backgroundColor = [[UIColor alloc] initWithRed:1.0f green:1.0f blue:1.0f alpha:1];
 
   UIViewController *rootViewController = [UIViewController new];
+  // [[GADMobileAds sharedInstance] startWithCompletionHandler:nil];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];

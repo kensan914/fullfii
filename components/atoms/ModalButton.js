@@ -3,9 +3,7 @@ import { Dimensions, StyleSheet } from "react-native";
 import { Button } from "galio-framework";
 import { COLORS } from "../../constants/Theme";
 
-
 const { width, height } = Dimensions.get("screen");
-
 
 const ModalButton = (props) => {
   const { icon, iconFamily, colorLess, onPress } = props;
@@ -23,11 +21,9 @@ const ModalButton = (props) => {
       onPress={onPress}
     />
   );
-}
-
+};
 
 export default ModalButton;
-
 
 const styles = StyleSheet.create({
   modalButton: {
