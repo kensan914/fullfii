@@ -20,7 +20,7 @@ import Manager from "./screens/StartUpManager";
 import { ProductProvider } from "./components/contexts/ProductContext";
 // import { logEvent } from "./components/modules/firebase/logEvent";
 import { LogBox } from "react-native";
-// import usePushNotification from "./components/modules/firebase/pushNotification";
+import usePushNotification from "./components/modules/firebase/pushNotification";
 
 
 LogBox.ignoreAllLogs(true);
@@ -41,10 +41,10 @@ function cacheImages(images) {
 }
 
 const App = (props) => {
-  // const [deviceToken, notificationType] = usePushNotification();
-  // useEffect(() => {
-  //   console.error(deviceToken);
-  // }, [deviceToken]);
+  const deviceToken = usePushNotification();
+  useEffect(() => {
+    console.error(deviceToken);
+  }, [deviceToken]);
 
 
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(false);

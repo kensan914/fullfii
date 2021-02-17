@@ -12,7 +12,11 @@
 
 #import <EXUpdates/EXUpdatesAppController.h>
 
-@interface AppDelegate : UMAppDelegateWrapper <RCTBridgeDelegate, EXUpdatesAppControllerDelegate>
+/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+#import <UserNotifications/UNUserNotificationCenter.h>
+
+@interface AppDelegate : UMAppDelegateWrapper <UIApplicationDelegate, RCTBridgeDelegate, UNUserNotificationCenterDelegate>
+/* push notification */
 
 @property(nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
 @property(nonatomic, strong) UIWindow *window;
