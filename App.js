@@ -41,10 +41,10 @@ function cacheImages(images) {
 }
 
 const App = (props) => {
-  // const [deviceToken, notificationType] = usePushNotification();
-  // useEffect(() => {
-  //   console.error(deviceToken);
-  // }, [deviceToken]);
+  const deviceToken = usePushNotification();
+  useEffect(() => {
+    console.error(deviceToken);
+  }, [deviceToken]);
 
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
     false

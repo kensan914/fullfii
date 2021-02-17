@@ -9,7 +9,7 @@ import { TouchableOpacity } from "react-native";
 import ChatModal from "../molecules/ChatModal";
 import { useAxios } from "../modules/axios";
 import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
-import { AdMobInterstitial } from "react-native-admob";
+// import { AdMobInterstitial } from "react-native-admob";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
@@ -84,6 +84,7 @@ export const EndTalkScreen = (props) => {
         closeChatModal();
         authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
 
+        // TODO:
         if (!isExpo) {
           AdMobInterstitial.setAdUnitID(ADMOB_UNIT_ID_AFTER_THX);
           AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);

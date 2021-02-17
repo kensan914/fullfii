@@ -18,13 +18,21 @@
 
 #import <Firebase.h>
 
+/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+#import <UserNotifications/UserNotifications.h>
+#import <RNCPushNotificationIOS.h>
+/* push notification */
+
 @interface AppDelegate ()
 
 @property (nonatomic, strong) NSDictionary *launchOptions;
 
 @end
 
+<<<<<<< HEAD
 // @import GoogleMobileAds; // 21/01/27
+=======
+>>>>>>> 2.x
 
 @implementation AppDelegate
 
@@ -72,9 +80,45 @@
     [application registerForRemoteNotifications];
   }
 
-  // [[GADMobileAds sharedInstance] startWithCompletionHandler:nil]; // 21/01/27: https://qiita.com/juginon/items/7f4ee4273b2c480277f3
+  /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+  UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+  center.delegate = self;
+  /* push notification */
+
   return YES;
 }
+
+/* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center
+      willPresentNotification:(UNNotification *)notification
+        withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
+{
+  NSDictionary *userInfo = notification.request.content.userInfo;
+  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo
+                                fetchCompletionHandler:^void (UIBackgroundFetchResult result){}];
+  completionHandler(UNNotificationPresentationOptionSound | UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge);
+}
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+  [RNCPushNotificationIOS didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+}
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
+{
+  [RNCPushNotificationIOS didFailToRegisterForRemoteNotificationsWithError:error];
+}
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+didReceiveNotificationResponse:(UNNotificationResponse *)response
+         withCompletionHandler:(void (^)(void))completionHandler
+{
+  [RNCPushNotificationIOS didReceiveNotificationResponse:response];
+}
+/* push notification */
+
 
 - (RCTBridge *)initializeReactNativeApp
 {
