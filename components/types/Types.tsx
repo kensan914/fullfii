@@ -132,7 +132,7 @@ export type ItemLayout = (
   offset: number;
   index: number;
 };
-export type OnContentSizeChange = (height: number) => void;
+export type OnContentSizeChange = (width: number, height: number) => void;
 //--------- ChatTemplate.tsx ---------//
 
 //--------- ProfileEditor.tsx ---------//

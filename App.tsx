@@ -15,7 +15,7 @@ import { AuthProvider } from "./components/contexts/AuthContext";
 import { asyncGetItem, asyncGetJson } from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
-import Manager from "./screens/StartUpManager";
+import StartUpManager from "./screens/StartUpManager";
 import {
   MeProfileIoTs,
   SignupBufferIoTs,
@@ -151,10 +151,10 @@ const RootNavigator: React.FC<Props> = (props) => {
           <ProfileProvider profile={profile}>
             <ChatProvider talkTicketCollection={talkTicketCollection}>
               <GalioProvider theme={materialTheme}>
-                <Manager>
+                <StartUpManager>
                   {Platform.OS === "ios" && <StatusBar barStyle="default" />}
                   <Screens {...props} />
-                </Manager>
+                </StartUpManager>
               </GalioProvider>
             </ChatProvider>
           </ProfileProvider>

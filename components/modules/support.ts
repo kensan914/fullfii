@@ -86,17 +86,21 @@ export const cvtListDate = (date: Date): string => {
   }
 };
 
+/** fmtfromDateToStr(new Date(), "YYYY/MM/DD hh:mm:ss"); */
 export const fmtfromDateToStr = (date: Date, format: string): string => {
-  // fmtfromDateToStr(new Date(), "YYYY/MM/DD hh:mm:ss")
+  const _date: Date = date;
   if (!format) {
     format = "YYYY/MM/DD hh:mm:ss";
   }
-  format = format.replace(/YYYY/g, date.getFullYear().toString());
-  format = format.replace(/MM/g, ("0" + (date.getMonth() + 1)).slice(-2));
-  format = format.replace(/DD/g, ("0" + date.getDate()).slice(-2));
-  format = format.replace(/hh/g, ("0" + date.getHours()).slice(-2));
-  format = format.replace(/mm/g, ("0" + date.getMinutes()).slice(-2));
-  format = format.replace(/ss/g, ("0" + date.getSeconds()).slice(-2));
+  if (typeof date === "string") {
+    _date = new Date(date);
+  }
+  format = format.replace(/YYYY/g, _date.getFullYear().toString());
+  format = format.replace(/MM/g, ("0" + (_date.getMonth() + 1)).slice(-2));
+  format = format.replace(/DD/g, ("0" + _date.getDate()).slice(-2));
+  format = format.replace(/hh/g, ("0" + _date.getHours()).slice(-2));
+  format = format.replace(/mm/g, ("0" + _date.getMinutes()).slice(-2));
+  format = format.replace(/ss/g, ("0" + _date.getSeconds()).slice(-2));
   return format;
 };
 

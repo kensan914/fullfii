@@ -60,7 +60,6 @@ const ChatTemplate: React.FC<Props> = (props) => {
 
   const messagesScroll = useRef<FlatList>(null);
   const [message, setMessage] = useState("");
-  const [height, setHeight] = useState(0);
   const [inputHeight, setInputHeight] = useState(0);
 
   const existUser = !!user.id.length;
@@ -69,7 +68,6 @@ const ChatTemplate: React.FC<Props> = (props) => {
   const profileState = useProfileState();
 
   useEffect(() => {
-    handleScroll();
     chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
   }, [messages.length]);
 
@@ -79,16 +77,10 @@ const ChatTemplate: React.FC<Props> = (props) => {
     index,
   });
 
-  const handleScroll = () => {
-    setTimeout(() => {
-      const messagesScrollCurrent = messagesScroll.current;
-      messagesScrollCurrent !== null &&
-        messagesScrollCurrent.scrollToOffset({ offset: height });
-    }, 1);
-  };
-
-  const onContentSizeChange: OnContentSizeChange = (height) => {
-    setHeight(height);
+  const onContentSizeChange: OnContentSizeChange = (width, height) => {
+    const messagesScrollCurrent = messagesScroll.current;
+    messagesScrollCurrent !== null &&
+      messagesScrollCurrent.scrollToOffset({ offset: height });
   };
 
   const renderMessage = (message: AllMessage, index: number) => {
@@ -153,10 +145,9 @@ const ChatTemplate: React.FC<Props> = (props) => {
       <FlatList
         ref={messagesScroll}
         data={messages}
-        // keyExtractor={(item) => `${item.id}`}
         showsVerticalScrollIndicator={false}
         getItemLayout={itemLayout}
-        contentContainerStyle={[styles.messagesWrapper]}
+        contentContainerStyle={styles.messagesWrapper}
         renderItem={({ item, index }) => renderMessage(item, index)}
         onContentSizeChange={onContentSizeChange}
         keyExtractor={(item, index) => index.toString()}

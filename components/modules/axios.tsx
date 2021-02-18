@@ -76,7 +76,7 @@ const useCommonThen = (
     return;
   }
   const formattedResData = deepCvtKeyFromSnakeToCamel(res.data);
-  console.log(formattedResData);
+  // console.log(formattedResData);
   const typeIoTsResult = typeIoTsOfResData.decode(formattedResData);
   if (isRight(typeIoTsResult)) {
     if (action.thenCallback !== void 0) {
@@ -97,8 +97,8 @@ const useCommonThen = (
       );
     };
 
-    console.log(typeof getPaths(typeIoTsResult));
-    console.log(getPaths(typeIoTsResult)); // => [ '.userId', '.name' ]
+    // console.log(typeof getPaths(typeIoTsResult));
+    // console.log(getPaths(typeIoTsResult)); // => [ '.userId', '.name' ]
 
     throw new Error(
       "Type does not match(axios)). " + PathReporter.report(typeIoTsResult)

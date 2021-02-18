@@ -182,7 +182,7 @@ const ThirdSignUpPage: React.FC = () => {
                       )}
                     </Block>
                   ) : (
-                    <Block />
+                    <Block key={i} />
                   );
                 }
               )}

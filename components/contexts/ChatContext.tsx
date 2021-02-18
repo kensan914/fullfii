@@ -20,6 +20,8 @@ import {
   RoomJson,
   AllMessages,
   TalkTicketJson,
+  TalkTicketCollectionAsync,
+  TalkTicketKey,
 } from "../types/Types.context";
 import { initProfile } from "./ProfileContext";
 
@@ -200,7 +202,7 @@ const chatReducer = (
         _talkTicket.room.ws.send(
           JSON.stringify({
             type: "store",
-            messageId: action.messageId,
+            message_id: action.messageId,
             token: action.token,
           })
         );
@@ -534,6 +536,22 @@ const changeTalkTicketFromJsonToObject = (
   return talkTicketJson;
 };
 
+const cvtDateStringToDateObject = (
+  talkTicketCollection: TalkTicketCollection
+) => {
+  Object.keys(talkTicketCollection).forEach((talkTicketKey: TalkTicketKey) => {
+    const _talkTicket = talkTicketCollection[talkTicketKey];
+    _talkTicket.room.messages.forEach((message, i) => {
+      const _targetMessage = _talkTicket.room.messages[i];
+      if ("time" in _targetMessage && "time" in message) {
+        _targetMessage.time = new Date(message.time);
+      }
+    });
+  });
+
+  return talkTicketCollection;
+};
+
 const ChatStateContext = createContext<ChatState>({
   totalUnreadNum: 0,
   talkTicketCollection: {},
@@ -560,7 +578,9 @@ export const ChatProvider: React.FC<Props> = ({
 }) => {
   const [chatState, chatDispatch] = useReducer(chatReducer, {
     totalUnreadNum: 0,
-    talkTicketCollection: talkTicketCollection ? talkTicketCollection : {},
+    talkTicketCollection: talkTicketCollection
+      ? cvtDateStringToDateObject(talkTicketCollection)
+      : {},
   });
   return (
     <ChatStateContext.Provider value={chatState}>

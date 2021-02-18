@@ -265,6 +265,7 @@ const _connectWsChat = (wsProps: WsProps) => {
     },
     onmessage: (eData, e, ws, isReconnect) => {
       const data = eData as WsResChat;
+      console.log(data);
       switch (data.type) {
         case "auth":
           if (isReconnect) {

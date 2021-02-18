@@ -1,33 +1,46 @@
 import { useEffect, useState } from "react";
-import { AdEventType, InterstitialAd } from "@react-native-firebase/admob";
 import { ShowAdMobInterstitial } from "../types/Types";
+import { isExpo } from "../../constants/env";
 
 const useAdMobInterstitial = (adUnitId: string): ShowAdMobInterstitial => {
-  const [interstitial] = useState(
-    InterstitialAd.createForAdRequest(adUnitId, {
-      requestNonPersonalizedAdsOnly: true,
-      keywords: ["fashion", "clothing"],
-    })
-  );
+  const [interstitial, setInterstitial] = useState();
   const [canShow, setCanShow] = useState(false);
 
   useEffect(() => {
-    const eventListener = interstitial.onAdEvent((type) => {
-      if (type === AdEventType.LOADED) {
-        setCanShow(true);
+    (async () => {
+      if (!isExpo) {
+        const _firebaseAdmobModule = await import(
+          "@react-native-firebase/admob"
+        );
+
+        const _interstitial = _firebaseAdmobModule.InterstitialAd.createForAdRequest(
+          adUnitId,
+          {
+            requestNonPersonalizedAdsOnly: true,
+            keywords: ["fashion", "clothing"],
+          }
+        );
+
+        if (_interstitial) {
+          const eventListener = _interstitial.onAdEvent((type) => {
+            if (type === _firebaseAdmobModule.AdEventType.LOADED) {
+              setCanShow(true);
+            }
+          });
+          _interstitial.load();
+
+          setInterstitial(_interstitial);
+          return () => {
+            eventListener();
+          };
+        }
       }
-    });
-
-    interstitial.load();
-
-    return () => {
-      eventListener();
-    };
+    })();
   }, []);
 
   const showAdMobInterstitial: ShowAdMobInterstitial = () => {
     if (!canShow) return false;
-    interstitial.show();
+    if (typeof interstitial !== "undefined") interstitial.show();
     return true;
   };
 

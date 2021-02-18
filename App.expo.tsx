@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Platform, StatusBar, Image } from "react-native";
-import { Asset } from "expo-asset";
+import { Platform, StatusBar, LogBox } from "react-native";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -11,12 +10,14 @@ enableScreens();
 import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
-import { asyncGetItem, asyncGetJson } from "./components/modules/support";
+import {
+  asyncGetItem,
+  asyncGetJson,
+  asyncRemoveItem,
+} from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
 import StartUpManager from "./screens/StartUpManager";
-// import { logEvent } from "./components/modules/firebase";
-import { LogBox } from "react-native";
 import { setIsExpo } from "./constants/env";
 import {
   AuthStatus,
@@ -29,55 +30,24 @@ import {
   TalkTicketCollectionAsync,
   TalkTicketCollectionAsyncIoTs,
 } from "./components/types/Types.context";
-import { Assets } from "./components/types/Types";
 
 LogBox.ignoreAllLogs(true);
-
-const assetImages = {
-  logo: require("./assets/images/icon_2/ios/Icon-512.png"),
-};
-
-function cacheImages(images: (string | number)[]): Promise<Asset>[] {
-  return images.map((image) => {
-    return Asset.fromModule(image).downloadAsync();
-  });
-}
 
 const App: React.FC = () => {
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
     false
   );
-  const [assets, setAssets] = useState<Assets>({});
-
-  const loadResourcesAsync = async (): Promise<Asset[]> => {
-    const images = Object.values(assetImages);
-    const assetPromises = cacheImages(images);
-    return Promise.all(assetPromises);
-  };
 
   useEffect(() => {
     setIsExpo(true);
-
-    loadResourcesAsync().then((assetList) => {
-      const downloadedAssets: Assets = {};
-      assetList.forEach((elm: Asset) => {
-        if ("name" in elm) downloadedAssets[elm.name] = elm;
-      });
-      setAssets(downloadedAssets);
-      setIsFinishLoadingResources(true);
-    });
+    setIsFinishLoadingResources(true);
   }, []);
-  return (
-    <RootNavigator
-      isFinishLoadingResources={isFinishLoadingResources}
-      assets={assets}
-    />
-  );
+
+  return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} />;
 };
 
 type Props = {
   isFinishLoadingResources: boolean;
-  assets: Assets;
 };
 const RootNavigator: React.FC<Props> = (props) => {
   type InitState<T> = undefined | null | T;
@@ -140,7 +110,7 @@ const RootNavigator: React.FC<Props> = (props) => {
               <GalioProvider theme={materialTheme}>
                 <StartUpManager>
                   {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                  <Screens {...props} />
+                  <Screens />
                 </StartUpManager>
               </GalioProvider>
             </ChatProvider>
