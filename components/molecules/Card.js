@@ -67,26 +67,29 @@ const Card = (props) => {
               >
                 {item.title}
               </Text>
-
-              {Number.isInteger(countNum) && countNum > 0 ? (
-                <Block
-                  style={[
-                    styles.counter,
-                    {
-                      height: titleSize + 5,
-                      borderRadius: (titleSize + 5) / 2,
-                      minWidth: titleSize + 5,
-                    },
-                  ]}
-                >
-                  <Text color="white" size={titleSize - 2}>
-                    {countNum}
-                  </Text>
-                </Block>
-              ) : (
-                <></>
-              )}
             </Block>
+
+            {Number.isInteger(countNum) && countNum > 0 ? (
+              <Block
+                style={[
+                  styles.counter,
+                  {
+                    position: "absolute",
+                    top: -(titleSize + 5) / 3,
+                    right: -(titleSize + 5) / 3,
+                    height: titleSize + 5,
+                    borderRadius: (titleSize + 5) / 2,
+                    minWidth: titleSize + 5,
+                  },
+                ]}
+              >
+                <Text color="white" size={titleSize - 2}>
+                  {countNum}
+                </Text>
+              </Block>
+            ) : (
+              <></>
+            )}
 
             <Block style={styles.messageContainer}>
               <Text
