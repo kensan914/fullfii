@@ -65,10 +65,16 @@ const initAxios = (
 const useCommonThen = (
   res: AxiosResponse,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeIoTsOfResData: TypeIoTsOfResData,
+  typeIoTsOfResData: TypeIoTsOfResData | null,
   action: UseAxiosActionType | RequestAxiosActionType,
   setResData?: Dispatch<unknown>
 ): void => {
+  if (typeIoTsOfResData === null) {
+    if (action.thenCallback !== void 0) {
+      action.thenCallback(res.data, res);
+    }
+    return;
+  }
   const formattedResData = deepCvtKeyFromSnakeToCamel(res.data);
   console.log(formattedResData);
   const typeIoTsResult = typeIoTsOfResData.decode(formattedResData);

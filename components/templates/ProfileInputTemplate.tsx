@@ -6,22 +6,17 @@ import { useRoute } from "@react-navigation/native";
 
 import { useAuthState } from "../contexts/AuthContext";
 import { InputBlock, SubmitProfileButton } from "../organisms/ProfileInput";
-import {
-  useProfileDispatch,
-  useProfileState,
-} from "../contexts/ProfileContext";
-import { ProfileInputRouteProp } from "../../navigation/Screens";
-import { RequestPatchProfile } from "../../screens/ProfileInput";
+import { useProfileDispatch } from "../contexts/ProfileContext";
+import { ProfileInputRouteProp, RequestPatchProfile } from "../types/Types";
 
 type Props = {
   requestPatchProfile: RequestPatchProfile;
 };
 const ProfileInputTemplate: React.FC<Props> = (props) => {
   const route = useRoute<ProfileInputRouteProp>();
-  const { prevValue, screen } = route.params;
+  const { prevValue, screen: profileInputScreen } = route.params;
   const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
-  const profileState = useProfileState();
 
   const [value, setValue] = useState(prevValue);
   const [canSubmit, setCanSubmit] = useState(false);
@@ -32,7 +27,7 @@ const ProfileInputTemplate: React.FC<Props> = (props) => {
       <ScrollView>
         <Block style={styles.container}>
           <InputBlock
-            screen={screen}
+            screen={profileInputScreen}
             prevValue={prevValue}
             setCanSubmit={setCanSubmit}
             value={value}
@@ -47,12 +42,11 @@ const ProfileInputTemplate: React.FC<Props> = (props) => {
         </Block>
       </ScrollView>
       <SubmitProfileButton
-        screen={screen}
+        screen={profileInputScreen}
         value={value}
         canSubmit={canSubmit}
         token={authState.token}
         profileDispatch={profileDispatch}
-        profileState={profileState}
         setValidationText={setValidationText}
         requestPatchProfile={props.requestPatchProfile}
       />

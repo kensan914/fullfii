@@ -1,31 +1,40 @@
 import React, { useState } from "react";
-import { StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import { Block, Text, theme, Button } from "galio-framework";
 import Modal from "react-native-modal";
 import * as WebBrowser from "expo-web-browser";
 
 import Avatar from "../atoms/Avatar";
 import Icon from "../atoms/Icon";
-import { withNavigation } from "@react-navigation/compat";
 import { useProfileState } from "../contexts/ProfileContext";
 import ModalButton from "../atoms/ModalButton";
-import {
-  alertModal,
-  deepCvtKeyFromSnakeToCamel,
-  URLJoin,
-} from "../modules/support";
+import { alertModal, URLJoin } from "../modules/support";
 import { useAxios } from "../modules/axios";
 import { BASE_URL, REPORT_URL } from "../../constants/env";
 import { useChatDispatch } from "../contexts/ChatContext";
 import { useAuthState } from "../contexts/AuthContext";
+import {
+  MeProfile,
+  Profile,
+  TalkTicket,
+  TalkTicketJson,
+  TalkTicketJsonIoTs,
+} from "../types/Types.context";
+import { useNavigation } from "@react-navigation/native";
 
+type Props = {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  profile: MeProfile | Profile;
+  talkTicket?: TalkTicket;
+};
 /**
  *
  * @param {*} props talkTicketはchat画面時のみ必要
  */
-const ProfileModal = (props) => {
+const ProfileModal: React.FC<Props> = (props) => {
   const { isOpen, setIsOpen, profile, talkTicket } = props;
-
+  const navigation = useNavigation();
   const profileState = useProfileState();
   const user = profile.me ? profileState.profile : profile;
 
@@ -34,23 +43,23 @@ const ProfileModal = (props) => {
   const { request: requestReport } = useAxios(
     URLJoin(BASE_URL, "talk-ticket/", talkTicket?.id),
     "post",
-    null, // TODO:
+    TalkTicketJsonIoTs,
     {
       data: {
         status: "waiting",
       },
-      thenCallback: (res) => {
-        const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
+      thenCallback: (resData) => {
+        const newTalkTicket = resData as TalkTicketJson;
         (async () => {
           await WebBrowser.openBrowserAsync(REPORT_URL);
           chatDispatch({
             type: "OVERWRITE_TALK_TICKET",
             talkTicket: newTalkTicket,
           });
-          props.navigation.navigate("Home");
+          navigation.navigate("Home");
         })();
       },
-      token: authState.token,
+      token: authState.token ? authState.token : "",
       limitRequest: 1,
     }
   );
@@ -72,20 +81,23 @@ const ProfileModal = (props) => {
   const { request: requestBlock } = useAxios(
     URLJoin(BASE_URL, "users/", user.id, "block/"),
     "patch",
-    null, // TODO:
+    null,
     {
       data: {
         status: "waiting",
       },
-      thenCallback: async (res) => {
-        alert(`${user.name}さんをブロックしました。`);
+      thenCallback: async () => {
+        Alert.alert(`${user.name}さんをブロックしました。`);
       },
       catchCallback: (err) => {
-        if (err.response.data.type === "have_already_blocked") {
-          alert(err.response.data.message);
+        if (
+          err?.response &&
+          err.response.data.type === "have_already_blocked"
+        ) {
+          Alert.alert(err.response.data.message);
         }
       },
-      token: authState.token,
+      token: authState.token ? authState.token : "",
       limitRequest: 1,
     }
   );
@@ -133,7 +145,7 @@ const ProfileModal = (props) => {
 
         {user.me && (
           <Block row center style={{ marginVertical: 28 }}>
-            <Block center column center>
+            <Block center column>
               <Text bold size={16} color="#333333">
                 {user.numOfThunks}
               </Text>
@@ -147,12 +159,6 @@ const ProfileModal = (props) => {
                 ありがとう
               </Text>
             </Block>
-            {/* <Block flex={0.5} column center>
-              <Text bold size={16} color="#333333">{user.plan.label}</Text>
-              <Text muted size={15}>
-                <Icon name="id-card-o" family="font-awesome" color="#F69896" size={15} />{" "}プラン
-                  </Text>
-            </Block> */}
           </Block>
         )}
 
@@ -171,7 +177,7 @@ const ProfileModal = (props) => {
               style={styles.bottomButton}
               onPress={() => {
                 setIsOpen(false);
-                props.navigation.navigate("ProfileEditor");
+                navigation.navigate("ProfileEditor");
               }}
             >
               <Text color="white" size={16}>
@@ -211,7 +217,7 @@ const ProfileModal = (props) => {
   );
 };
 
-export default withNavigation(ProfileModal);
+export default ProfileModal;
 
 const styles = StyleSheet.create({
   modal: {

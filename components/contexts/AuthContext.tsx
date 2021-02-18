@@ -9,10 +9,11 @@ import {
   AuthenticatingType,
   AuthState,
   UnauthenticatedType,
-  SignupBufferType,
-  AuthStatus,
+  SignupBuffer,
   AuthActionType,
   AuthDispatch,
+  TokenNullable,
+  AuthStatusNullable,
 } from "../types/Types.context";
 
 const authReducer = (prevState: AuthState, action: AuthActionType) => {
@@ -98,7 +99,7 @@ const authReducer = (prevState: AuthState, action: AuthActionType) => {
   }
 };
 
-const initSignupBuffer: SignupBufferType = Object.freeze({
+const initSignupBuffer: SignupBuffer = Object.freeze({
   didProgressNum: 0,
   worries: [],
 });
@@ -127,9 +128,9 @@ export const useAuthDispatch = (): AuthDispatch => {
 };
 
 type Props = {
-  status: AuthStatus;
-  token: string;
-  signupBuffer: SignupBufferType;
+  status: AuthStatusNullable;
+  token: TokenNullable;
+  signupBuffer: SignupBuffer | null;
 };
 export const AuthProvider: React.FC<Props> = ({
   children,

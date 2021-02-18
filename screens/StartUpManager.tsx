@@ -18,11 +18,12 @@ import {
   States,
   TalkInfoJson,
   TalkInfoJsonIoTs,
-  TalkTicketCollectionJson,
+  TalkTicketCollection,
   TalkTicketCollectionJsonIoTs,
   ChatState,
   ChatDispatch,
   TalkTicketKey,
+  MessageJson,
 } from "../components/types/Types.context";
 import {
   WsResChat,
@@ -93,7 +94,7 @@ const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
       );
       if (prevTalkTicketCollection) {
         // 毎起動時
-        const _prevTalkTicketCollection = prevTalkTicketCollection as TalkTicketCollectionJson;
+        const _prevTalkTicketCollection = prevTalkTicketCollection as TalkTicketCollection;
         talkTickets
           .filter((talkTicket) => talkTicket.status.key === "talking")
           .forEach((talkTicket) => {
@@ -187,7 +188,7 @@ const handleChatMessage = (
   talkTicketKey: TalkTicketKey
 ) => {
   if (data.type === "chat_message") {
-    const { messageId, message, isMe, time } = data.message;
+    const { messageId, message, isMe, time } = data.message as MessageJson;
 
     // (謎)chatStateが更新されない←原因は救命できていない。talkTicketCollectionはObjectでアドレスは一定しているので成り立っている。
     const talkTicket = chatState.talkTicketCollection[talkTicketKey];
@@ -228,7 +229,7 @@ const handleChatMessage = (
   }
   // TODO: ネストの深さ変更・要確認
   else if (data.type === "multi_chat_messages") {
-    const messages = data.messages;
+    const messages = data.messages as MessageJson[];
     chatDispatch({ type: "MERGE_MESSAGES", talkTicketKey, messages, token });
   }
 };

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 
-import Icon from "../../components/atoms/Icon";
+import Icon from "../atoms/Icon";
 import { useAuthState } from "../contexts/AuthContext";
 import { alertModal, showToast, URLJoin } from "../modules/support";
 import { TouchableOpacity } from "react-native";
@@ -10,8 +10,12 @@ import { MenuModal } from "../molecules/Menu";
 import Spinner from "react-native-loading-spinner-overlay";
 import { BASE_URL, REPORT_URL } from "../../constants/env";
 import requestAxios from "../modules/axios";
+import { Profile } from "../types/Types.context";
 
-export const ProfileMenuButton = (props) => {
+type Props = {
+  user: Profile;
+};
+export const ProfileMenuButton: React.FC<Props> = (props) => {
   const { user } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [isShowSpinner, setIsShowSpinner] = useState(false);
@@ -35,7 +39,7 @@ export const ProfileMenuButton = (props) => {
                 handleBlockUser(
                   user,
                   setCanPressBackdrop,
-                  authState.token,
+                  authState.token ? authState.token : "",
                   setIsShowSpinner
                 ),
             },
@@ -55,10 +59,10 @@ export const ProfileMenuButton = (props) => {
 };
 
 const handleBlockUser = (
-  user,
-  setCanPressBackdrop,
-  token,
-  setIsShowSpinner
+  user: Profile,
+  setCanPressBackdrop: React.Dispatch<React.SetStateAction<boolean>>,
+  token: string,
+  setIsShowSpinner: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   setCanPressBackdrop(false);
   alertModal({
@@ -76,7 +80,10 @@ const handleBlockUser = (
   });
 };
 
-const handleReportUser = (user, setCanPressBackdrop) => {
+const handleReportUser = (
+  user: Profile,
+  setCanPressBackdrop: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   setCanPressBackdrop(false);
   alertModal({
     mainText: `${user.name}さんを通報しますか？`,
@@ -100,28 +107,49 @@ const styles = StyleSheet.create({
   },
 });
 
-const requestPatchBlock = (token, user, setIsShowSpinner) => {
+const requestPatchBlock = (
+  token: string,
+  user: Profile,
+  setIsShowSpinner: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   setIsShowSpinner(true);
 
   const url = URLJoin(BASE_URL, "users/", user.id, "block/");
-
-  requestAxios(token)
-    .patch(url)
-    .then((res) => {
+  requestAxios(url, "patch", null, {
+    thenCallback: () => {
       showToast({
         text1: `${user.name}さんをブロックしました。`,
       });
-    })
-    .catch((err) => {
-      if (err.response.data.type === "have_already_blocked") {
+    },
+    catchCallback: (err) => {
+      if (err?.response && err.response.data.type === "have_already_blocked") {
         showToast({
           type: "error",
           text1: err.response.data.message,
         });
       }
-      console.log(err.response);
-    })
-    .finally(() => {
+    },
+    finallyCallback: () => {
       setIsShowSpinner(false);
-    });
+    },
+    token: token,
+  });
+  // .patch(url)
+  // .then((res) => {
+  //   showToast({
+  //     text1: `${user.name}さんをブロックしました。`,
+  //   });
+  // })
+  // .catch((err) => {
+  //   if (err.response.data.type === "have_already_blocked") {
+  //     showToast({
+  //       type: "error",
+  //       text1: err.response.data.message,
+  //     });
+  //   }
+  //   console.log(err.response);
+  // })
+  // .finally(() => {
+  //   setIsShowSpinner(false);
+  // });
 };

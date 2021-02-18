@@ -25,7 +25,7 @@ const SignUpTemplate: React.FC = () => {
   const [pageStack, setPageStack] = useState([
     <FirstPage goToPage={goToPage} key={1} />,
     <SecondPage goToPage={goToPage} key={2} />,
-    <ThirdPage goToPage={goToPage} key={3} />,
+    <ThirdPage key={3} />,
   ]);
 
   useEffect(() => {

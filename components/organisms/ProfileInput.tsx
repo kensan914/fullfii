@@ -1,147 +1,83 @@
 import React, { useEffect, useState } from "react";
-import {
-  TextInput,
-  StyleSheet,
-  Dimensions,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Block, Input, Text, Checkbox, theme } from "galio-framework";
+import { TextInput, StyleSheet, Dimensions } from "react-native";
+import { Block, Input, Text, theme } from "galio-framework";
 import { useNavigation } from "@react-navigation/native";
 
 import SubmitButton from "../atoms/SubmitButton";
-import { useProfileState } from "../contexts/ProfileContext";
-import { alertModal } from "../modules/support";
-import { ProfileInputNavigationProps } from "../../navigation/Screens";
-import { RequestPatchProfile } from "../../screens/ProfileInput";
+import {
+  ErrorSubmitProfile,
+  ProfileInputData,
+  ProfileInputScreen,
+  RequestPatchProfile,
+  SuccessSubmitProfile,
+  ProfileInputNavigationProps,
+} from "../types/Types";
+import { ProfileDispatch, TokenNullable } from "../types/Types.context";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
 type InputBlockProps = {
-  screen: any;
+  screen: ProfileInputScreen;
+  prevValue: unknown;
+  setCanSubmit: React.Dispatch<boolean>;
+  value: unknown;
+  setValue: React.Dispatch<unknown>;
 };
 export const InputBlock: React.FC<InputBlockProps> = (props) => {
   const { screen } = props;
   let maxLength;
+  let value;
+  let prevValue;
 
   switch (screen) {
     case "InputName":
-    case "InputPrivacyName":
+      // case "InputPrivacyName":
       maxLength = 15;
-      return <TextInputBlock maxLength={maxLength} {...props} />;
+      value = props.value;
+      prevValue = props.prevValue;
+      if (typeof value === "string" && typeof prevValue === "string")
+        return (
+          <TextInputBlock
+            maxLength={maxLength}
+            value={value}
+            prevValue={prevValue}
+            setCanSubmit={props.setCanSubmit}
+            setValue={props.setValue}
+          />
+        );
+      else return <></>;
     case "InputIntroduction":
       maxLength = 250;
-      return <TextInputBlock maxLength={maxLength} textarea {...props} />;
-    case "InputFeature":
-    case "InputGenreOfWorries":
-    case "InputScaleOfWorries":
-      return <CheckBoxInputBlock {...props} />;
-    case "InputGender":
-      return <RadioInputBlock {...props} />;
+      value = props.value;
+      prevValue = props.prevValue;
+      if (typeof value === "string" && typeof prevValue === "string")
+        return (
+          <TextInputBlock
+            maxLength={maxLength}
+            value={value}
+            prevValue={prevValue}
+            setCanSubmit={props.setCanSubmit}
+            setValue={props.setValue}
+          />
+        );
+      else return <></>;
     default:
       return <></>;
   }
 };
 
-const RadioInputBlock = (props) => {
-  const { value, setValue, setCanSubmit } = props;
-
-  const genderEnum = { MALE: "male", FEMALE: "female" };
-
-  const GenderRadioButton = (props) => {
-    const {
-      label,
-      genderKey,
-      gender,
-      setGender,
-      genderEnum,
-      setCanSubmit,
-    } = props;
-    return (
-      <TouchableWithoutFeedback
-        onPress={() => {
-          setGender(genderEnum[genderKey]);
-          setCanSubmit(true);
-        }}
-      >
-        <Block row style={{ justifyContent: "center", alignItems: "center" }}>
-          <Block
-            style={{
-              height: 20,
-              width: 20,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: "lightgray",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Block
-              style={{
-                height: 14,
-                width: 14,
-                borderRadius: 7,
-                backgroundColor:
-                  gender === genderEnum[genderKey] ? "#F69896" : "white",
-              }}
-            />
-          </Block>
-          <Text color="gray" style={{ marginLeft: 5 }}>
-            {label}
-          </Text>
-        </Block>
-      </TouchableWithoutFeedback>
-    );
-  };
-
-  return (
-    <>
-      <Text color="dimgray" style={{ paddingHorizontal: 20, marginBottom: 10 }}>
-        性別は公開されます。
-      </Text>
-      <Text color="red" style={{ paddingHorizontal: 20, marginBottom: 10 }}>
-        性別は一度しか変更できません。
-      </Text>
-      <Block
-        style={{
-          marginTop: 20,
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          flexDirection: "row",
-        }}
-      >
-        <GenderRadioButton
-          label="女性"
-          genderKey="FEMALE"
-          gender={value}
-          setGender={setValue}
-          genderEnum={genderEnum}
-          setCanSubmit={setCanSubmit}
-        />
-        <GenderRadioButton
-          label="男性"
-          genderKey="MALE"
-          gender={value}
-          setGender={setValue}
-          genderEnum={genderEnum}
-          setCanSubmit={setCanSubmit}
-        />
-      </Block>
-    </>
-  );
-};
-
 type TextInputBlockProps = {
-  maxLength: any;
-  textarea: any;
-  prevValue: any;
-  setCanSubmit: any;
-  value: any;
-  setValue: any;
+  maxLength: number;
+  isTextarea?: boolean;
+  prevValue: string;
+  setCanSubmit: React.Dispatch<boolean>;
+  value: string;
+  setValue: React.Dispatch<string>;
 };
 const TextInputBlock: React.FC<TextInputBlockProps> = (props) => {
   const {
     maxLength,
-    textarea,
+    isTextarea,
     prevValue,
     setCanSubmit,
     value,
@@ -155,7 +91,7 @@ const TextInputBlock: React.FC<TextInputBlockProps> = (props) => {
   }, [value]);
 
   let input;
-  if (textarea) {
+  if (isTextarea && typeof value === "string") {
     input = (
       <TextInput
         multiline
@@ -186,7 +122,7 @@ const TextInputBlock: React.FC<TextInputBlockProps> = (props) => {
         placeholderTextColor="gray"
         maxLength={maxLength}
         value={value}
-        onChangeText={(text) => setValue(text)}
+        onChangeText={(text: string) => setValue(text)}
       />
     );
   }
@@ -203,89 +139,13 @@ const TextInputBlock: React.FC<TextInputBlockProps> = (props) => {
   );
 };
 
-type CheckBoxInputBlockProps = {
-  screen: any;
-  prevValue: any;
-  setCanSubmit: any;
-  setValue: any;
-};
-const CheckBoxInputBlock: React.FC<CheckBoxInputBlockProps> = (props) => {
-  const { screen, prevValue, setCanSubmit, setValue } = props;
-
-  const prevCheckedItems = {};
-  const [checkedItems, setCheckedItems] = useState(prevCheckedItems);
-  const profileState = useProfileState();
-  let checkBoxItemsOriginal;
-  if (
-    typeof prevValue === "object" &&
-    !Object.keys(prevCheckedItems).length &&
-    typeof checkBoxItemsOriginal === "undefined"
-  ) {
-    switch (screen) {
-      case "InputFeature":
-        checkBoxItemsOriginal = profileState.profileParams.features;
-        break;
-      case "InputGenreOfWorries":
-        checkBoxItemsOriginal = profileState.profileParams.genreOfWorries;
-        break;
-      case "InputScaleOfWorries":
-        checkBoxItemsOriginal = profileState.profileParams.scaleOfWorries;
-        break;
-      default:
-        break;
-    }
-    Object.keys(checkBoxItemsOriginal).map((key) => {
-      prevCheckedItems[key] = false;
-    });
-    prevValue.map((item) => {
-      prevCheckedItems[item.key] = true;
-    });
-  }
-
-  useEffect(() => {
-    // set canSubmit
-    const prevCheckedItemsJSON = JSON.stringify(prevCheckedItems);
-    const checkedItemsJSON = JSON.stringify(checkedItems);
-    setCanSubmit(prevCheckedItemsJSON !== checkedItemsJSON);
-    const _value = [];
-    Object.keys(checkedItems).map((key) => {
-      if (checkedItems[key]) {
-        _value.push(checkBoxItemsOriginal[key]);
-      }
-    });
-    setValue(_value);
-  }, [checkedItems]);
-
-  return (
-    <Block style={{ marginTop: 10 }}>
-      {Object.keys(checkedItems).map((key) => (
-        <Checkbox
-          key={key}
-          id={key}
-          color="#F69896"
-          style={{ marginVertical: 8, marginHorizontal: 8 }}
-          label={checkBoxItemsOriginal[key].label}
-          labelStyle={{ fontSize: 16 }}
-          initialValue={checkedItems[key]}
-          onChange={(value) => {
-            setCheckedItems(
-              Object.assign({ ...checkedItems }, { [key]: value })
-            );
-          }}
-        />
-      ))}
-    </Block>
-  );
-};
-
 type SubmitProfileButtonProps = {
-  screen: any;
-  value: any;
-  canSubmit: any;
-  token: any;
-  profileDispatch: any;
-  profileState: any;
-  setValidationText: any;
+  screen: ProfileInputScreen;
+  value: unknown;
+  canSubmit: boolean;
+  token: TokenNullable;
+  profileDispatch: ProfileDispatch;
+  setValidationText: React.Dispatch<string>;
   requestPatchProfile: RequestPatchProfile;
 };
 export const SubmitProfileButton: React.FC<SubmitProfileButtonProps> = (
@@ -297,14 +157,13 @@ export const SubmitProfileButton: React.FC<SubmitProfileButtonProps> = (
     canSubmit,
     token,
     profileDispatch,
-    profileState,
     setValidationText,
     requestPatchProfile,
   } = props;
   const navigation = useNavigation<ProfileInputNavigationProps>();
   const [isLoading, setIsLoading] = useState(false);
 
-  let data;
+  let data: ProfileInputData;
   switch (screen) {
     case "InputName":
       data = { name: value };
@@ -312,41 +171,29 @@ export const SubmitProfileButton: React.FC<SubmitProfileButtonProps> = (
     case "InputIntroduction":
       data = { introduction: value };
       break;
-    case "InputFeature":
-      data = { features: value };
-      break;
-    case "InputGenreOfWorries":
-      data = { genre_of_worries: value };
-      break;
-    case "InputScaleOfWorries":
-      data = { scale_of_worries: value };
-      break;
-    case "InputGender":
-      data = { gender: value };
-      break;
     default:
       break;
   }
 
   const submit = () => {
     setIsLoading(true);
-    requestPatchProfile(
-      token,
-      data,
-      profileDispatch,
-      profileState,
-      successSubmit,
-      errorSubmit
-    );
+    token &&
+      requestPatchProfile(
+        token,
+        data,
+        profileDispatch,
+        successSubmit,
+        errorSubmit
+      );
   };
 
-  const successSubmit = () => {
+  const successSubmit: SuccessSubmitProfile = () => {
     setIsLoading(false);
     navigation.goBack();
   };
 
-  const errorSubmit = (err) => {
-    setValidationText(err.response.data.name);
+  const errorSubmit: ErrorSubmitProfile = (err) => {
+    setValidationText(err.response && err.response.data.name);
     setIsLoading(false);
   };
 
@@ -356,23 +203,7 @@ export const SubmitProfileButton: React.FC<SubmitProfileButtonProps> = (
         style={styles.submitButton}
         canSubmit={canSubmit}
         isLoading={isLoading}
-        submit={() => {
-          if (screen === "InputGender") {
-            alertModal({
-              mainText: "性別は一度しか変更できません。",
-              subText: `あなたは${
-                value == "male" ? "男性" : "女性"
-              }で間違いありませんか?`,
-              cancelButton: "キャンセル",
-              okButton: "OK",
-              onPress: () => {
-                submit();
-              },
-            });
-          } else {
-            submit();
-          }
-        }}
+        submit={submit}
       />
     </Block>
   );

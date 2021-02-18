@@ -17,6 +17,7 @@ import {
 } from "../types/Types.context";
 import { isRight } from "fp-ts/lib/Either";
 import { PathReporter } from "io-ts/lib/PathReporter";
+import { strictEqual } from "fp-ts/lib/Eq";
 
 /**
  * ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo"
@@ -171,15 +172,6 @@ export const asyncStoreItem = async (
   }
 };
 
-export const asyncGetItem = async (key: string): Promise<string | null> => {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
 export const asyncStoreJson = async (
   key: string,
   value: Record<string, unknown>
@@ -191,9 +183,44 @@ export const asyncStoreJson = async (
   }
 };
 
+/**
+ * async storageからstringをget.
+ * type checkがleftでもobjectを返しエラーのみ出力する.
+ * (アップデート時, 古いデータがleftされる可能性がある & async storageのデータはAPIレスより安全であると判断)
+ **/
+export const asyncGetItem = async (
+  key: string,
+  typeIoTsOfResData?: TypeIoTsOfResData
+): Promise<string | null> => {
+  try {
+    const str = await AsyncStorage.getItem(key);
+    if (str === null) return null;
+    if (typeof typeIoTsOfResData !== "undefined") {
+      const typeIoTsResult = typeIoTsOfResData.decode(str);
+      if (!isRight(typeIoTsResult)) {
+        console.group();
+        console.error(
+          `Type does not match(asyncGetItem). key is "${key}". value can be found below.`
+        );
+        console.error(str);
+        console.groupEnd();
+        return str;
+      }
+    }
+    return str;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+/**
+ * async storageからobjectをget.
+ * type checkがleftでもobjectを返しエラーのみ出力する.
+ * (アップデート時, 古いデータがleftされる可能性がある & async storageのデータはAPIレスより安全であると判断)
+ **/
 export const asyncGetJson = async (
   key: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeIoTsOfResData: TypeIoTsOfResData
 ): Promise<Record<string, unknown> | null> => {
   try {
@@ -203,14 +230,17 @@ export const asyncGetJson = async (
       const obj = JSON.parse(json);
       const formattedObj = deepCvtKeyFromSnakeToCamel(obj);
       const typeIoTsResult = typeIoTsOfResData.decode(formattedObj);
+
       if (isRight(typeIoTsResult)) {
         return formattedObj;
       } else {
-        // throw new Error(
-        //   "Type does not match(asyncGetJson). " +
-        //     PathReporter.report(typeIoTsResult)
-        // );
-        return null;
+        console.group();
+        console.error(
+          `Type does not match(asyncGetJson). key is "${key}". value can be found below.`
+        );
+        console.error({ ...formattedObj });
+        console.groupEnd();
+        return formattedObj;
       }
     }
   } catch (error) {
