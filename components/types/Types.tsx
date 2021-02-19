@@ -89,8 +89,8 @@ export type RequestPatchProfile = (
   token: string,
   data: ProfileInputData,
   profileDispatch: ProfileDispatch,
-  successSubmit: SuccessSubmitProfile,
-  errorSubmit: ErrorSubmitProfile
+  successSubmit?: SuccessSubmitProfile,
+  errorSubmit?: ErrorSubmitProfile
 ) => void;
 //--------- ProfileInput.tsx ---------//
 

@@ -76,34 +76,20 @@ const useCommonThen = (
     return;
   }
   const formattedResData = deepCvtKeyFromSnakeToCamel(res.data);
-  // console.log(formattedResData);
   const typeIoTsResult = typeIoTsOfResData.decode(formattedResData);
-  if (isRight(typeIoTsResult)) {
-    if (action.thenCallback !== void 0) {
-      action.thenCallback(formattedResData, res);
-    }
-    setResData && setResData(formattedResData);
-  } else {
-    const getPaths = <A,>(v: t.Validation<A>): Array<string> => {
-      return pipe(
-        v,
-        fold(
-          (errors) =>
-            errors.map((error) =>
-              error.context.map(({ key }) => key).join(".")
-            ),
-          () => ["no errors"]
-        )
-      );
-    };
-
-    // console.log(typeof getPaths(typeIoTsResult));
-    // console.log(getPaths(typeIoTsResult)); // => [ '.userId', '.name' ]
-
-    throw new Error(
-      "Type does not match(axios)). " + PathReporter.report(typeIoTsResult)
+  if (!isRight(typeIoTsResult)) {
+    console.group();
+    console.error(
+      `Type does not match(axios then). The object can be found below.`
     );
+    console.error({ ...formattedResData });
+    console.groupEnd();
   }
+
+  if (action.thenCallback !== void 0) {
+    action.thenCallback(formattedResData, res);
+  }
+  setResData && setResData(formattedResData);
 };
 
 /**

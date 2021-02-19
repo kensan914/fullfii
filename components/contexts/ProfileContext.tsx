@@ -1,6 +1,8 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, { createContext, useReducer, useContext, useEffect } from "react";
 import { BASE_URL } from "../../constants/env";
+import { requestPatchProfile } from "../../screens/ProfileInput";
 import { useAxios } from "../modules/axios";
+import usePushNotification from "../modules/firebase/pushNotification";
 import { asyncStoreJson, URLJoin } from "../modules/support";
 import {
   MeProfile,
@@ -79,6 +81,7 @@ export const initMeProfile: MeProfile = Object.freeze({
   image: "",
   me: true,
   plan: { key: "", label: "" },
+  deviceToken: "",
 });
 
 const profileStateContext = createContext<ProfileState>({

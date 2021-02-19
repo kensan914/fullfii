@@ -119,6 +119,7 @@ export const MeProfileIoTs = t.intersection([
     dateJoined: t.string,
     plan: PlanIoTs,
     canTalkHeterosexual: t.boolean,
+    deviceToken: t.union([t.string, t.null]),
   }),
   ProfileIoTs,
 ]);

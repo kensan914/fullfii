@@ -20,7 +20,6 @@ import {
   RoomJson,
   AllMessages,
   TalkTicketJson,
-  TalkTicketCollectionAsync,
   TalkTicketKey,
 } from "../types/Types.context";
 import { initProfile } from "./ProfileContext";

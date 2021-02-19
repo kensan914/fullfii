@@ -28,7 +28,7 @@ export const requestPatchProfile: RequestPatchProfile = (
       successSubmit && successSubmit();
     },
     catchCallback: (err) => {
-      err && errorSubmit(err);
+      err && errorSubmit && errorSubmit(err);
     },
     token: token,
   });

@@ -12,7 +12,11 @@ enableScreens();
 import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
-import { asyncGetItem, asyncGetJson } from "./components/modules/support";
+import {
+  asyncGetItem,
+  asyncGetJson,
+  asyncRemoveItem,
+} from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
 import StartUpManager from "./screens/StartUpManager";
@@ -27,7 +31,6 @@ import {
   TalkTicketCollectionAsyncIoTs,
   TalkTicketCollectionAsync,
 } from "./components/types/Types.context";
-import usePushNotification from "./components/modules/firebase/pushNotification";
 import { Assets } from "./components/types/Types";
 
 LogBox.ignoreAllLogs(true);
@@ -38,21 +41,11 @@ const assetImages: { logo: number } = {
 
 function cacheImages(images: (string | number)[]): Promise<Asset>[] {
   return images.map((image) => {
-    // if (typeof image === "string") {
-    //   return Image.prefetch(image);
-    // } else {
-    //   return Asset.fromModule(image).downloadAsync();
-    // }
     return Asset.fromModule(image).downloadAsync();
   });
 }
 
 const App: React.FC = () => {
-  const deviceToken = usePushNotification();
-  useEffect(() => {
-    console.error(deviceToken);
-  }, [deviceToken]);
-
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
     false
   );

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Block } from "galio-framework";
 
 import useAllContext from "../components/contexts/ContextUtils";
@@ -33,14 +33,39 @@ import {
   WsResNotification,
 } from "../components/types/Types";
 import { Alert } from "react-native";
+import usePushNotification from "../components/modules/firebase/pushNotification";
+import { requestPatchProfile } from "./ProfileInput";
 
 const StartUpManager: React.FC = (props) => {
   const { children } = props;
   const [states, dispatches] = useAllContext();
 
+  // global stateとは別に即時反映されるmeProfile
+  const [meProfileTemp, setMeProfileTemp] = useState<MeProfile>();
+  const deviceToken = usePushNotification();
+  useEffect(() => {
+    // deviceToken・meProfileTemp両方の準備が完了
+    if (deviceToken && meProfileTemp) {
+      if (meProfileTemp.deviceToken !== deviceToken) {
+        // post deviceToken
+        states.authState.token &&
+          requestPatchProfile(
+            states.authState.token,
+            { device_token: deviceToken },
+            dispatches.profileDispatch
+          );
+      }
+    }
+  }, [deviceToken, meProfileTemp]);
+
   useEffect(() => {
     states.authState.token &&
-      startUpLoggedin(states.authState.token, states, dispatches);
+      startUpLoggedin(
+        states.authState.token,
+        states,
+        dispatches,
+        setMeProfileTemp
+      );
   }, []);
 
   return <Block flex>{children}</Block>;
@@ -53,10 +78,11 @@ export default StartUpManager;
 export const startUpLoggedin = (
   token: string,
   states: States,
-  dispatches: Dispatches
+  dispatches: Dispatches,
+  setMeProfileTemp: React.Dispatch<MeProfile>
 ): void => {
   if (typeof token !== "undefined") {
-    requestGetProfile(token, dispatches.profileDispatch);
+    requestGetProfile(token, dispatches.profileDispatch, setMeProfileTemp);
     connectWsNotification(token, states, dispatches);
     updateTalk(token, states, dispatches);
   }
@@ -64,12 +90,15 @@ export const startUpLoggedin = (
 
 const requestGetProfile = (
   token: string,
-  profileDispatch: ProfileDispatch
+  profileDispatch: ProfileDispatch,
+  setMeProfileTemp: React.Dispatch<MeProfile>
 ): void => {
   requestAxios(URLJoin(BASE_URL, "me/"), "get", MeProfileIoTs, {
     token: token,
     thenCallback: (resData) => {
-      profileDispatch({ type: "SET_ALL", profile: resData as MeProfile });
+      const _resData = resData as MeProfile;
+      profileDispatch({ type: "SET_ALL", profile: _resData });
+      setMeProfileTemp(_resData);
     },
   });
 };
@@ -214,21 +243,19 @@ const handleChatMessage = (
           talkTicketKey,
           messageId: messageId,
         });
-      } else {
-        chatDispatch({
-          type: "APPEND_MESSAGE",
-          talkTicketKey,
-          messageId: messageId,
-          message,
-          isMe,
-          time,
-          token,
-        });
       }
+    } else {
+      chatDispatch({
+        type: "APPEND_MESSAGE",
+        talkTicketKey,
+        messageId: messageId,
+        message,
+        isMe,
+        time,
+        token,
+      });
     }
-  }
-  // TODO: ネストの深さ変更・要確認
-  else if (data.type === "multi_chat_messages") {
+  } else if (data.type === "multi_chat_messages") {
     const messages = data.messages as MessageJson[];
     chatDispatch({ type: "MERGE_MESSAGES", talkTicketKey, messages, token });
   }
@@ -404,7 +431,9 @@ const connectWsNotification = (
       if (data.type === "auth") {
         dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
       } else if (data.type === "notice_talk") {
+        console.log(data);
         if (data.status === "start") {
+          console.log("start talk.");
           updateTalk(token, states, dispatches);
         } else if (data.status === "end") {
           // end 多分使わない？

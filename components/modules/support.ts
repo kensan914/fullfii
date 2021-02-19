@@ -17,7 +17,6 @@ import {
 } from "../types/Types.context";
 import { isRight } from "fp-ts/lib/Either";
 import { PathReporter } from "io-ts/lib/PathReporter";
-import { strictEqual } from "fp-ts/lib/Eq";
 
 /**
  * ex)URLJoin("http://www.google.com", "a", undefined, "/b/cd", undefined, "?foo=123", "?bar=foo"); => "http://www.google.com/a/b/cd/?foo=123&bar=foo"
@@ -88,7 +87,7 @@ export const cvtListDate = (date: Date): string => {
 
 /** fmtfromDateToStr(new Date(), "YYYY/MM/DD hh:mm:ss"); */
 export const fmtfromDateToStr = (date: Date, format: string): string => {
-  const _date: Date = date;
+  let _date: Date = date;
   if (!format) {
     format = "YYYY/MM/DD hh:mm:ss";
   }
@@ -378,14 +377,17 @@ export const initWs = (wsSettings: WsSettings): void => {
       ? (e) => {
           const eData = deepCvtKeyFromSnakeToCamel(JSON.parse(e.data));
           const typeIoTsResult = wsSettings.typeIoTsOfResData.decode(eData);
-          if (isRight(typeIoTsResult)) {
-            wsSettings.onmessage(eData, e, ws, isReconnect);
-          } else {
-            throw new Error(
-              "Type does not match(axios)). " +
-                PathReporter.report(typeIoTsResult)
+          if (!isRight(typeIoTsResult)) {
+            console.log(eData);
+
+            console.group();
+            console.error(
+              `Type does not match(ws onmessage). The object can be found below.`
             );
+            console.error({ ...eData });
+            console.groupEnd();
           }
+          wsSettings.onmessage(eData, e, ws, isReconnect);
         }
       : (e) => {
           return e;

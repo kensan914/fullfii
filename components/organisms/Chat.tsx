@@ -12,9 +12,9 @@ import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
-import useAdMobInterstitial from "../molecules/useAdMobInterstitial";
 import { TalkTicketKey } from "../types/Types.context";
 import { LottieSource } from "../types/Types";
+import { showAdMobInterstitial } from "../molecules/Admob";
 
 const { width } = Dimensions.get("screen");
 
@@ -87,7 +87,7 @@ export const EndTalkScreen: React.FC<EndTalkScreenType> = (props) => {
     })();
   }, []);
 
-  const showAdMobInterstitial = useAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX);
+  // const showAdMobInterstitial = useAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX);
   const { request } = useAxios(
     URLJoin(BASE_URL, "rooms/", roomId, "close/"),
     "post",
@@ -100,10 +100,10 @@ export const EndTalkScreen: React.FC<EndTalkScreenType> = (props) => {
         closeChatModal();
         authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
 
-        // TODO: test
         if (!isExpo) {
-          authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-          showAdMobInterstitial();
+          showAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX, () => {
+            authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+          });
         } else {
           authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
         }

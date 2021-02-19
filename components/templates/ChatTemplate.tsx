@@ -69,6 +69,7 @@ const ChatTemplate: React.FC<Props> = (props) => {
 
   useEffect(() => {
     chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
+    handleScrollBottom();
   }, [messages.length]);
 
   const itemLayout: ItemLayout = (data, index) => ({
@@ -77,10 +78,17 @@ const ChatTemplate: React.FC<Props> = (props) => {
     index,
   });
 
-  const onContentSizeChange: OnContentSizeChange = (width, height) => {
+  const [height, setHeight] = useState(0);
+  const handleScrollBottom = (didMound = false, _height?: number) => {
     const messagesScrollCurrent = messagesScroll.current;
     messagesScrollCurrent !== null &&
-      messagesScrollCurrent.scrollToOffset({ offset: height });
+      messagesScrollCurrent.scrollToOffset({
+        offset: _height ? _height : height,
+        animated: !didMound,
+      });
+  };
+  const onContentSizeChange: OnContentSizeChange = (width, height) => {
+    setHeight(height);
   };
 
   const renderMessage = (message: AllMessage, index: number) => {

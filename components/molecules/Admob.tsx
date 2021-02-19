@@ -46,3 +46,32 @@ const Admob: React.FC<Props> = (props) => {
 };
 
 export default Admob;
+
+export const showAdMobInterstitial = (
+  adUnitId: string,
+  willShowInterstitial: () => void
+): void => {
+  if (!isExpo) {
+    (async () => {
+      const _firebaseAdmobModule = await import("@react-native-firebase/admob");
+
+      const _interstitial = _firebaseAdmobModule.InterstitialAd.createForAdRequest(
+        adUnitId,
+        {
+          requestNonPersonalizedAdsOnly: true,
+          // keywords: ["fashion", "clothing"],
+        }
+      );
+
+      if (_interstitial) {
+        _interstitial.onAdEvent((type) => {
+          if (type === _firebaseAdmobModule.AdEventType.LOADED) {
+            willShowInterstitial();
+            _interstitial.show();
+          }
+        });
+        _interstitial.load();
+      }
+    })();
+  }
+};
