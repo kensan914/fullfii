@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Platform, StatusBar, Image } from "react-native";
+import { Platform, StatusBar, LogBox } from "react-native";
 import { Asset } from "expo-asset";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
@@ -12,54 +12,56 @@ enableScreens();
 import Screens from "./navigation/Screens";
 import materialTheme from "./constants/Theme";
 import { AuthProvider } from "./components/contexts/AuthContext";
-import { asyncGetItem, asyncGetJson } from "./components/modules/support";
+import {
+  asyncGetItem,
+  asyncGetJson,
+  asyncRemoveItem,
+} from "./components/modules/support";
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
-import Manager from "./screens/StartUpManager";
-// import { logEvent } from "./components/modules/firebase/logEvent";
-import { LogBox } from "react-native";
+import StartUpManager from "./screens/StartUpManager";
 import {
   MeProfileIoTs,
-  TalkTicketCollectionJsonIoTs,
+  SignupBufferIoTs,
+  SignupBuffer,
+  MeProfile,
+  AuthStatus,
+  AuthStatusIoTs,
+  TalkTicketCollection,
+  TalkTicketCollectionAsyncIoTs,
+  TalkTicketCollectionAsync,
 } from "./components/types/Types.context";
-import usePushNotification from "./components/modules/firebase/pushNotification";
+import { Assets } from "./components/types/Types";
 
 LogBox.ignoreAllLogs(true);
 
-const assetImages = {
+const assetImages: { logo: number } = {
   logo: require("./assets/images/icon_2/ios/Icon-512.png"),
 };
 
-function cacheImages(images) {
+function cacheImages(images: (string | number)[]): Promise<Asset>[] {
   return images.map((image) => {
-    if (typeof image === "string") {
-      return Image.prefetch(image);
-    } else {
-      return Asset.fromModule(image).downloadAsync();
-    }
+    return Asset.fromModule(image).downloadAsync();
   });
 }
 
-const App = (props) => {
-  const deviceToken = usePushNotification();
-  useEffect(() => {
-    console.error(deviceToken);
-  }, [deviceToken]);
-
+const App: React.FC = () => {
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
     false
   );
-  const [assets, setAssets] = useState({});
+  const [assets, setAssets] = useState<Assets>({});
 
-  const loadResourcesAsync = async () => {
-    return Promise.all([...cacheImages(Object.values(assetImages))]);
+  const loadResourcesAsync = async (): Promise<Asset[]> => {
+    const images = Object.values(assetImages);
+    const assetPromises = cacheImages(images);
+    return Promise.all(assetPromises);
   };
 
   useEffect(() => {
     loadResourcesAsync().then((assetList) => {
-      const downloadedAssets = {};
-      assetList.forEach((elm) => {
-        downloadedAssets[elm.name] = elm;
+      const downloadedAssets: Assets = {};
+      assetList.forEach((elm: Asset) => {
+        if ("name" in elm) downloadedAssets[elm.name] = elm;
       });
       setAssets(downloadedAssets);
       setIsFinishLoadingResources(true);
@@ -74,12 +76,19 @@ const App = (props) => {
   );
 };
 
-const RootNavigator = (props) => {
-  const [status, setStatus] = useState();
-  const [token, setToken] = useState();
-  const [signupBuffer, setSignupBuffer] = useState();
-  const [profile, setProfile] = useState();
-  const [talkTicketCollection, setTalkTicketCollection] = useState();
+type Props = {
+  isFinishLoadingResources: boolean;
+  assets: Assets;
+};
+const RootNavigator: React.FC<Props> = (props) => {
+  type InitState<T> = undefined | null | T;
+  const [status, setStatus] = useState<InitState<AuthStatus>>();
+  const [token, setToken] = useState<InitState<string>>();
+  const [signupBuffer, setSignupBuffer] = useState<InitState<SignupBuffer>>();
+  const [profile, setProfile] = useState<InitState<MeProfile>>();
+  const [talkTicketCollection, setTalkTicketCollection] = useState<
+    InitState<TalkTicketCollection>
+  >();
 
   useEffect(() => {
     (async () => {
@@ -88,25 +97,31 @@ const RootNavigator = (props) => {
       // asyncRemoveItem("signupBuffer"); // テスト
       // asyncRemoveItem("talkTicketCollection"); // テスト
 
-      const _status = await asyncGetItem("status");
+      const _status = (await asyncGetItem(
+        "status",
+        AuthStatusIoTs
+      )) as AuthStatus;
       setStatus(_status ? _status : null);
       const _token = await asyncGetItem("token");
       setToken(_token ? _token : null);
-      const _signupBuffer = await asyncGetJson("signupBuffer");
+      const _signupBuffer = (await asyncGetJson(
+        "signupBuffer",
+        SignupBufferIoTs
+      )) as SignupBuffer;
       setSignupBuffer(_signupBuffer ? _signupBuffer : null);
-      const _profile = await asyncGetJson("profile", MeProfileIoTs);
+      const _profile = (await asyncGetJson(
+        "profile",
+        MeProfileIoTs
+      )) as MeProfile;
       setProfile(_profile ? _profile : null);
-      const _talkTicketCollection = await asyncGetJson(
+      const _talkTicketCollectionJson = (await asyncGetJson(
         "talkTicketCollection",
-        TalkTicketCollectionJsonIoTs
-      );
+        TalkTicketCollectionAsyncIoTs
+      )) as TalkTicketCollectionAsync;
       setTalkTicketCollection(
-        _talkTicketCollection ? _talkTicketCollection : null
+        _talkTicketCollectionJson ? _talkTicketCollectionJson : null
       );
     })();
-
-    // send event to firebase
-    // logEvent("sample_event");
   }, []);
 
   if (
@@ -129,10 +144,10 @@ const RootNavigator = (props) => {
           <ProfileProvider profile={profile}>
             <ChatProvider talkTicketCollection={talkTicketCollection}>
               <GalioProvider theme={materialTheme}>
-                <Manager>
+                <StartUpManager>
                   {Platform.OS === "ios" && <StatusBar barStyle="default" />}
                   <Screens {...props} />
-                </Manager>
+                </StartUpManager>
               </GalioProvider>
             </ChatProvider>
           </ProfileProvider>

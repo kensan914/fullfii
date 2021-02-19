@@ -3,16 +3,24 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
-  TouchableOpacity,
   Pressable,
   LayoutAnimation,
 } from "react-native";
 import { Block, Text } from "galio-framework";
 import { COLORS } from "../../constants/Theme";
+import { BubbleItems, BubbleItem, PressBubble } from "../types/Types";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
-const Bubble = (props) => {
+type BubbleProps = {
+  item: BubbleItem;
+  diameter: number;
+  margin: number;
+  style?: { [styleName: string]: string };
+  pressBubble: PressBubble;
+  activeKeys: string[];
+};
+const Bubble: React.FC<BubbleProps> = (props) => {
   const { item, diameter, margin, style, pressBubble, activeKeys } = props;
   const [isPressed, setIsPressed] = useState(false);
   const weightPressed = 3; // 値が大きいほど押したときの動きが大きく
@@ -31,7 +39,7 @@ const Bubble = (props) => {
 
   const isActive = activeKeys.includes(item.key);
   const diameterDiff = isPressed ? weightPressed : 0;
-  const onAnimationPress = (isPressed) => {
+  const onAnimationPress = (isPressed: boolean) => {
     LayoutAnimation.spring();
     setIsPressed(isPressed);
   };
@@ -107,7 +115,15 @@ const Bubble = (props) => {
   );
 };
 
-const BubbleList = (props) => {
+type BubbleListProps = {
+  items: BubbleItems;
+  diameter: number;
+  limitLines: number;
+  margin: number;
+  activeKeys: string[];
+  pressBubble: PressBubble;
+};
+const BubbleList: React.FC<BubbleListProps> = (props) => {
   const {
     items = [], // item = { key: "", label: "", }
     diameter = width / 4.5,
@@ -120,14 +136,14 @@ const BubbleList = (props) => {
   } = props;
 
   // itemsの二次元配列
-  const [items2d, setItems2d] = useState([[]]);
+  const [items2d, setItems2d] = useState<BubbleItem[][]>([[]]);
   // 列ごとの右にずらすべきかを表したlist
-  const [shouldShiftRowList, setShouldShiftRowList] = useState(
+  const [shouldShiftRowList, setShouldShiftRowList] = useState<boolean[]>(
     new Array(items.length >= limitLines ? limitLines : items.length).fill(
       false
     )
   );
-  const bubbleListScrollViewRef = useRef();
+  const bubbleListScrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     const _items2d = splitAndDeepenList(items, limitLines);
@@ -135,7 +151,7 @@ const BubbleList = (props) => {
 
     const _shouldShiftRowList = [...shouldShiftRowList];
     _items2d.forEach((rowItems, i) => {
-      _shouldShiftRowList[i] = shouldShiftRow(i, rowItems.length);
+      _shouldShiftRowList[i] = shouldShiftRow(i);
     });
     // 全てtrueの場合、ずらさなくてよい
     const isAllTrue = _shouldShiftRowList.every((val) => val);
@@ -145,7 +161,7 @@ const BubbleList = (props) => {
     setShouldShiftRowList(_shouldShiftRowList);
   }, [items]);
 
-  const shouldShiftRow = (rowIndex, rowLen) => rowIndex % 2 == 0;
+  const shouldShiftRow = (rowIndex: number) => rowIndex % 2 == 0;
 
   return (
     <ScrollView
@@ -156,11 +172,12 @@ const BubbleList = (props) => {
       style={styles.bubbleListScrollView}
       onContentSizeChange={(contentWidth) => {
         // 中央にスクロール
-        bubbleListScrollViewRef.current.scrollTo({
-          x: (contentWidth - width) / 2,
-          y: 0,
-          animated: false,
-        });
+        bubbleListScrollViewRef.current !== null &&
+          bubbleListScrollViewRef.current.scrollTo({
+            x: (contentWidth - width) / 2,
+            y: 0,
+            animated: false,
+          });
       }}
     >
       <Block justifyContent="center">
@@ -229,7 +246,7 @@ const styles = StyleSheet.create({
  * ↓↓↓ return ↓↓↓
  * [[1, 2], [3, 4, 5], [6, 7]]
  */
-const splitAndDeepenList = (list, splitNum) => {
+const splitAndDeepenList = (list: BubbleItems, splitNum: number) => {
   // splitAndDeepenList([1, 2, 3], 5); => [[1], [2], [3]]
   if (list.length <= splitNum) {
     return list.map((elm) => [elm]);
@@ -239,8 +256,8 @@ const splitAndDeepenList = (list, splitNum) => {
   const minChildLen = Math.floor(list.length / splitNum);
   const remainder = list.length % splitNum;
 
-  const lengthList = new Array(splitNum).fill(minChildLen); // [2, 2, 2]
-  const willAddList = new Array(remainder).fill(1); // [1]
+  const lengthList: number[] = new Array(splitNum).fill(minChildLen); // [2, 2, 2]
+  const willAddList: number[] = new Array(remainder).fill(1); // [1]
   const startIndex = Math.floor((splitNum - remainder) / 2); // どこから足し始めるか
 
   willAddList.forEach((one, i) => {

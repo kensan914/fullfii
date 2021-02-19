@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { Block, Button, Text } from "galio-framework";
-import { Dimensions, StyleSheet, KeyboardAvoidingView } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import { COLORS } from "../../../../constants/Theme";
 
 const { width } = Dimensions.get("window");
 
-const SignUpPageTemplate = (props) => {
+type Props = {
+  title: string;
+  subTitle: string;
+  contents?: ReactNode;
+  isLoading: boolean;
+  pressCallback: () => void;
+  buttonTitle: string;
+  checkCanNext?: () => boolean;
+  statesRequired?: unknown[];
+};
+const SignUpPageTemplate: React.FC<Props> = (props) => {
   const {
     title,
     subTitle,

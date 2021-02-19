@@ -1,26 +1,31 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Dimensions, Switch } from "react-native";
+import { StyleSheet, Switch } from "react-native";
 import { Block, Text } from "galio-framework";
 import Modal from "react-native-modal";
 import Spinner from "react-native-loading-spinner-overlay";
-import { withNavigation } from "@react-navigation/compat";
 
 import ModalButton from "../atoms/ModalButton";
 import { useAxios } from "../modules/axios";
-import {
-  alertModal,
-  deepCvtKeyFromSnakeToCamel,
-  URLJoin,
-} from "../modules/support";
+import { alertModal, URLJoin } from "../modules/support";
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import { useProfileState } from "../contexts/ProfileContext";
 import { logEvent } from "../modules/firebase/logEvent";
+import { EndTalkScreenType } from "../organisms/Chat";
+import {
+  TalkTicketJson,
+  TalkTicketJsonIoTs,
+  TalkTicketKey,
+} from "../types/Types.context";
 
-const { width, height } = Dimensions.get("screen");
-
-const ChatModal = (props) => {
+type Props = {
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  EndTalkScreen: React.FC<EndTalkScreenType>;
+  talkTicketKey: TalkTicketKey;
+};
+const ChatModal: React.FC<Props> = (props) => {
   const { isOpen, setIsOpen, EndTalkScreen, talkTicketKey } = props;
 
   /* states, dispatches */
@@ -45,19 +50,20 @@ const ChatModal = (props) => {
   const [canPressBackdrop, setCanPressBackdrop] = useState(true);
 
   /* ref */
-  const roomId = useRef();
+  const roomId = useRef<string>();
 
   const { request } = useAxios(
     URLJoin(BASE_URL, "talk-ticket/", talkTicket.id),
     "post",
-    null, // TODO:
+    TalkTicketJsonIoTs,
     {
-      thenCallback: (res) => {
+      thenCallback: (resData) => {
+        const _resData = resData as TalkTicketJson;
         roomId.current = talkTicket.room.id;
-        const newTalkTicket = deepCvtKeyFromSnakeToCamel(res.data);
+        const newTalkTicketJson = _resData;
         chatDispatch({
           type: "OVERWRITE_TALK_TICKET",
-          talkTicket: newTalkTicket,
+          talkTicket: newTalkTicketJson,
         });
         if (talkTicket.status.key === "talking") {
           setIsOpenEndTalk(true);
@@ -72,8 +78,7 @@ const ChatModal = (props) => {
       finallyCallback: () => {
         setIsShowSpinner(false);
       },
-      token: authState.token,
-      // limitRequest: 1,
+      token: authState.token ? authState.token : "",
     }
   );
 
@@ -216,20 +221,29 @@ const ChatModal = (props) => {
           </Block>
         </Block>
 
-        <EndTalkScreen
-          isOpen={isOpenEndTalk}
-          closeChatModal={closeChatModal}
-          roomId={roomId.current}
-          token={authState.token}
-        />
+        {roomId.current && authState.token ? (
+          <EndTalkScreen
+            isOpen={isOpenEndTalk}
+            closeChatModal={closeChatModal}
+            roomId={roomId.current}
+            token={authState.token}
+          />
+        ) : (
+          <></>
+        )}
       </Modal>
     </>
   );
 };
 
-export default withNavigation(ChatModal);
+export default ChatModal;
 
-const ChatSwitch = (props) => {
+type ChatSwitchProps = {
+  title: string;
+  onChange: (val: boolean) => void;
+  value: boolean;
+};
+const ChatSwitch: React.FC<ChatSwitchProps> = (props) => {
   const { title, onChange, value } = props;
   return (
     <>

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Platform, Alert } from "react-native";
-import messaging from "@react-native-firebase/messaging";
+import messaging, {
+  FirebaseMessagingTypes,
+} from "@react-native-firebase/messaging";
 import PushNotification from "react-native-push-notification";
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 
-const usePushNotification = () => {
-  const [deviceToken, setDeviceToken] = useState(null);
-  const listenerRemovingFunctions = useRef([]);
+const usePushNotification = (): null | string => {
+  const [deviceToken, setDeviceToken] = useState<null | string>(null);
+  const listenerRemovingFunctions = useRef<(() => void)[]>([]);
 
   useEffect(() => {
     PushNotification.configure({
@@ -20,7 +21,9 @@ const usePushNotification = () => {
     initPushNotification();
     return () => {
       listenerRemovingFunctions.current &&
-        listenerRemovingFunctions.current.forEach((remove) => remove());
+        listenerRemovingFunctions.current.forEach((remove: () => void) =>
+          remove()
+        );
     };
   }, []);
 
@@ -52,7 +55,7 @@ const usePushNotification = () => {
     });
 
     listenerRemovingFunctions.current = [
-      messaging().onTokenRefresh((token) => {
+      messaging().onTokenRefresh(() => {
         console.log("トークンリフレッシュ");
       }),
       messaging().onMessage((message) => {
@@ -62,10 +65,12 @@ const usePushNotification = () => {
     ];
   };
 
-  const _localNotification = (message) => {
+  const _localNotification = (
+    message: FirebaseMessagingTypes.RemoteMessage
+  ): void => {
     PushNotification.localNotification({
-      title: message.notification.title,
-      message: message.notification.body,
+      title: message?.notification?.title ? message.notification.title : "",
+      message: message?.notification?.body ? message.notification.body : "",
       userInfo: message.data,
     });
   };

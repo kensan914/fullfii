@@ -3,25 +3,15 @@ import ProfileInputTemplate from "../components/templates/ProfileInputTemplate";
 import requestAxios from "../components/modules/axios";
 import { URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
+import { MeProfile, MeProfileIoTs } from "../components/types/Types.context";
+import { RequestPatchProfile } from "../components/types/Types";
 
-const ProfileInput: React.FC = (props) => {
-  return (
-    <ProfileInputTemplate
-      {...props}
-      requestPatchProfile={requestPatchProfile}
-    />
-  );
+const ProfileInput: React.FC = () => {
+  return <ProfileInputTemplate requestPatchProfile={requestPatchProfile} />;
 };
 
 export default ProfileInput;
 
-export type RequestPatchProfile = (
-  token: any,
-  data: any,
-  profileDispatch: any,
-  successSubmit: any,
-  errorSubmit: any
-) => void;
 export const requestPatchProfile: RequestPatchProfile = (
   token,
   data,
@@ -31,14 +21,15 @@ export const requestPatchProfile: RequestPatchProfile = (
 ) => {
   const url = URLJoin(BASE_URL, "me/");
 
-  requestAxios(token)
-    .patch(url, data)
-    .then((res) => {
-      profileDispatch({ type: "SET_ALL", profile: res.data });
+  requestAxios(url, "patch", MeProfileIoTs, {
+    data: data,
+    thenCallback: (resData) => {
+      profileDispatch({ type: "SET_ALL", profile: resData as MeProfile });
       successSubmit && successSubmit();
-    })
-    .catch((err) => {
-      console.log(err.response);
-      errorSubmit && errorSubmit(err);
-    });
+    },
+    catchCallback: (err) => {
+      err && errorSubmit && errorSubmit(err);
+    },
+    token: token,
+  });
 };

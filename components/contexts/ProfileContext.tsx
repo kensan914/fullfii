@@ -1,6 +1,8 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, { createContext, useReducer, useContext, useEffect } from "react";
 import { BASE_URL } from "../../constants/env";
+import { requestPatchProfile } from "../../screens/ProfileInput";
 import { useAxios } from "../modules/axios";
+import usePushNotification from "../modules/firebase/pushNotification";
 import { asyncStoreJson, URLJoin } from "../modules/support";
 import {
   MeProfile,
@@ -59,7 +61,7 @@ export const initProfile: Profile = Object.freeze({
   name: "",
   introduction: "",
   numOfThunks: 0,
-  gender: { key: "", name: "", label: "" },
+  gender: { key: "female", name: "", label: "" },
   job: { key: "", name: "", label: "" },
   genreOfWorries: [],
   image: "",
@@ -71,7 +73,7 @@ export const initMeProfile: MeProfile = Object.freeze({
   name: "",
   introduction: "",
   numOfThunks: 0,
-  gender: { key: "", name: "", label: "" },
+  gender: { key: "female", name: "", label: "" },
   job: { key: "", name: "", label: "" },
   genreOfWorries: [],
   canTalkHeterosexual: false,
@@ -79,6 +81,7 @@ export const initMeProfile: MeProfile = Object.freeze({
   image: "",
   me: true,
   plan: { key: "", label: "" },
+  deviceToken: "",
 });
 
 const profileStateContext = createContext<ProfileState>({

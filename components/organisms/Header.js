@@ -12,9 +12,8 @@ import { ProfileMenuButton } from "./ProfileMenuButton";
 import { checkiPhoneX } from "../modules/support";
 import { useProfileState } from "../contexts/ProfileContext";
 import ProfileModal from "../molecules/ProfileModal";
-import { logEvent } from "../modules/firebase/logEvent";
 
-const { height, width } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 const SettingsButton = ({ isWhite, style, navigation }) => (
   <TouchableOpacity

@@ -7,16 +7,24 @@ import { useProfileState } from "../../../contexts/ProfileContext";
 import BubbleList from "../../../organisms/BubbleList";
 import { logEvent } from "../../../modules/firebase/logEvent";
 import { hasProperty } from "../../../modules/support";
+import { GoToPage, PressBubble } from "../../../types/Types";
+import { GenreOfWorriesCollection } from "../../../types/Types.context";
 
-const { width, height } = Dimensions.get("screen");
+const { height } = Dimensions.get("screen");
 
-const SecondSignUpPage = (props) => {
+type Props = {
+  goToPage: GoToPage;
+};
+const SecondSignUpPage: React.FC<Props> = (props) => {
   const { goToPage } = props;
   const authDispatch = useAuthDispatch();
   const profileState = useProfileState();
   const progressNum = 2;
 
-  const [worriesCollection, setWorriesCollection] = useState({});
+  const [
+    worriesCollection,
+    setWorriesCollection,
+  ] = useState<GenreOfWorriesCollection>({});
   const checkCanNext = () => {
     return Object.keys(worriesCollection).length >= 3;
   };
@@ -43,10 +51,12 @@ const SecondSignUpPage = (props) => {
   };
 
   const genreOfWorries = profileState.profileParams
-    ? JSON.parse(JSON.stringify(profileState.profileParams.genreOfWorries))
-    : {};
+    ? (JSON.parse(
+        JSON.stringify(profileState.profileParams.genreOfWorries)
+      ) as GenreOfWorriesCollection)
+    : ({} as GenreOfWorriesCollection);
 
-  const pressBubble = (key) => {
+  const pressBubble: PressBubble = (key) => {
     const _worriesCollection = { ...worriesCollection };
     if (hasProperty(_worriesCollection, key)) {
       delete _worriesCollection[key];

@@ -23,7 +23,7 @@ import {
 import Admob from "../components/molecules/Admob";
 import { OnPress } from "../components/types/Types";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
 const Settings: React.FC = () => {
   const _handleOpenWithWebBrowser = () => {

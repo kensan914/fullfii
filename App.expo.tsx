@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Platform, StatusBar, Image } from "react-native";
-import { Asset } from "expo-asset";
+import { Platform, StatusBar, LogBox } from "react-native";
 import { GalioProvider } from "galio-framework";
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -19,62 +18,46 @@ import {
 import { ProfileProvider } from "./components/contexts/ProfileContext";
 import { ChatProvider } from "./components/contexts/ChatContext";
 import StartUpManager from "./screens/StartUpManager";
-// import { logEvent } from "./components/modules/firebase";
-import { LogBox } from "react-native";
 import { setIsExpo } from "./constants/env";
 import {
+  AuthStatus,
+  AuthStatusIoTs,
+  MeProfile,
   MeProfileIoTs,
-  TalkTicketCollectionJsonIoTs,
+  SignupBuffer,
+  SignupBufferIoTs,
+  TalkTicketCollection,
+  TalkTicketCollectionAsync,
+  TalkTicketCollectionAsyncIoTs,
 } from "./components/types/Types.context";
 
 LogBox.ignoreAllLogs(true);
 
-const assetImages = {
-  logo: require("./assets/images/icon_2/ios/Icon-512.png"),
-};
-
-function cacheImages(images) {
-  return images.map((image) => {
-    if (typeof image === "string") {
-      return Image.prefetch(image);
-    } else {
-      return Asset.fromModule(image).downloadAsync();
-    }
-  });
-}
-
-const App = (props) => {
+const App: React.FC = () => {
   const [isFinishLoadingResources, setIsFinishLoadingResources] = useState(
     false
   );
-  const [assets, setAssets] = useState();
-
-  const loadResourcesAsync = async () => {
-    return Promise.all([...cacheImages(Object.values(assetImages))]);
-  };
 
   useEffect(() => {
     setIsExpo(true);
-
-    loadResourcesAsync().then((assetList) => {
-      const downloadedAssets = {};
-      assetList.forEach((elm) => {
-        downloadedAssets[elm.name] = elm;
-      });
-      setAssets(downloadedAssets);
-      setIsFinishLoadingResources(true);
-    });
+    setIsFinishLoadingResources(true);
   }, []);
-  // setIsFinishLoadingResources(true);
+
   return <RootNavigator isFinishLoadingResources={isFinishLoadingResources} />;
 };
 
-const RootNavigator = (props) => {
-  const [status, setStatus] = useState();
-  const [token, setToken] = useState();
-  const [signupBuffer, setSignupBuffer] = useState();
-  const [profile, setProfile] = useState();
-  const [talkTicketCollection, setTalkTicketCollection] = useState();
+type Props = {
+  isFinishLoadingResources: boolean;
+};
+const RootNavigator: React.FC<Props> = (props) => {
+  type InitState<T> = undefined | null | T;
+  const [status, setStatus] = useState<InitState<AuthStatus>>();
+  const [token, setToken] = useState<InitState<string>>();
+  const [signupBuffer, setSignupBuffer] = useState<InitState<SignupBuffer>>();
+  const [profile, setProfile] = useState<InitState<MeProfile>>();
+  const [talkTicketCollection, setTalkTicketCollection] = useState<
+    InitState<TalkTicketCollection>
+  >();
 
   useEffect(() => {
     (async () => {
@@ -83,25 +66,31 @@ const RootNavigator = (props) => {
       // asyncRemoveItem("signupBuffer"); // テスト
       // asyncRemoveItem("talkTicketCollection"); // テスト
 
-      const _status = await asyncGetItem("status");
+      const _status = (await asyncGetItem(
+        "status",
+        AuthStatusIoTs
+      )) as AuthStatus;
       setStatus(_status ? _status : null);
       const _token = await asyncGetItem("token");
       setToken(_token ? _token : null);
-      const _signupBuffer = await asyncGetJson("signupBuffer");
+      const _signupBuffer = (await asyncGetJson(
+        "signupBuffer",
+        SignupBufferIoTs
+      )) as SignupBuffer;
       setSignupBuffer(_signupBuffer ? _signupBuffer : null);
-      const _profile = await asyncGetJson("profile", MeProfileIoTs);
+      const _profile = (await asyncGetJson(
+        "profile",
+        MeProfileIoTs
+      )) as MeProfile;
       setProfile(_profile ? _profile : null);
-      const _talkTicketCollection = await asyncGetJson(
+      const _talkTicketCollectionJson = (await asyncGetJson(
         "talkTicketCollection",
-        TalkTicketCollectionJsonIoTs
-      );
+        TalkTicketCollectionAsyncIoTs
+      )) as TalkTicketCollectionAsync;
       setTalkTicketCollection(
-        _talkTicketCollection ? _talkTicketCollection : null
+        _talkTicketCollectionJson ? _talkTicketCollectionJson : null
       );
     })();
-
-    // send event to firebase
-    // logEvent("sample_event");
   }, []);
   if (
     typeof status === "undefined" ||
@@ -121,7 +110,7 @@ const RootNavigator = (props) => {
               <GalioProvider theme={materialTheme}>
                 <StartUpManager>
                   {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                  <Screens {...props} />
+                  <Screens />
                 </StartUpManager>
               </GalioProvider>
             </ChatProvider>

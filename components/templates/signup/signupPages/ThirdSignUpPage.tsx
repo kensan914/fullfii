@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dimensions, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 import { Block, Button, Checkbox, Icon, Input, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
@@ -17,11 +17,11 @@ import { MenuModal } from "../../../molecules/Menu";
 import { startUpLoggedin } from "../../../../screens/StartUpManager";
 import useAllContext from "../../../contexts/ContextUtils";
 import { logEvent } from "../../../modules/firebase/logEvent";
+import { SignupResData, SignupResDataIoTs } from "../../../types/Types";
 
-const { height, width } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
-const ThirdSignUpPage = (props) => {
-  const { goToPage } = props;
+const ThirdSignUpPage: React.FC = () => {
   const authState = useAuthState();
   const authDispatch = useAuthDispatch();
   const profileDispatch = useProfileDispatch();
@@ -32,9 +32,9 @@ const ThirdSignUpPage = (props) => {
   const [isActiveUsername, setIsActiveUsername] = useState(false);
   const maxUsernameLen = 15;
 
-  const [gender, setGender] = useState();
+  const [genderKey, setGenderKey] = useState<string>();
 
-  const [job, setJob] = useState();
+  const [jobKey, setJobKey] = useState<string>();
   const [isOpenJobModal, setIsOpenJobModal] = useState(false);
 
   const [isAgreedUserpolicy, setIsAgreedUserpolicy] = useState(false);
@@ -43,29 +43,30 @@ const ThirdSignUpPage = (props) => {
     return (
       0 < username.length &&
       username.length <= maxUsernameLen &&
-      typeof gender !== "undefined" &&
-      typeof job !== "undefined" &&
+      typeof genderKey !== "undefined" &&
+      typeof jobKey !== "undefined" &&
       isAgreedUserpolicy
     );
   };
 
   const [password] = useState(generatePassword());
   const [states, dispatches] = useAllContext();
-  const { isLoading, resData, request } = useAxios(
+  const { isLoading, request } = useAxios(
     URLJoin(BASE_URL, "signup/"),
     "post",
-    null, // TODO:
+    SignupResDataIoTs,
     {
       data: {
         username: username,
         password: password,
         genre_of_worries: authState.signupBuffer.worries,
-        gender: gender,
-        job: job,
+        gender: genderKey,
+        job: jobKey,
       },
-      thenCallback: (res) => {
-        const _me = res.data.me;
-        const _token = res.data.token;
+      thenCallback: (resData) => {
+        const _resData = resData as SignupResData;
+        const _me = _resData.me;
+        const _token = _resData.token;
         profileDispatch({ type: "SET_ALL", profile: _me });
         authDispatch({
           type: "COMPLETE_SIGNUP",
@@ -80,8 +81,8 @@ const ThirdSignUpPage = (props) => {
 
         startUpLoggedin(_token, states, dispatches);
       },
-      catchCallback: (err) => {
-        alert("新規登録に失敗しました。");
+      catchCallback: () => {
+        Alert.alert("新規登録に失敗しました。");
       },
       limitRequest: 1,
     }
@@ -95,21 +96,26 @@ const ThirdSignUpPage = (props) => {
           return worry?.label;
         })
         .join(", "),
-      gender: gender,
-      job: job,
+      gender: genderKey,
+      job: jobKey,
     });
     request();
   };
 
   const renderContents = () => {
-    const renderGenderInputButton = (iconName, title, isActive, key) => {
+    const renderGenderInputButton = (
+      iconName: string,
+      title: string,
+      isActive: boolean,
+      key: string
+    ) => {
       const contentsColor = isActive ? COLORS.PINK : "lightgray";
       return (
         <Button
           color="white"
           shadowColor={isActive ? COLORS.PINK : "white"}
           style={styles.genderInputButton}
-          onPress={() => setGender(key)}
+          onPress={() => setGenderKey(key)}
         >
           <Icon
             family="font-awesome"
@@ -142,7 +148,7 @@ const ThirdSignUpPage = (props) => {
                 : { borderBottomColor: "silver" },
               isActiveUsername ? styles.usernameInputActive : null,
             ]}
-            onChangeText={(text) => setUsername(text)}
+            onChangeText={(text: string) => setUsername(text)}
             onBlur={() => setIsActiveUsername(false)}
             onFocus={() => setIsActiveUsername(true)}
             maxLength={maxUsernameLen}
@@ -167,14 +173,16 @@ const ThirdSignUpPage = (props) => {
                   return i < 2 ? (
                     <Block key={i} flex style={styles.genderInput}>
                       {renderGenderInputButton(
-                        iconNames[genderObj.key],
+                        genderObj.key in iconNames
+                          ? iconNames[genderObj.key]
+                          : "",
                         genderObj.label,
-                        gender === genderObj.key,
+                        genderKey === genderObj.key,
                         genderObj.key
                       )}
                     </Block>
                   ) : (
-                    <Block />
+                    <Block key={i} />
                   );
                 }
               )}
@@ -187,19 +195,22 @@ const ThirdSignUpPage = (props) => {
             onPress={() => setIsOpenJobModal(true)}
             style={[
               styles.jobInput,
-              job ? { borderColor: COLORS.PINK } : { borderColor: "silver" },
+              jobKey ? { borderColor: COLORS.PINK } : { borderColor: "silver" },
             ]}
           >
             <Block flex style={styles.jobInputContent}>
-              <Text color={job ? "lightcoral" : "darkgray"} bold={Boolean(job)}>
-                {job && profileState.profileParams?.job
-                  ? profileState.profileParams.job[job].label
+              <Text
+                color={jobKey ? "lightcoral" : "darkgray"}
+                bold={Boolean(jobKey)}
+              >
+                {jobKey && profileState.profileParams?.job
+                  ? profileState.profileParams.job[jobKey].label
                   : "-- 職業を選択してください --"}
               </Text>
               <Icon
                 name="angle-down"
                 family="font-awesome"
-                color={job ? COLORS.PINK : "gray"}
+                color={jobKey ? COLORS.PINK : "gray"}
                 size={22}
               />
             </Block>
@@ -210,11 +221,11 @@ const ThirdSignUpPage = (props) => {
             setIsOpen={setIsOpenJobModal}
             items={
               profileState.profileParams?.job &&
-              Object.values(profileState.profileParams.job).map((jobObj, i) => {
+              Object.values(profileState.profileParams.job).map((jobObj) => {
                 return {
                   title: jobObj.label,
                   onPress: () => {
-                    setJob(jobObj.key);
+                    setJobKey(jobObj.key);
                     setIsOpenJobModal(false);
                   },
                 };
@@ -230,7 +241,7 @@ const ThirdSignUpPage = (props) => {
               color={COLORS.PINK}
               style={{ marginHorizontal: 8 }}
               initialValue={isAgreedUserpolicy}
-              onChange={(value) => setIsAgreedUserpolicy(value)}
+              onChange={(value: boolean) => setIsAgreedUserpolicy(value)}
             />
             <Text
               color="lightcoral"
@@ -255,7 +266,7 @@ const ThirdSignUpPage = (props) => {
       pressCallback={pressButton}
       buttonTitle="登録してはじめる"
       checkCanNext={checkCanNext}
-      statesRequired={[username, gender, job, isAgreedUserpolicy]}
+      statesRequired={[username, genderKey, jobKey, isAgreedUserpolicy]}
     />
   );
 };

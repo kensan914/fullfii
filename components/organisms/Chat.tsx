@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { StyleSheet, Dimensions, ScrollView } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { StyleSheet, Dimensions, ScrollView, Alert } from "react-native";
 import { Block, Text, theme, Button, Icon } from "galio-framework";
 import Modal from "react-native-modal";
 import LottieView from "lottie-react-native";
@@ -9,14 +9,19 @@ import { TouchableOpacity } from "react-native";
 import ChatModal from "../molecules/ChatModal";
 import { useAxios } from "../modules/axios";
 import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
-// import { AdMobInterstitial } from "react-native-admob";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
+import { TalkTicketKey } from "../types/Types.context";
+import { LottieSource } from "../types/Types";
+import { showAdMobInterstitial } from "../molecules/Admob";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
-export const CommonMessage = (props) => {
+type CommonMessageType = {
+  message: string;
+};
+export const CommonMessage: React.FC<CommonMessageType> = (props) => {
   const { message } = props;
   return (
     <Block style={styles.commonMessage}>
@@ -32,7 +37,10 @@ export const CommonMessage = (props) => {
   );
 };
 
-export const TalkMenuButton = (props) => {
+type TalkMenuButtonType = {
+  talkTicketKey: TalkTicketKey;
+};
+export const TalkMenuButton: React.FC<TalkMenuButtonType> = (props) => {
   const { talkTicketKey } = props;
   const [isOpen, setIsOpen] = useState(false);
   const profileState = useProfileState();
@@ -58,53 +66,51 @@ export const TalkMenuButton = (props) => {
   );
 };
 
-export const EndTalkScreen = (props) => {
+export type EndTalkScreenType = {
+  isOpen: boolean;
+  roomId: string;
+  token: string;
+  closeChatModal: () => void;
+};
+export const EndTalkScreen: React.FC<EndTalkScreenType> = (props) => {
   const { isOpen, roomId, token, closeChatModal } = props;
   const scrollView = useRef(null);
   const authDispatch = useAuthDispatch();
   const profileState = useProfileState();
-  const [lottieHeartSource, setLottieHeartSource] = useState(null);
+  const [lottieHeartSource, setLottieHeartSource] = useState<LottieSource>();
 
-  useState(async () => {
-    import("../../assets/animations/1087-heart.json").then((source) => {
-      console.log(source);
-      setLottieHeartSource(source.default);
-    });
+  useEffect(() => {
+    (async () => {
+      import("../../assets/animations/1087-heart.json").then((source) => {
+        setLottieHeartSource(source.default);
+      });
+    })();
   }, []);
 
+  // const showAdMobInterstitial = useAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX);
   const { request } = useAxios(
     URLJoin(BASE_URL, "rooms/", roomId, "close/"),
     "post",
-    null, // TODO:
+    null,
     {
       data: {
         has_thunks: true,
       },
-      thenCallback: (res) => {
+      thenCallback: () => {
         closeChatModal();
         authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
 
-        // TODO:
         if (!isExpo) {
-          AdMobInterstitial.setAdUnitID(ADMOB_UNIT_ID_AFTER_THX);
-          AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-          AdMobInterstitial.requestAd()
-            .then(() => {
-              AdMobInterstitial.showAd();
-            })
-            .catch((e) => {
-              console.error(e);
-            })
-            .finally(() => {
-              authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-            });
+          showAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX, () => {
+            authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+          });
         } else {
           authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
         }
       },
       catchCallback: (err) => {
-        if (err.response.status === 404) {
-          alert("ありがとうの送信に失敗しました。");
+        if (err?.response && err.response.status === 404) {
+          Alert.alert("ありがとうの送信に失敗しました。");
           closeChatModal();
           authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
         }
@@ -115,13 +121,13 @@ export const EndTalkScreen = (props) => {
   );
 
   const renderFirstPage = () => {
-    const animation = useRef(null);
+    const animation = useRef<LottieView>(null);
     let pushed = false;
     const pushThunks = () => {
       if (!pushed) {
         logEvent("thx_button", {}, profileState);
         pushed = true;
-        animation.current.play();
+        animation.current !== null && animation.current.play();
         setTimeout(() => {
           request();
         }, 800);

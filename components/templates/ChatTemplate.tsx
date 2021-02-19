@@ -14,7 +14,7 @@ import { Input, Block, Text, Button, theme } from "galio-framework";
 import Icon from "../atoms/Icon";
 import { CommonMessage } from "../organisms/Chat";
 import Avatar from "../atoms/Avatar";
-import { generateUuid4, fmtfromDateToStr, isObject } from "../modules/support";
+import { generateUuid4, fmtfromDateToStr } from "../modules/support";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
 import ProfileModal from "../molecules/ProfileModal";
 import { logEvent } from "../modules/firebase/logEvent";
@@ -60,17 +60,16 @@ const ChatTemplate: React.FC<Props> = (props) => {
 
   const messagesScroll = useRef<FlatList>(null);
   const [message, setMessage] = useState("");
-  const [height, setHeight] = useState(0);
   const [inputHeight, setInputHeight] = useState(0);
 
-  const existUser = isObject(user) && Object.keys(user).length;
+  const existUser = !!user.id.length;
   const chatDispatch = useChatDispatch();
   const chatState = useChatState();
   const profileState = useProfileState();
 
   useEffect(() => {
-    handleScroll();
     chatDispatch({ type: "READ_BY_ROOM", talkTicketKey });
+    handleScrollBottom();
   }, [messages.length]);
 
   const itemLayout: ItemLayout = (data, index) => ({
@@ -79,15 +78,16 @@ const ChatTemplate: React.FC<Props> = (props) => {
     index,
   });
 
-  const handleScroll = () => {
-    setTimeout(() => {
-      const messagesScrollCurrent = messagesScroll.current;
-      messagesScrollCurrent !== null &&
-        messagesScrollCurrent.scrollToOffset({ offset: height });
-    }, 1);
+  const [height, setHeight] = useState(0);
+  const handleScrollBottom = (didMound = false, _height?: number) => {
+    const messagesScrollCurrent = messagesScroll.current;
+    messagesScrollCurrent !== null &&
+      messagesScrollCurrent.scrollToOffset({
+        offset: _height ? _height : height,
+        animated: !didMound,
+      });
   };
-
-  const onContentSizeChange: OnContentSizeChange = (height) => {
+  const onContentSizeChange: OnContentSizeChange = (width, height) => {
     setHeight(height);
   };
 
@@ -153,10 +153,9 @@ const ChatTemplate: React.FC<Props> = (props) => {
       <FlatList
         ref={messagesScroll}
         data={messages}
-        // keyExtractor={(item) => `${item.id}`}
         showsVerticalScrollIndicator={false}
         getItemLayout={itemLayout}
-        contentContainerStyle={[styles.messagesWrapper]}
+        contentContainerStyle={styles.messagesWrapper}
         renderItem={({ item, index }) => renderMessage(item, index)}
         onContentSizeChange={onContentSizeChange}
         keyExtractor={(item, index) => index.toString()}
@@ -169,7 +168,7 @@ const ChatTemplate: React.FC<Props> = (props) => {
   };
 
   const handleMessage = () => {
-    if (typeof message !== "undefined" && message.length > 0) {
+    if (message.length > 0) {
       if (isEnd) {
         Alert.alert(`${user.name}さんは退室しています`);
         return;

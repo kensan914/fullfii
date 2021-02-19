@@ -1,8 +1,12 @@
 import React from "react";
 import { useAuthDispatch } from "../../../contexts/AuthContext";
+import { GoToPage } from "../../../types/Types";
 import SignUpPageTemplate from "./SignUpPageTemplate";
 
-const FirstSignUpPage = (props) => {
+type Props = {
+  goToPage: GoToPage;
+};
+const FirstSignUpPage: React.FC<Props> = (props) => {
   const { goToPage } = props;
   const authDispatch = useAuthDispatch();
   const progressNum = 1;
@@ -19,7 +23,6 @@ const FirstSignUpPage = (props) => {
     <SignUpPageTemplate
       title={"はじめまして" + "\n" + "ようこそ、Fullfiiへ"}
       subTitle="これから使い方の説明を始めていきます。"
-      // contents={}
       isLoading={false}
       pressCallback={pressButton}
       buttonTitle="次へ"

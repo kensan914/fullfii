@@ -1,25 +1,21 @@
 import React from "react";
 import * as t from "io-ts";
+import { either } from "fp-ts/lib/Either";
 
 //========== Auth ==========//
 export type AuthState = {
   status: AuthStatus;
   token: TokenNullable;
-  signupBuffer: SignupBufferType;
+  signupBuffer: SignupBuffer;
   isShowSpinner: boolean;
 };
 export type AuthDispatch = React.Dispatch<AuthActionType>;
-export type UnauthenticatedType = "Unauthenticated";
-export type AuthenticatingType = "Authenticating";
-export type AuthenticatedType = "Authenticated";
-export type AuthStatus =
-  | UnauthenticatedType
-  | AuthenticatingType
-  | AuthenticatedType;
-export type SignupBufferType = {
-  didProgressNum: number;
-  worries: GenreOfWorries;
-};
+export type UnauthenticatedType = t.TypeOf<typeof UnauthenticatedTypeIoTs>;
+export type AuthenticatingType = t.TypeOf<typeof AuthenticatingTypeIoTs>;
+export type AuthenticatedType = t.TypeOf<typeof AuthenticatedTypeIoTs>;
+export type AuthStatus = t.TypeOf<typeof AuthStatusIoTs>;
+export type AuthStatusNullable = AuthStatus | null;
+export type SignupBuffer = t.TypeOf<typeof SignupBufferIoTs>;
 export type TokenNullable = string | null;
 export type AuthActionType =
   | { type: "TO_PROGRESS_SIGNUP"; didProgressNum: number; isFinished: boolean }
@@ -30,6 +26,14 @@ export type AuthActionType =
 //========== Auth ==========//
 
 //========== Auth io-ts ==========//
+export const UnauthenticatedTypeIoTs = t.literal("Unauthenticated");
+export const AuthenticatingTypeIoTs = t.literal("Authenticating");
+export const AuthenticatedTypeIoTs = t.literal("Authenticated");
+export const AuthStatusIoTs = t.union([
+  UnauthenticatedTypeIoTs,
+  AuthenticatingTypeIoTs,
+  AuthenticatedTypeIoTs,
+]);
 //========== Auth io-ts ==========//
 
 //========== Profile ==========//
@@ -44,6 +48,7 @@ export type ProfileActionType =
   | { type: "RESET" };
 
 export type Plan = t.TypeOf<typeof PlanIoTs>;
+export type GenderKey = t.TypeOf<typeof GenderKeyIoTs>;
 export type Gender = t.TypeOf<typeof GenderIoTs>;
 export type Genders = t.TypeOf<typeof GendersIoTs>;
 export type GenreOfWorry = t.TypeOf<typeof GenreOfWorryIoTs>;
@@ -61,8 +66,13 @@ export type WorriesResJson = t.TypeOf<typeof WorriesResJsonIoTs>;
 //========== Profile ==========//
 
 //========== Profile io-ts ==========//
+export const GenderKeyIoTs = t.keyof({
+  female: null,
+  male: null,
+  secret: null,
+});
 export const GenderIoTs = t.type({
-  key: t.string,
+  key: GenderKeyIoTs,
   name: t.string,
   label: t.string,
 });
@@ -109,6 +119,7 @@ export const MeProfileIoTs = t.intersection([
     dateJoined: t.string,
     plan: PlanIoTs,
     canTalkHeterosexual: t.boolean,
+    deviceToken: t.union([t.string, t.null]),
   }),
   ProfileIoTs,
 ]);
@@ -172,13 +183,15 @@ export type TalkTicket = t.TypeOf<typeof TalkTicketJsonExceptRoomIoTs> & {
   room: Room;
 };
 export type TalkTicketJson = t.TypeOf<typeof TalkTicketJsonIoTs>;
-export type TalkTicketKey = string;
+export type TalkTicketKey = t.TypeOf<typeof TalkTicketKeyIoTs>;
 export type TalkTicketCollection = { [talkTicketKey: string]: TalkTicket };
 export type TalkTicketCollectionJson = t.TypeOf<
   typeof TalkTicketCollectionJsonIoTs
 >;
+export type TalkTicketCollectionAsync = t.TypeOf<
+  typeof TalkTicketCollectionAsyncIoTs
+>;
 export type TalkInfoJson = t.TypeOf<typeof TalkInfoJsonIoTs>;
-// export type RoomJson = { type: "roomJson" } & t.TypeOf<typeof RoomJsonIoTs>;
 export type RoomJson = t.TypeOf<typeof RoomJsonIoTs>;
 export type RoomAdd = {
   messages: AllMessages;
@@ -187,36 +200,62 @@ export type RoomAdd = {
   ws: WsNullable;
   isEnd: boolean;
 };
-// export type Room = { type: "room" } & RoomAdd & t.TypeOf<typeof RoomJsonIoTs>;
-export type Room = RoomAdd & t.TypeOf<typeof RoomJsonIoTs>;
+/** RoomAsyncとの違い: wsのtypeがWsNullable */
+export type Room = RoomAdd & RoomJson;
+/** Roomとの違い: wsのtypeがnull */
+export type RoomAsync = t.TypeOf<typeof RoomAsyncIoTs>;
 export type WsNullable = WebSocket | null;
 
-export type AllMessage = Message | OfflineMessage | CommonMessage;
-export type AllMessages = AllMessage[];
-export type OfflineMessage = {
-  messageId: string;
-  message: string;
-  isMe: boolean;
-};
+export type OfflineMessage = t.TypeOf<typeof OfflineMessageIoTs>;
+export type Message = t.TypeOf<typeof MessageIoTs>;
 export type MessageJson = t.TypeOf<typeof MessageJsonIoTs>;
-export type Message = {
-  time: Date;
-} & OfflineMessage;
-export type CommonMessage = {
-  messageId: string;
-  message: string;
-  time: Date;
-  common: boolean;
-};
+export type CommonMessage = t.TypeOf<typeof CommonMessageIoTs>;
+export type AllMessage = t.TypeOf<typeof AllMessageIoTs>;
+export type AllMessages = t.TypeOf<typeof AllMessagesIoTs>;
 //========== Chat ==========//
 
 //========== Chat io-ts ==========//
-export const MessageJsonIoTs = t.type({
+/** https://github.com/gcanti/io-ts/blob/master/index.md */
+export const DateType = new t.Type<Date, string, unknown>(
+  "DateFromString",
+  (u): u is Date => u instanceof Date,
+  (u, c) =>
+    either.chain(t.string.validate(u, c), (s) => {
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? t.failure(u, c) : t.success(d);
+    }),
+  (a) => a.toISOString()
+);
+export const OfflineMessageIoTs = t.type({
   messageId: t.string,
   message: t.string,
   isMe: t.boolean,
-  time: t.string,
 });
+export const MessageIoTs = t.intersection([
+  OfflineMessageIoTs,
+  t.type({
+    time: DateType,
+  }),
+]);
+export const MessageJsonIoTs = t.intersection([
+  OfflineMessageIoTs,
+  t.type({
+    time: t.string,
+  }),
+]);
+export const CommonMessageIoTs = t.type({
+  messageId: t.string,
+  message: t.string,
+  time: DateType,
+  common: t.boolean,
+});
+export const AllMessageIoTs = t.union([
+  OfflineMessageIoTs,
+  MessageIoTs,
+  CommonMessageIoTs,
+]);
+export const AllMessagesIoTs = t.array(AllMessageIoTs);
+
 export const RoomJsonIoTs = t.type({
   id: t.string,
   user: ProfileIoTs,
@@ -225,11 +264,21 @@ export const RoomJsonIoTs = t.type({
   isAlert: t.boolean,
   isTimeOut: t.boolean,
 });
+export const RoomAddJsonIoTs = t.type({
+  messages: AllMessagesIoTs,
+  offlineMessages: t.array(OfflineMessageIoTs),
+  unreadNum: t.number,
+  ws: t.null,
+  isEnd: t.boolean,
+});
+export const RoomAsyncIoTs = t.intersection([RoomAddJsonIoTs, RoomJsonIoTs]);
+
 export const TalkStatusIoTs = t.type({
   key: t.string,
   name: t.string,
   label: t.string,
 });
+export const TalkTicketKeyIoTs = t.string;
 const TalkTicketJsonExceptRoomIoTs = t.type({
   id: t.string,
   owner: MeProfileIoTs,
@@ -240,19 +289,33 @@ const TalkTicketJsonExceptRoomIoTs = t.type({
   canTalkHeterosexual: t.boolean,
   canTalkDifferentJob: t.boolean,
 });
+/** TalkTicketAsyncIoTsとの違い: roomがnullable & roomJson */
 export const TalkTicketJsonIoTs = t.intersection([
   TalkTicketJsonExceptRoomIoTs,
   t.type({
     room: t.union([RoomJsonIoTs, t.null]),
   }),
 ]);
-export const TalkInfoJsonIoTs = t.type({
-  talkTickets: t.array(TalkTicketJsonIoTs),
-});
+/** TalkTicketJsonIoTsとの違い: roomのwsのみがnull */
+export const TalkTicketAsyncIoTs = t.intersection([
+  TalkTicketJsonExceptRoomIoTs,
+  t.type({
+    room: RoomAsyncIoTs,
+  }),
+]);
+/** TalkTicketCollectionAsyncIoTsとの違い: roomがnullable & roomJson */
 export const TalkTicketCollectionJsonIoTs = t.record(
   t.string,
   TalkTicketJsonIoTs
 );
+/** TalkTicketCollectionJsonIoTsとの違い: roomのwsのみがnull */
+export const TalkTicketCollectionAsyncIoTs = t.record(
+  t.string,
+  TalkTicketAsyncIoTs
+);
+export const TalkInfoJsonIoTs = t.type({
+  talkTickets: t.array(TalkTicketJsonIoTs),
+});
 //========== Chat io-ts ==========//
 
 //========== ContextUtils ==========//
@@ -269,8 +332,12 @@ export type Dispatches = {
 //========== ContextsUtils ==========//
 
 //========== 呼び出し順 ==========//
+export const SignupBufferIoTs = t.type({
+  didProgressNum: t.number,
+  worries: GenreOfWorriesIoTs,
+});
 export const WorriesResJsonIoTs = t.type({
   addedTalkTickets: t.array(TalkTicketJsonIoTs),
-  removedTalkTicketKeys: t.array(t.string),
+  removedTalkTicketKeys: t.array(TalkTicketKeyIoTs),
 });
 //========== 呼び出し順 ==========//

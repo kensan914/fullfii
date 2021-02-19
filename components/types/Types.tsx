@@ -3,6 +3,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { AxiosError, AxiosResponse } from "axios";
 import { GestureResponderEvent } from "react-native";
 import * as t from "io-ts";
+import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
+import { Asset } from "expo-asset";
 
 import {
   MeProfile,
@@ -12,14 +14,21 @@ import {
   ProfileIoTs,
   TalkTicketKey,
 } from "./Types.context";
-import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
+
+//--------- App.tsx ---------//
+export type Assets = { [key: string]: Asset };
+//--------- App.tsx ---------//
 
 //--------- Screens.tsx ---------//
 export type RootStackParamList = {
   Home: undefined;
   WorrySelect: undefined;
   ProfileEditor: undefined;
-  ProfileInput: { screen: string; prevValue: unknown; user: MeProfile };
+  ProfileInput: {
+    screen: ProfileInputScreen;
+    prevValue: unknown;
+    user: MeProfile;
+  };
   Chat: { talkTicketKey: TalkTicketKey };
   Settings: undefined;
   Authenticated: undefined;
@@ -46,6 +55,8 @@ export type WorrySelectNavigationProps = StackNavigationProp<
   RootStackParamList,
   "WorrySelect"
 >;
+
+export type ProfileInputScreen = "InputName" | "InputIntroduction";
 //--------- Screens.tsx ---------//
 
 //--------- Home.tsx ---------//
@@ -70,6 +81,19 @@ export type HomeItems = [HomeFirstItem, ...HomeRooms];
 //--------- HomeTemplate.tsx ---------//
 //--------- HomeTemplate.tsx ---------//
 
+//--------- ProfileInput.tsx ---------//
+export type SuccessSubmitProfile = () => void;
+export type ErrorSubmitProfile = (err: AxiosError) => void;
+export type ProfileInputData = { [key: string]: unknown };
+export type RequestPatchProfile = (
+  token: string,
+  data: ProfileInputData,
+  profileDispatch: ProfileDispatch,
+  successSubmit?: SuccessSubmitProfile,
+  errorSubmit?: ErrorSubmitProfile
+) => void;
+//--------- ProfileInput.tsx ---------//
+
 //--------- Chat.tsx ---------//
 export type AppendOfflineMessage = (
   messageId: string,
@@ -81,6 +105,21 @@ export type SendWsMessage = (
   messageText: string,
   token: string
 ) => void;
+export type AnimationObject = {
+  v: string;
+  fr: number;
+  ip: number;
+  op: number;
+  w: number;
+  h: number;
+  nm: string;
+  ddd: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  assets: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  layers: any[];
+};
+export type LottieSource = string | AnimationObject | { uri: string };
 //--------- Chat.tsx ---------//
 
 //--------- ChatTemplate.tsx ---------//
@@ -93,7 +132,7 @@ export type ItemLayout = (
   offset: number;
   index: number;
 };
-export type OnContentSizeChange = (height: number) => void;
+export type OnContentSizeChange = (width: number, height: number) => void;
 //--------- ChatTemplate.tsx ---------//
 
 //--------- ProfileEditor.tsx ---------//
@@ -109,6 +148,16 @@ export type RequestPostProfileImage = (
 //--------- useSlideView.tsx ---------//
 export type GoToPage = (toPageNum: number) => void;
 //--------- useSlideView.tsx ---------//
+
+//--------- useAdMobInterstitial.tsx ---------//
+export type ShowAdMobInterstitial = () => boolean;
+//--------- useAdMobInterstitial.tsx ---------//
+
+//--------- BubbleList.tsx ---------//
+export type PressBubble = (key: TalkTicketKey) => void;
+export type BubbleItem = { key: string; label: string };
+export type BubbleItems = BubbleItem[];
+//--------- BubbleList.tsx ---------//
 
 //--------- axios ---------//
 export type AxiosMethod = "get" | "post" | "delete" | "put" | "patch";
@@ -149,7 +198,7 @@ export type TypeIoTsOfResData =
 export type UseAxios = (
   url: string,
   method: AxiosMethod,
-  typeIoTsOfResData: TypeIoTsOfResData,
+  typeIoTsOfResData: TypeIoTsOfResData | null,
   action: UseAxiosActionType
 ) => UseAxiosReturn;
 
@@ -164,10 +213,18 @@ export type RequestAxiosActionType = {
 export type RequestAxios = (
   url: string,
   method: AxiosMethod,
-  typeIoTsOfResData: TypeIoTsOfResData,
+  typeIoTsOfResData: TypeIoTsOfResData | null,
   action: RequestAxiosActionType
 ) => void;
 //--------- axios ---------//
+
+//--------- axios res.data ---------//
+export type SignupResData = t.TypeOf<typeof SignupResDataIoTs>;
+export const SignupResDataIoTs = t.type({
+  me: MeProfileIoTs,
+  token: t.string,
+});
+//--------- axios res.data ---------//
 
 //--------- ws ---------//
 export type WsSettings = {

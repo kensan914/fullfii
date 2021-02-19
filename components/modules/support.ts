@@ -85,17 +85,21 @@ export const cvtListDate = (date: Date): string => {
   }
 };
 
+/** fmtfromDateToStr(new Date(), "YYYY/MM/DD hh:mm:ss"); */
 export const fmtfromDateToStr = (date: Date, format: string): string => {
-  // fmtfromDateToStr(new Date(), "YYYY/MM/DD hh:mm:ss")
+  let _date: Date = date;
   if (!format) {
     format = "YYYY/MM/DD hh:mm:ss";
   }
-  format = format.replace(/YYYY/g, date.getFullYear().toString());
-  format = format.replace(/MM/g, ("0" + (date.getMonth() + 1)).slice(-2));
-  format = format.replace(/DD/g, ("0" + date.getDate()).slice(-2));
-  format = format.replace(/hh/g, ("0" + date.getHours()).slice(-2));
-  format = format.replace(/mm/g, ("0" + date.getMinutes()).slice(-2));
-  format = format.replace(/ss/g, ("0" + date.getSeconds()).slice(-2));
+  if (typeof date === "string") {
+    _date = new Date(date);
+  }
+  format = format.replace(/YYYY/g, _date.getFullYear().toString());
+  format = format.replace(/MM/g, ("0" + (_date.getMonth() + 1)).slice(-2));
+  format = format.replace(/DD/g, ("0" + _date.getDate()).slice(-2));
+  format = format.replace(/hh/g, ("0" + _date.getHours()).slice(-2));
+  format = format.replace(/mm/g, ("0" + _date.getMinutes()).slice(-2));
+  format = format.replace(/ss/g, ("0" + _date.getSeconds()).slice(-2));
   return format;
 };
 
@@ -171,15 +175,6 @@ export const asyncStoreItem = async (
   }
 };
 
-export const asyncGetItem = async (key: string): Promise<string | null> => {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
 export const asyncStoreJson = async (
   key: string,
   value: Record<string, unknown>
@@ -191,9 +186,44 @@ export const asyncStoreJson = async (
   }
 };
 
+/**
+ * async storageからstringをget.
+ * type checkがleftでもobjectを返しエラーのみ出力する.
+ * (アップデート時, 古いデータがleftされる可能性がある & async storageのデータはAPIレスより安全であると判断)
+ **/
+export const asyncGetItem = async (
+  key: string,
+  typeIoTsOfResData?: TypeIoTsOfResData
+): Promise<string | null> => {
+  try {
+    const str = await AsyncStorage.getItem(key);
+    if (str === null) return null;
+    if (typeof typeIoTsOfResData !== "undefined") {
+      const typeIoTsResult = typeIoTsOfResData.decode(str);
+      if (!isRight(typeIoTsResult)) {
+        console.group();
+        console.error(
+          `Type does not match(asyncGetItem). key is "${key}". value can be found below.`
+        );
+        console.error(str);
+        console.groupEnd();
+        return str;
+      }
+    }
+    return str;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+/**
+ * async storageからobjectをget.
+ * type checkがleftでもobjectを返しエラーのみ出力する.
+ * (アップデート時, 古いデータがleftされる可能性がある & async storageのデータはAPIレスより安全であると判断)
+ **/
 export const asyncGetJson = async (
   key: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeIoTsOfResData: TypeIoTsOfResData
 ): Promise<Record<string, unknown> | null> => {
   try {
@@ -203,14 +233,17 @@ export const asyncGetJson = async (
       const obj = JSON.parse(json);
       const formattedObj = deepCvtKeyFromSnakeToCamel(obj);
       const typeIoTsResult = typeIoTsOfResData.decode(formattedObj);
+
       if (isRight(typeIoTsResult)) {
         return formattedObj;
       } else {
-        // throw new Error(
-        //   "Type does not match(asyncGetJson). " +
-        //     PathReporter.report(typeIoTsResult)
-        // );
-        return null;
+        console.group();
+        console.error(
+          `Type does not match(asyncGetJson). key is "${key}". value can be found below.`
+        );
+        console.error({ ...formattedObj });
+        console.groupEnd();
+        return formattedObj;
       }
     }
   } catch (error) {
@@ -344,14 +377,17 @@ export const initWs = (wsSettings: WsSettings): void => {
       ? (e) => {
           const eData = deepCvtKeyFromSnakeToCamel(JSON.parse(e.data));
           const typeIoTsResult = wsSettings.typeIoTsOfResData.decode(eData);
-          if (isRight(typeIoTsResult)) {
-            wsSettings.onmessage(eData, e, ws, isReconnect);
-          } else {
-            throw new Error(
-              "Type does not match(axios)). " +
-                PathReporter.report(typeIoTsResult)
+          if (!isRight(typeIoTsResult)) {
+            console.log(eData);
+
+            console.group();
+            console.error(
+              `Type does not match(ws onmessage). The object can be found below.`
             );
+            console.error({ ...eData });
+            console.groupEnd();
           }
+          wsSettings.onmessage(eData, e, ws, isReconnect);
         }
       : (e) => {
           return e;

@@ -29,10 +29,6 @@
 
 @end
 
-<<<<<<< HEAD
-// @import GoogleMobileAds; // 21/01/27
-=======
->>>>>>> 2.x
 
 @implementation AppDelegate
 
