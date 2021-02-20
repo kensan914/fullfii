@@ -24,7 +24,6 @@ import {
   ChatDispatch,
   TalkTicketKey,
   MessageJson,
-  TalkTicket,
   TalkTicketJson,
 } from "../components/types/Types.context";
 import {
@@ -36,6 +35,7 @@ import {
 } from "../components/types/Types";
 import { Alert } from "react-native";
 import { requestPatchProfile } from "./ProfileInput";
+import { checkUpdateVersion } from "../components/modules/versionUpdate";
 
 const StartUpManager: React.FC = (props) => {
   const { children } = props;
@@ -102,6 +102,7 @@ export const startUpLoggedin = (
   setMeProfileTemp: React.Dispatch<MeProfile>
 ): void => {
   if (typeof token !== "undefined") {
+    checkUpdateVersion();
     requestGetProfile(token, dispatches.profileDispatch, setMeProfileTemp);
     connectWsNotification(token, states, dispatches);
     updateTalk(token, states, dispatches);

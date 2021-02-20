@@ -1,7 +1,7 @@
-const DEBUG = true;
-// const DEBUG = false;
-const ADMOB_DEBUG = true;
-// const ADMOB_DEBUG = false;
+// const DEBUG = true;
+const DEBUG = false;
+// const ADMOB_DEBUG = true;
+const ADMOB_DEBUG = false;
 
 const BASE_HOST = DEBUG ? "192.168.11.18:8080" : "fullfii.com";
 const URL_SCHEME_HTTP = DEBUG ? "http" : "https";
@@ -16,7 +16,8 @@ export const GOOGLE_FORM_URL =
 export const REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScuWE_hUXY8GN2Nu4CpMa7rNsUTtVRfcL0_avj5h69XwwjD8g/viewform";
 
-export const VERSION = "2.0.0";
+export const VERSION = "2.2.0";
+export const VERSION_NUM = 220;
 
 export const PRODUCT_ID_LIST = ["com.fullfii.fullfii.normal_plan"];
 

@@ -65,6 +65,7 @@ const RootNavigator: React.FC<Props> = (props) => {
       // asyncRemoveItem("token"); // テスト
       // asyncRemoveItem("signupBuffer"); // テスト
       // asyncRemoveItem("talkTicketCollection"); // テスト
+      // asyncRemoveItem("versionNum"); // テスト
 
       const _status = (await asyncGetItem(
         "status",
