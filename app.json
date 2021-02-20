@@ -1,5 +1,6 @@
 {
   "expo": {
+    "appKey": "main",
     "name": "fullfii",
     "description": "fullfii",
     "slug": "fullfii",
@@ -10,9 +11,9 @@
     ],
     "version": "1.6.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon_2/ios/Icon-512.png",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/splash/1668_2224.png",
       "resizeMode": "cover",
       "backgroundColor": "#6C24AA"
     },

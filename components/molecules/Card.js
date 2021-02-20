@@ -3,10 +3,9 @@ import { StyleSheet, Dimensions, TouchableWithoutFeedback } from "react-native";
 import { Block, Text, theme } from "galio-framework";
 import Icon from "../atoms/Icon";
 import { COLORS } from "../../constants/Theme";
-
+import StatusIcon from "../atoms/StatusIcon";
 
 const { width } = Dimensions.get("screen");
-
 
 /**
  *
@@ -21,25 +20,25 @@ const Card = (props) => {
   const backgroundColor = item.color ? item.color : COLORS.PINK;
 
   return (
-    <TouchableWithoutFeedback
-      onPress={onPress}
-    >
+    <TouchableWithoutFeedback onPress={onPress}>
       <Block
         card
         flex
-        style={[styles.card, style,
-        {
-          backgroundColor: backgroundColor,
-          shadowColor: backgroundColor,
-        },
-        item.borderColor && {
-          borderWidth: 2,
-          borderColor: item.borderColor,
-        },
-        item.borderLess ? {} : styles.shadow,
+        style={[
+          styles.card,
+          style,
+          {
+            backgroundColor: backgroundColor,
+            shadowColor: backgroundColor,
+          },
+          item.borderColor && {
+            borderWidth: 2,
+            borderColor: item.borderColor,
+          },
+          item.borderLess ? {} : styles.shadow,
         ]}
       >
-        {item.icon ?
+        {item.icon ? (
           <Block center flex justifyContent="center">
             <Icon
               family={item.iconFamily ? item.iconFamily : "fontawesome"}
@@ -47,10 +46,17 @@ const Card = (props) => {
               name={item.icon}
               color={item.iconColor ? item.iconColor : "white"}
             />
-          </Block> :
-
+          </Block>
+        ) : (
           <Block flex style={styles.content}>
-            <Block row style={[styles.titleContainer, { height: titleSize + 5 }]}>
+            {item.content &&
+              item.content.includes("話し相手が見つかりました！") && (
+                <StatusIcon />
+              )}
+            <Block
+              row
+              style={[styles.titleContainer, { height: titleSize + 5 }]}
+            >
               <Text
                 bold
                 color="white"
@@ -61,22 +67,29 @@ const Card = (props) => {
               >
                 {item.title}
               </Text>
-
-              {(Number.isInteger(countNum) && countNum > 0) ?
-                <Block style={[
-                  styles.counter,
-                  { height: titleSize + 5, borderRadius: (titleSize + 5) / 2, minWidth: titleSize + 5 }
-                ]}>
-                  <Text
-                    color="white"
-                    size={titleSize - 2}
-                  >
-                    {countNum}
-                  </Text>
-                </Block> :
-                <></>
-              }
             </Block>
+
+            {Number.isInteger(countNum) && countNum > 0 ? (
+              <Block
+                style={[
+                  styles.counter,
+                  {
+                    position: "absolute",
+                    top: -(titleSize + 5) / 3,
+                    right: -(titleSize + 5) / 3,
+                    height: titleSize + 5,
+                    borderRadius: (titleSize + 5) / 2,
+                    minWidth: titleSize + 5,
+                  },
+                ]}
+              >
+                <Text color="white" size={titleSize - 2}>
+                  {countNum}
+                </Text>
+              </Block>
+            ) : (
+              <></>
+            )}
 
             <Block style={styles.messageContainer}>
               <Text
@@ -89,14 +102,13 @@ const Card = (props) => {
               </Text>
             </Block>
           </Block>
-        }
+        )}
       </Block>
     </TouchableWithoutFeedback>
   );
-}
+};
 
 export default Card;
-
 
 const styles = StyleSheet.create({
   card: {
@@ -129,8 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  title: {
-  },
+  title: {},
   counter: {
     backgroundColor: COLORS.ALERT,
     justifyContent: "center",

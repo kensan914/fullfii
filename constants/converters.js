@@ -13,7 +13,7 @@ export const convertStatus = (status) => {
       break;
   }
   return statusInfo;
-}
+};
 
 export const convertTitle = (prevTitle) => {
   switch (prevTitle) {
@@ -24,7 +24,7 @@ export const convertTitle = (prevTitle) => {
     default:
       return prevTitle;
   }
-}
+};
 
 export const convertStatusColor = (statusKey) => {
   switch (statusKey) {
@@ -37,4 +37,4 @@ export const convertStatusColor = (statusKey) => {
     default:
       return;
   }
-}
+};

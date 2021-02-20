@@ -25,9 +25,8 @@ const materialTheme = {
   },
   SIZES: {
     BLOCK_SHADOW_RADIUS: 2,
-  }
-}
-
+  },
+};
 
 export default materialTheme;
 
@@ -38,27 +37,27 @@ export const COLORS = {
 };
 
 export const CARD_COLORS = {
-  "a": "#F28C8E",
-  "b": "#F79086",
-  "c": "#FE9D7E",
-  "d": "#FCB869",
-  "e": "#EFCF67",
-  "f": "#CACA61",
-  "g": "#9BC967",
+  a: "#F28C8E",
+  b: "#F79086",
+  c: "#FE9D7E",
+  d: "#FCB869",
+  e: "#EFCF67",
+  f: "#CACA61",
+  g: "#9BC967",
 
-  "0": "#bf7fff",
-  "1": "#78C1E2",
-  "2": "#F69896",
-  "3": "#D7DF7F",
-  "4": "#ff7fbf",
-  "5": "#78C1E2",
-  "6": "#7fbfff",
-  "7": "#D8B0FF",
-  "8": "#ff7f7f",
-  "9": "#92E49C",
-  "10": "#F69896",
-  "11": "#7f7fff",
-  "12": "#D7DF7F",
-  "13": "#ff7fff",
-  "14": "#D8B0FF",
-}
+  0: "#bf7fff",
+  1: "#78C1E2",
+  2: "#F69896",
+  3: "#D7DF7F",
+  4: "#ff7fbf",
+  5: "#78C1E2",
+  6: "#7fbfff",
+  7: "#D8B0FF",
+  8: "#ff7f7f",
+  9: "#92E49C",
+  10: "#F69896",
+  11: "#7f7fff",
+  12: "#D7DF7F",
+  13: "#ff7fff",
+  14: "#D8B0FF",
+};

@@ -8,19 +8,18 @@ import materialTheme from "../../constants/Theme";
 import { TalkMenuButton } from "./Chat";
 import Avatar from "../atoms/Avatar";
 import { useChatDispatch } from "../contexts/ChatContext";
-import { useNotificationDispatch } from "../contexts/NotificationContext";
-import { useAuthState } from "../contexts/AuthContext";
 import { ProfileMenuButton } from "./ProfileMenuButton";
 import { checkiPhoneX } from "../modules/support";
 import { useProfileState } from "../contexts/ProfileContext";
 import ProfileModal from "../molecules/ProfileModal";
 
-
-const { height, width } = Dimensions.get("window");
-
+const { width } = Dimensions.get("window");
 
 const SettingsButton = ({ isWhite, style, navigation }) => (
-  <TouchableOpacity style={[styles.button, style]} onPress={() => navigation.navigate("Settings")}>
+  <TouchableOpacity
+    style={[styles.button, style]}
+    onPress={() => navigation.navigate("Settings")}
+  >
     <Icon
       family="font-awesome"
       size={22}
@@ -32,39 +31,58 @@ const SettingsButton = ({ isWhite, style, navigation }) => (
 );
 
 const Header = (props) => {
-  const { back, title, name, white, transparent, navigation, scene, profile, talkTicketKey } = props;
-  const authState = useAuthState();
+  const {
+    back,
+    title,
+    name,
+    white,
+    transparent,
+    navigation,
+    scene,
+    profile,
+    talkTicketKey,
+  } = props;
   const profileState = useProfileState();
-  const notificationDispatch = useNotificationDispatch();
   const chatDispatch = useChatDispatch();
 
   const renderRight = () => {
     const routeName = scene.route.name;
-    if (routeName === "Chat" && talkTicketKey) return (
-      <TalkMenuButton key="TalkMenuButton" navigation={navigation} talkTicketKey={talkTicketKey} />
-    );
+    if (routeName === "Chat" && talkTicketKey)
+      return (
+        <TalkMenuButton
+          key="TalkMenuButton"
+          navigation={navigation}
+          talkTicketKey={talkTicketKey}
+        />
+      );
     switch (name) {
       case "Profile":
         if (scene.route.params && scene.route.params.item) {
-          if (!scene.route.params.item.me) return (
-            <ProfileMenuButton
-              key="ProfileMenuButton"
-              navigation={navigation}
-              user={scene.route.params.item}
-            />
-          );
+          if (!scene.route.params.item.me)
+            return (
+              <ProfileMenuButton
+                key="ProfileMenuButton"
+                navigation={navigation}
+                user={scene.route.params.item}
+              />
+            );
         }
+        break;
       case "Home":
       case "WorryList":
       case "Talk":
       case "Notification":
         return (
-          <SettingsButton key="Settings" navigation={navigation} isWhite={white} />
+          <SettingsButton
+            key="Settings"
+            navigation={navigation}
+            isWhite={white}
+          />
         );
       default:
         break;
     }
-  }
+  };
 
   const renderLeft = (setIsOpenProfile) => {
     if (back) {
@@ -79,33 +97,32 @@ const Header = (props) => {
             name="angle-left"
             color={transparent ? "white" : "dimgray"}
           />
-        </TouchableOpacity >
+        </TouchableOpacity>
       );
     } else {
       return (
         <TouchableOpacity onPress={() => handleLeftPress(setIsOpenProfile)}>
           <Avatar size={34} image={profile.image} />
-        </TouchableOpacity >
+        </TouchableOpacity>
       );
     }
-  }
+  };
 
   const handleLeftPress = (setIsOpenProfile) => {
-    if (back)
-      navigation.goBack();
-    else
-      // navigation.navigate("Profile", { item: profileState.profile });
-      setIsOpenProfile(true);
-  }
+    if (back) navigation.goBack();
+    // navigation.navigate("Profile", { item: profileState.profile });
+    else setIsOpenProfile(true);
+  };
 
   const [currentScreenName, setCurrentScreenName] = useState(name);
   if (currentScreenName !== name) setCurrentScreenName(name);
   // 画面遷移するたびに呼ばれる
   useEffect(() => {
     if (currentScreenName === "Chat") {
-      chatDispatch({ type: "READ_BY_ROOM", talkTicketKey: scene.route.params.talkTicketKey });
-    } else if (currentScreenName === "Notification") {
-      notificationDispatch({ type: "PUT_READ", token: authState.token });
+      chatDispatch({
+        type: "READ_BY_ROOM",
+        talkTicketKey: scene.route.params.talkTicketKey,
+      });
     }
   }, [currentScreenName]);
 
@@ -157,26 +174,33 @@ const Header = (props) => {
       default:
         return name;
     }
-  }
+  };
 
   const hasShadow = !["Home", "Profile", "Worry"].includes(name);
   const hasBorder = ["Home", "Worry"].includes(name);
   const headerStyles = [
     hasShadow ? styles.shadow : null,
     transparent ? { backgroundColor: "rgba(0,0,0,0)" } : null,
-    hasBorder ? { borderBottomColor: "silver", borderBottomWidth: 0.5, } : null,
+    hasBorder ? { borderBottomColor: "silver", borderBottomWidth: 0.5 } : null,
   ];
   const [isOpenProfile, setIsOpenProfile] = useState(false);
 
   return (
     <Block style={headerStyles}>
       <NavBar
-        style={styles.navbar}
+        style={[
+          styles.navbar,
+          {
+            paddingTop: checkiPhoneX(Dimensions)
+              ? theme.SIZES.BASE * 4
+              : theme.SIZES.BASE * 3,
+          },
+        ]}
         transparent={transparent}
         title={convertNameToTitle(name)}
         titleStyle={[
           styles.title,
-          { color: theme.COLORS[white ? "WHITE" : "ICON"], },
+          { color: theme.COLORS[white ? "WHITE" : "ICON"] },
         ]}
         right={renderRight()}
         rightStyle={{ alignItems: "flex-end" }}
@@ -192,11 +216,9 @@ const Header = (props) => {
       />
     </Block>
   );
-}
-
+};
 
 export default withNavigation(Header);
-
 
 const styles = StyleSheet.create({
   button: {
@@ -211,7 +233,6 @@ const styles = StyleSheet.create({
   navbar: {
     paddingVertical: 0,
     paddingBottom: theme.SIZES.BASE * 1.5,
-    paddingTop: checkiPhoneX(Dimensions) ? theme.SIZES.BASE * 4 : theme.SIZES.BASE,
     zIndex: 5,
   },
   shadow: {
