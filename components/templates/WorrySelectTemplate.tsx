@@ -110,7 +110,15 @@ const WorrySelectTemplate: React.FC = () => {
         });
       },
       finallyCallback: () => {
+        chatDispatch({ type: "TURN_OFF_DELAY" });
         navigation.navigate("Home");
+      },
+      didRequestCallback: () => {
+        // この後のchatDispatchを遅延する(同時にマッチしていた場合はSTART_TALKが遅延される)
+        chatDispatch({
+          type: "TURN_ON_DELAY",
+          excludeType: ["OVERWRITE_TALK_TICKET"],
+        });
       },
       token: authState.token ? authState.token : "",
       limitRequest: 1,

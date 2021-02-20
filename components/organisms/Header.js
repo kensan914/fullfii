@@ -188,7 +188,14 @@ const Header = (props) => {
   return (
     <Block style={headerStyles}>
       <NavBar
-        style={styles.navbar}
+        style={[
+          styles.navbar,
+          {
+            paddingTop: checkiPhoneX(Dimensions)
+              ? theme.SIZES.BASE * 4
+              : theme.SIZES.BASE * 3,
+          },
+        ]}
         transparent={transparent}
         title={convertNameToTitle(name)}
         titleStyle={[
@@ -226,9 +233,6 @@ const styles = StyleSheet.create({
   navbar: {
     paddingVertical: 0,
     paddingBottom: theme.SIZES.BASE * 1.5,
-    paddingTop: checkiPhoneX(Dimensions)
-      ? theme.SIZES.BASE * 4
-      : theme.SIZES.BASE * 3,
     zIndex: 5,
   },
   shadow: {

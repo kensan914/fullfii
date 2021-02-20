@@ -12,6 +12,7 @@ import {
   MessageJsonIoTs,
   ProfileDispatch,
   ProfileIoTs,
+  TalkTicketJsonIoTs,
   TalkTicketKey,
 } from "./Types.context";
 
@@ -253,6 +254,7 @@ export const WsResNoticeTalkIoTs = t.type({
   type: t.literal("notice_talk"),
   roomId: t.string,
   status: t.union([t.literal("start"), t.literal("end")]),
+  talkTicket: TalkTicketJsonIoTs,
 });
 export const WsResNotificationIoTs = t.union([
   WsResNotificationAuthIoTs,
@@ -262,8 +264,8 @@ export const WsResNotificationIoTs = t.union([
 export const WsResChatAuthIoTs = t.type({
   type: t.literal("auth"),
   roomId: t.string,
-  targetUser: ProfileIoTs,
-  profile: MeProfileIoTs,
+  // targetUser: ProfileIoTs,
+  // profile: MeProfileIoTs,
 });
 export const WsResChatMessageIoTs = t.type({
   type: t.literal("chat_message"),

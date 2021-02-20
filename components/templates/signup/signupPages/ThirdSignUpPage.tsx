@@ -79,7 +79,7 @@ const ThirdSignUpPage: React.FC = () => {
           isFinished: true,
         });
 
-        startUpLoggedin(_token, states, dispatches);
+        // startUpLoggedin(_token, states, dispatches);
       },
       catchCallback: () => {
         Alert.alert("新規登録に失敗しました。");
