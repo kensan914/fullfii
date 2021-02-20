@@ -72,7 +72,7 @@ const ChatModal: React.FC<Props> = (props) => {
           closeChatModal();
         }
       },
-      catchCallback: (e) => {
+      catchCallback: () => {
         closeChatModal();
       },
       finallyCallback: () => {
