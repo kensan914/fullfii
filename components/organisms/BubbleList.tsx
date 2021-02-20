@@ -117,9 +117,9 @@ const Bubble: React.FC<BubbleProps> = (props) => {
 
 type BubbleListProps = {
   items: BubbleItems;
-  diameter: number;
-  limitLines: number;
-  margin: number;
+  diameter?: number;
+  limitLines?: number;
+  margin?: number;
   activeKeys: string[];
   pressBubble: PressBubble;
 };

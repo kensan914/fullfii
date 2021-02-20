@@ -1,4 +1,10 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, {
+  createContext,
+  useReducer,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import {
   isString,
   closeWsSafely,
@@ -21,8 +27,40 @@ import {
   AllMessages,
   TalkTicketJson,
   TalkTicketKey,
+  ChatDispatchTask,
 } from "../types/Types.context";
 import { initProfile } from "./ProfileContext";
+
+/**
+ * dispatchを遅延するべきか判定し、遅延する場合actionをchatDispatchTask.queueにエンキューしreturn
+ * @param prevState
+ * @param action
+ */
+const checkAndDoDelayDispatch = (
+  prevState: ChatState,
+  action: ChatActionType
+): ChatState | null => {
+  // TURN_ON_DELAY や TURN_OFF_DELAYの時や, excludeTypeに当てはまる時は遅延対象外
+  if (
+    action.type === "TURN_ON_DELAY" ||
+    action.type === "TURN_OFF_DELAY" ||
+    prevState.chatDispatchTask.excludeType.includes(action.type)
+  ) {
+    return null;
+  }
+
+  let _chatDispatchTask;
+  if (prevState.chatDispatchTask.status === "DELAY") {
+    _chatDispatchTask = prevState.chatDispatchTask;
+    _chatDispatchTask.queue = [..._chatDispatchTask.queue, action];
+
+    return {
+      ...prevState,
+      chatDispatchTask: _chatDispatchTask,
+    };
+  }
+  return null;
+};
 
 const chatReducer = (
   prevState: ChatState,
@@ -32,6 +70,12 @@ const chatReducer = (
   let _offlineMessages: OfflineMessage[];
   let _talkTicketCollection: TalkTicketCollection;
   let _talkTicket: TalkTicket;
+  let _chatDispatchTask: ChatDispatchTask;
+
+  // 遅延するべきか判定 ? return chatState : return null;
+  const resultDelay = checkAndDoDelayDispatch(prevState, action);
+  if (resultDelay) return resultDelay;
+
   switch (action.type) {
     case "UPDATE_TALK_TICKETS": {
       /** update talkTickets to talkTicketCollection.(worry.keyをkeyに持つObjectに変換)
@@ -305,16 +349,23 @@ const chatReducer = (
       _talkTicket = _talkTicketCollection[action.talkTicketKey];
       if (!_talkTicket) return { ...prevState };
 
-      _talkTicket.room.messages = [
-        ..._talkTicket.room.messages,
-        ...[
-          geneCommonMessage(
-            "end",
-            _talkTicket.room.user.name,
-            Boolean(action.timeOut)
-          ),
-        ],
-      ];
+      if (
+        _talkTicket.room.messages.length > 0 &&
+        _talkTicket.room.messages[_talkTicket.room.messages.length - 1]
+          .messageId !== "-1"
+      ) {
+        _talkTicket.room.messages = [
+          ..._talkTicket.room.messages,
+          ...[
+            geneCommonMessage(
+              "end",
+              _talkTicket.room.user.name,
+              Boolean(action.timeOut)
+            ),
+          ],
+        ];
+      }
+
       _talkTicket.room.offlineMessages = [];
       _talkTicket.room.isEnd = true;
       _talkTicket.room.ws && closeWsSafely(_talkTicket.room.ws);
@@ -421,6 +472,48 @@ const chatReducer = (
       return {
         ...prevState,
         talkTicketCollection: _talkTicketCollection,
+      };
+    }
+
+    case "TURN_ON_DELAY": {
+      /** delayモードをONにする. ONの間, chatDispatchは遅延される
+       * @param {Object} action [type, excludeType] */
+
+      return {
+        ...prevState,
+        chatDispatchTask: {
+          status: "DELAY",
+          queue: [],
+          excludeType: action.excludeType,
+        },
+      };
+    }
+
+    case "TURN_OFF_DELAY": {
+      /** delayモードをOFFにする. taskの実行はコード下部useEffect内で
+       * @param {Object} action [type] */
+
+      return {
+        ...prevState,
+        chatDispatchTask: {
+          status: "GO",
+          queue: prevState.chatDispatchTask.queue,
+          excludeType: [],
+        },
+      };
+    }
+
+    case "EXECUTED_DELAY_DISPATCH": {
+      /** delayモードがONからOFFになった時に実行されたdispatchの実行直後
+       * @param {Object} action [type] */
+
+      return {
+        ...prevState,
+        chatDispatchTask: {
+          status: "GO",
+          queue: [],
+          excludeType: [],
+        },
       };
     }
 
@@ -554,6 +647,7 @@ const cvtDateStringToDateObject = (
 const ChatStateContext = createContext<ChatState>({
   totalUnreadNum: 0,
   talkTicketCollection: {},
+  chatDispatchTask: { status: "GO", queue: [], excludeType: [] },
 });
 const ChatDispatchContext = createContext<ChatDispatch>(() => {
   return void 0;
@@ -580,7 +674,26 @@ export const ChatProvider: React.FC<Props> = ({
     talkTicketCollection: talkTicketCollection
       ? cvtDateStringToDateObject(talkTicketCollection)
       : {},
+    chatDispatchTask: { status: "GO", queue: [], excludeType: [] },
   });
+
+  // delayモードが終了した時にtaskを全て実行
+  const prevChatDispatchTaskStatus = useRef("GO");
+  useEffect(() => {
+    if (
+      chatState.chatDispatchTask.status !==
+        prevChatDispatchTaskStatus.current &&
+      chatState.chatDispatchTask.status === "GO"
+    ) {
+      const _chatDispatchTask = chatState.chatDispatchTask;
+      _chatDispatchTask.queue.forEach((chatDispatchAction) => {
+        chatDispatch(chatDispatchAction);
+      });
+      chatDispatch({ type: "EXECUTED_DELAY_DISPATCH" });
+    }
+    prevChatDispatchTaskStatus.current = chatState.chatDispatchTask.status;
+  }, [chatState.chatDispatchTask.status]);
+
   return (
     <ChatStateContext.Provider value={chatState}>
       <ChatDispatchContext.Provider value={chatDispatch}>

@@ -130,6 +130,7 @@ export const MeProfileIoTs = t.intersection([
 export type ChatState = {
   totalUnreadNum: TotalUnreadNum;
   talkTicketCollection: TalkTicketCollection;
+  chatDispatchTask: ChatDispatchTask;
 };
 export type ChatDispatch = React.Dispatch<ChatActionType>;
 export type ChatActionType =
@@ -175,7 +176,10 @@ export type ChatActionType =
     }
   | { type: "READ_BY_ROOM"; talkTicketKey: TalkTicketKey }
   | { type: "OVERWRITE_TALK_TICKET"; talkTicket: TalkTicket | TalkTicketJson }
-  | { type: "REMOVE_TALK_TICKETS"; talkTicketKeys: TalkTicketKey[] };
+  | { type: "REMOVE_TALK_TICKETS"; talkTicketKeys: TalkTicketKey[] }
+  | { type: "TURN_ON_DELAY"; excludeType: string[] }
+  | { type: "TURN_OFF_DELAY" }
+  | { type: "EXECUTED_DELAY_DISPATCH" };
 
 export type TotalUnreadNum = number;
 export type TalkStatus = t.TypeOf<typeof TalkStatusIoTs>;
@@ -212,6 +216,12 @@ export type MessageJson = t.TypeOf<typeof MessageJsonIoTs>;
 export type CommonMessage = t.TypeOf<typeof CommonMessageIoTs>;
 export type AllMessage = t.TypeOf<typeof AllMessageIoTs>;
 export type AllMessages = t.TypeOf<typeof AllMessagesIoTs>;
+
+export type ChatDispatchTask = {
+  status: "GO" | "DELAY";
+  queue: ChatActionType[];
+  excludeType: string[];
+};
 //========== Chat ==========//
 
 //========== Chat io-ts ==========//

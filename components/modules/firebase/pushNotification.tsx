@@ -1,50 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+// import { useEffect, useRef, useState } from "react";
 import messaging, {
   FirebaseMessagingTypes,
 } from "@react-native-firebase/messaging";
 import PushNotification from "react-native-push-notification";
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 
-const usePushNotification = (): null | string => {
-  const [deviceToken, setDeviceToken] = useState<null | string>(null);
-  const listenerRemovingFunctions = useRef<(() => void)[]>([]);
+const configurePushNotification = (): Promise<null | string> => {
+  // const [deviceToken, setDeviceToken] = useState<null | string>(null);
+  // const listenerRemovingFunctions = useRef<(() => void)[]>([]);
 
-  useEffect(() => {
-    PushNotification.configure({
-      requestPermissions: false,
-      onNotification: (notification) => {
-        console.log("プッシュ通知をタップした01");
-        notification.finish(PushNotificationIOS.FetchResult.NoData);
-      },
-    });
-
-    initPushNotification();
-    return () => {
-      listenerRemovingFunctions.current &&
-        listenerRemovingFunctions.current.forEach((remove: () => void) =>
-          remove()
-        );
-    };
-  }, []);
-
-  const initPushNotification = async () => {
+  const initPushNotification = async (): Promise<null | string> => {
     const enabled = await messaging().hasPermission();
     if (enabled) {
-      initFcm();
+      return initFcm();
     } else {
       try {
         await messaging().requestPermission();
-        initFcm();
+        return initFcm();
       } catch (e) {
         console.log(e);
       }
     }
+    return null;
   };
 
-  const initFcm = async () => {
+  const initFcm = async (): Promise<null | string> => {
     const _deviceToken = await messaging().getToken();
-    console.log(`deviceToken: ${_deviceToken}`);
-    setDeviceToken(_deviceToken);
 
     PushNotification.configure({
       requestPermissions: false,
@@ -54,15 +35,15 @@ const usePushNotification = (): null | string => {
       },
     });
 
-    listenerRemovingFunctions.current = [
-      messaging().onTokenRefresh(() => {
-        console.log("トークンリフレッシュ");
-      }),
-      messaging().onMessage((message) => {
-        console.log("Foreground時にリモートプッシュ通知を受信した");
-        _localNotification(message);
-      }),
-    ];
+    messaging().onTokenRefresh(() => {
+      console.log("トークンリフレッシュ");
+    });
+    messaging().onMessage((message) => {
+      console.log("Foreground時にリモートプッシュ通知を受信した");
+      _localNotification(message);
+    });
+
+    return _deviceToken;
   };
 
   const _localNotification = (
@@ -74,7 +55,18 @@ const usePushNotification = (): null | string => {
       userInfo: message.data,
     });
   };
+
+  PushNotification.configure({
+    requestPermissions: false,
+    onNotification: (notification) => {
+      console.log("プッシュ通知をタップした01");
+      notification.finish(PushNotificationIOS.FetchResult.NoData);
+    },
+  });
+
+  const deviceToken = initPushNotification();
+
   return deviceToken;
 };
 
-export default usePushNotification;
+export default configurePushNotification;

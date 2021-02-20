@@ -101,9 +101,9 @@ export const EndTalkScreen: React.FC<EndTalkScreenType> = (props) => {
         authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
 
         if (!isExpo) {
-          showAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX, () => {
-            authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
-          });
+          // showAdMobInterstitial(ADMOB_UNIT_ID_AFTER_THX, () => {
+          authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
+          // });
         } else {
           authDispatch({ type: "SET_IS_SHOW_SPINNER", value: false });
         }

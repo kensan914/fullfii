@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Block } from "galio-framework";
 
 import useAllContext from "../components/contexts/ContextUtils";
-import { BASE_URL, BASE_URL_WS } from "../constants/env";
+import { BASE_URL, BASE_URL_WS, isExpo } from "../constants/env";
 import {
-  initWs,
   URLJoin,
   asyncGetJson,
   closeWsSafely,
+  Ws,
 } from "../components/modules/support";
 import requestAxios from "../components/modules/axios";
 import {
@@ -24,6 +24,8 @@ import {
   ChatDispatch,
   TalkTicketKey,
   MessageJson,
+  TalkTicket,
+  TalkTicketJson,
 } from "../components/types/Types.context";
 import {
   WsResChat,
@@ -33,7 +35,6 @@ import {
   WsResNotification,
 } from "../components/types/Types";
 import { Alert } from "react-native";
-import usePushNotification from "../components/modules/firebase/pushNotification";
 import { requestPatchProfile } from "./ProfileInput";
 
 const StartUpManager: React.FC = (props) => {
@@ -42,21 +43,40 @@ const StartUpManager: React.FC = (props) => {
 
   // global stateとは別に即時反映されるmeProfile
   const [meProfileTemp, setMeProfileTemp] = useState<MeProfile>();
-  const deviceToken = usePushNotification();
+  const isConfiguredPushNotification = useRef(false);
   useEffect(() => {
-    // deviceToken・meProfileTemp両方の準備が完了
-    if (deviceToken && meProfileTemp) {
-      if (meProfileTemp.deviceToken !== deviceToken) {
-        // post deviceToken
-        states.authState.token &&
-          requestPatchProfile(
-            states.authState.token,
-            { device_token: deviceToken },
-            dispatches.profileDispatch
-          );
-      }
+    // meProfileTemp両方の準備が完了 && expoじゃない && pushNotification未設定 && 認証済み
+    if (
+      meProfileTemp &&
+      !isExpo &&
+      !isConfiguredPushNotification.current &&
+      states.authState.token
+    ) {
+      (async () => {
+        const pushNotificationModule = await import(
+          "../components/modules/firebase/pushNotification"
+        );
+        const configurePushNotification = pushNotificationModule.default;
+        const deviceToken = await configurePushNotification();
+
+        if (deviceToken) {
+          if (meProfileTemp.deviceToken !== deviceToken) {
+            // post deviceToken
+            states.authState.token &&
+              requestPatchProfile(
+                states.authState.token,
+                { device_token: deviceToken },
+                dispatches.profileDispatch,
+                () => {
+                  // successSubmit
+                  isConfiguredPushNotification.current = true;
+                }
+              );
+          }
+        }
+      })();
     }
-  }, [deviceToken, meProfileTemp]);
+  }, [meProfileTemp, states.authState.token]);
 
   useEffect(() => {
     states.authState.token &&
@@ -66,7 +86,7 @@ const StartUpManager: React.FC = (props) => {
         dispatches,
         setMeProfileTemp
       );
-  }, []);
+  }, [states.authState.token]);
 
   return <Block flex>{children}</Block>;
 };
@@ -142,7 +162,7 @@ const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
                     token,
                     states,
                     dispatches,
-                    talkTicket.worry.key
+                    talkTicket
                   );
             } else {
               // トークが開始されていない
@@ -156,14 +176,29 @@ const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
                   token,
                   states,
                   dispatches,
-                  talkTicket.worry.key
+                  talkTicket
                 );
               }
             }
           });
 
+        // 既にトークは開始されているが、バックでは終了している(なんとため？)←本文が表示されないバグを生んでいる
+        // talkTickets
+        //   .filter((talkTicket) => talkTicket.status.key !== "talking")
+        //   .forEach((talkTicket) => {
+        //     if (
+        //       _prevTalkTicketCollection[talkTicket.worry.key].status.key ===
+        //       "talking"
+        //     ) {
+        //       dispatches.chatDispatch({
+        //         type: "OVERWRITE_TALK_TICKET",
+        //         talkTicket: talkTicket,
+        //       });
+        //     }
+        //   });
+
         talkTickets
-          .filter((talkTicket) => talkTicket.status.key !== "talking")
+          .filter((talkTicket) => talkTicket.status.key === "finishing")
           .forEach((talkTicket) => {
             if (
               _prevTalkTicketCollection[talkTicket.worry.key].status.key ===
@@ -171,8 +206,8 @@ const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
             ) {
               // 既にトークは開始されているが、バックでは終了している
               dispatches.chatDispatch({
-                type: "OVERWRITE_TALK_TICKET",
-                talkTicket: talkTicket,
+                type: "END_TALK",
+                talkTicketKey: talkTicket.worry.key,
               });
             }
           });
@@ -200,7 +235,7 @@ const updateTalk = (token: string, states: States, dispatches: Dispatches) => {
                 token,
                 states,
                 dispatches,
-                talkTicket.worry.key
+                talkTicket
               );
             }
           });
@@ -268,7 +303,7 @@ type WsProps = {
   dispatches: Dispatches;
   init: boolean;
   callbackSuccess: (data: WsResChat, ws: WebSocket) => void;
-  talkTicketKey: string;
+  talkTicket: TalkTicketJson;
 };
 /**
  * response talk request.
@@ -281,18 +316,25 @@ const _connectWsChat = (wsProps: WsProps) => {
     dispatches,
     init,
     callbackSuccess,
-    talkTicketKey,
+    talkTicket,
   } = wsProps;
-
   const wsSettings: WsSettings = {
     url: URLJoin(BASE_URL_WS, "chat/", roomId),
     typeIoTsOfResData: WsResChatIoTs,
     onopen: (ws: WebSocket) => {
-      ws.send(JSON.stringify({ type: "auth", token: token, init: init }));
+      ws.send(
+        JSON.stringify({
+          type: "auth",
+          token,
+          init,
+          is_speaker: talkTicket.isSpeaker,
+        })
+      );
     },
     onmessage: (eData, e, ws, isReconnect) => {
       const data = eData as WsResChat;
-      console.log(data);
+      const talkTicketKey = talkTicket.worry.key;
+
       switch (data.type) {
         case "auth":
           if (isReconnect) {
@@ -304,10 +346,6 @@ const _connectWsChat = (wsProps: WsProps) => {
           } else {
             callbackSuccess(data, ws);
           }
-          dispatches.profileDispatch({
-            type: "SET_ALL",
-            profile: data.profile,
-          });
           break;
 
         case "end_talk_alert":
@@ -343,7 +381,6 @@ const _connectWsChat = (wsProps: WsProps) => {
           break;
 
         case "error":
-          data;
           if (data.message) Alert.alert(data.message);
           closeWsSafely(ws);
           break;
@@ -363,8 +400,7 @@ const _connectWsChat = (wsProps: WsProps) => {
       return void 0;
     },
   };
-
-  initWs(wsSettings);
+  new Ws(wsSettings);
 };
 
 const initConnectWsChat = (
@@ -372,7 +408,7 @@ const initConnectWsChat = (
   token: string,
   states: States,
   dispatches: Dispatches,
-  talkTicketKey: TalkTicketKey
+  talkTicket: TalkTicketJson
 ) => {
   _connectWsChat({
     roomId,
@@ -381,9 +417,13 @@ const initConnectWsChat = (
     dispatches,
     init: true,
     callbackSuccess: (data, ws) => {
-      dispatches.chatDispatch({ type: "START_TALK", talkTicketKey, ws });
+      dispatches.chatDispatch({
+        type: "START_TALK",
+        talkTicketKey: talkTicket.worry.key,
+        ws,
+      });
     },
-    talkTicketKey,
+    talkTicket,
   });
 };
 
@@ -392,11 +432,12 @@ const reconnectWsChat = (
   token: string,
   states: States,
   dispatches: Dispatches,
-  talkTicketKey: TalkTicketKey
+  talkTicket: TalkTicketJson
 ) => {
+  const talkTicketKey = talkTicket.worry.key;
   if (roomId) {
     _connectWsChat({
-      roomId: roomId,
+      roomId,
       token,
       states,
       dispatches,
@@ -404,7 +445,7 @@ const reconnectWsChat = (
       callbackSuccess: (data, ws) => {
         dispatches.chatDispatch({ type: "RESTART_TALK", talkTicketKey, ws });
       },
-      talkTicketKey,
+      talkTicket,
     });
   } else {
     // 相手が退出していた場合, talking statusだがroomがnullなため
@@ -431,10 +472,21 @@ const connectWsNotification = (
       if (data.type === "auth") {
         dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
       } else if (data.type === "notice_talk") {
-        console.log(data);
         if (data.status === "start") {
-          console.log("start talk.");
-          updateTalk(token, states, dispatches);
+          if (data.talkTicket) {
+            // updateTalk(token, states, dispatches);
+            dispatches.chatDispatch({
+              type: "UPDATE_TALK_TICKETS",
+              talkTickets: [data.talkTicket],
+            });
+            initConnectWsChat(
+              data.roomId,
+              token,
+              states,
+              dispatches,
+              data.talkTicket
+            );
+          }
         } else if (data.status === "end") {
           // end 多分使わない？
         }
@@ -445,5 +497,6 @@ const connectWsNotification = (
     },
   };
 
-  initWs(wsSettings);
+  // initWs(wsSettings);
+  new Ws(wsSettings);
 };
