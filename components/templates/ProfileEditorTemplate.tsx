@@ -38,6 +38,15 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
   const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
   const user = profileState.profile;
+  const returnGender = (gender) => {
+    if (gender === 'MALE') {
+      return '男性'
+    } else if (gender === 'FEMALE') {
+      return '女性'
+    } else {
+      return '内緒'
+    }
+  };
 
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
@@ -62,6 +71,30 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
                 style={{ lineHeight: 18, flex: editButtonRate.content }}
               >
                 {user.name}
+              </Text>
+            }
+          />
+        </Block>
+        <ProfileHr />
+
+        <Block style={styles.profileTextBlock}>
+          <Text size={16} bold style={{ marginBottom: 10 }}>
+            性別
+          </Text>
+          <EditorBlock
+            onPress={() =>
+              navigation.navigate("ProfileInput", {
+                user: user,
+                prevValue: user.name,
+                screen: "InputName",
+              })
+            }
+            content={
+              <Text
+                size={14}
+                style={{ lineHeight: 18, flex: editButtonRate.content }}
+              >
+                {returnGender(user.gender.name)}
               </Text>
             }
           />
