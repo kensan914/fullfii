@@ -471,7 +471,7 @@ const connectWsNotification = (
     onmessage: (eData) => {
       const data = eData as WsResNotification;
       if (data.type === "auth") {
-        dispatches.profileDispatch({ type: "SET_ALL", profile: data.profile });
+        // 認証完了
       } else if (data.type === "notice_talk") {
         if (data.status === "start") {
           if (data.talkTicket) {

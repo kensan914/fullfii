@@ -1,12 +1,12 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, Switch } from "react-native";
+import { Alert, StyleSheet, Switch } from "react-native";
 import { Block, Text } from "galio-framework";
 import Modal from "react-native-modal";
 import Spinner from "react-native-loading-spinner-overlay";
 
 import ModalButton from "../atoms/ModalButton";
 import { useAxios } from "../modules/axios";
-import { alertModal, URLJoin } from "../modules/support";
+import { alertModal, formatGender, URLJoin } from "../modules/support";
 import { BASE_URL } from "../../constants/env";
 import { useAuthState } from "../contexts/AuthContext";
 import { useChatDispatch, useChatState } from "../contexts/ChatContext";
@@ -48,6 +48,13 @@ const ChatModal: React.FC<Props> = (props) => {
   const [isShowSpinner, setIsShowSpinner] = useState(false);
   const [isOpenEndTalk, setIsOpenEndTalk] = useState(false);
   const [canPressBackdrop, setCanPressBackdrop] = useState(true);
+
+  const isSecretJob = profileState.profile.job.key === "secret";
+  const isSecretGender =
+    formatGender(
+      profileState.profile.gender,
+      profileState.profile.isSecretGender
+    ).key === "secret";
 
   /* ref */
   const roomId = useRef<string>();
@@ -110,8 +117,12 @@ const ChatModal: React.FC<Props> = (props) => {
         request({
           data: {
             is_speaker: isSpeaker,
-            can_talk_heterosexual: canTalkHeterosexual,
-            can_talk_different_job: canTalkDifferentJob,
+            ...(isSecretGender
+              ? {}
+              : { can_talk_heterosexual: canTalkHeterosexual }),
+            ...(isSecretJob
+              ? {}
+              : { can_talk_different_job: canTalkDifferentJob }),
             status: "stopping",
           },
         });
@@ -122,16 +133,20 @@ const ChatModal: React.FC<Props> = (props) => {
 
   const onPressShuffle = () => {
     setCanPressBackdrop(false);
+    const jobSubText = canTalkDifferentJob
+      ? "全ての職業を許可"
+      : `話し相手を${profileState.profile.job?.label}に絞る`;
+
+    const genderSubText = canTalkHeterosexual
+      ? "話し相手に異性を含む"
+      : "話し相手を同性に絞る";
     alertModal({
       mainText: `以下の条件で「${talkTicket.worry.label}」の話し相手を探します。`,
-      subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}
-      ・${
-        canTalkDifferentJob
-          ? "全ての職業を許可"
-          : `話し相手を${profileState.profile.job?.label}に絞る`
-      }
-      ・${canTalkHeterosexual ? "話し相手に異性を含む" : "話し相手を同性に絞る"}
-      \n今までのトーク内容は端末から削除されます。`,
+      subText: `\n・${isSpeaker ? "話したい" : "聞きたい"}\n${
+        isSecretJob ? "" : `・${jobSubText}\n`
+      }${
+        isSecretGender ? "" : `・${genderSubText}\n`
+      }\n今までのトーク内容は端末から削除されます。`,
       cancelButton: "キャンセル",
       okButton: "探す",
       onPress: () => {
@@ -139,8 +154,12 @@ const ChatModal: React.FC<Props> = (props) => {
           "shuffle_talk_button",
           {
             is_speaker: isSpeaker,
-            can_talk_heterosexual: canTalkHeterosexual,
-            can_talk_different_job: canTalkDifferentJob,
+            ...(isSecretGender
+              ? {}
+              : { can_talk_heterosexual: canTalkHeterosexual }),
+            ...(isSecretJob
+              ? {}
+              : { can_talk_different_job: canTalkDifferentJob }),
           },
           profileState
         );
@@ -192,16 +211,23 @@ const ChatModal: React.FC<Props> = (props) => {
               />
             </Block>
             <Block style={{ justifyContent: "center", marginTop: 10 }}>
-              {/* TODO: 内緒処理 */}
               <ChatSwitch
-                title={`話し相手を${profileState.profile.job?.label}に絞る`}
+                title={
+                  isSecretJob
+                    ? "話し相手を職業で絞る"
+                    : `話し相手を${profileState.profile.job?.label}に絞る`
+                }
                 value={!canTalkDifferentJob}
                 onChange={(val) => setCanTalkDifferentJob(!val)}
+                disable={isSecretJob}
+                alertMessageWhenDisable="話し相手を職業で絞り込むには職業を内緒以外に設定して下さい"
               />
               <ChatSwitch
                 title="話し相手に異性を含む"
                 value={canTalkHeterosexual}
                 onChange={setCanTalkHeterosexual}
+                disable={isSecretGender}
+                alertMessageWhenDisable="話し相手を性別で絞り込むには性別を内緒以外に設定して下さい"
               />
             </Block>
             <Block />
@@ -251,24 +277,44 @@ type ChatSwitchProps = {
   title: string;
   onChange: (val: boolean) => void;
   value: boolean;
+  disable?: boolean;
+  alertMessageWhenDisable?: string;
 };
 const ChatSwitch: React.FC<ChatSwitchProps> = (props) => {
-  const { title, onChange, value } = props;
+  const {
+    title,
+    onChange,
+    value,
+    disable = false,
+    alertMessageWhenDisable = "",
+  } = props;
   return (
     <>
       <Block row space="between" style={styles.settingsCard}>
         <Block>
-          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>
+          <Text
+            bold
+            size={15}
+            color={disable ? "silver" : "dimgray"}
+            style={{ marginHorizontal: 15 }}
+          >
             {title}
           </Text>
         </Block>
         <Block style={{ alignItems: "center", justifyContent: "center" }}>
           <Switch
-            trackColor={{ false: "dimgray", true: "#F69896" }}
-            ios_backgroundColor={"gray"}
-            value={value}
+            trackColor={{
+              false: disable ? "gainsboro" : "dimgray",
+              true: "#F69896",
+            }}
+            ios_backgroundColor={disable ? "gainsboro" : "gray"}
+            value={disable ? false : value}
             style={{ marginVertical: 8, marginHorizontal: 15 }}
-            onValueChange={onChange}
+            onValueChange={(val) => {
+              if (alertMessageWhenDisable && disable)
+                Alert.alert(alertMessageWhenDisable);
+              onChange(val);
+            }}
           />
         </Block>
       </Block>

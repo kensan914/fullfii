@@ -5,14 +5,21 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useRoute } from "@react-navigation/native";
 
 import { useAuthState } from "../contexts/AuthContext";
-import { InputBlock, SubmitProfileButton } from "../organisms/ProfileInput";
+import { InputBlock } from "../organisms/ProfileInputBlock";
 import { useProfileDispatch } from "../contexts/ProfileContext";
-import { ProfileInputRouteProp, RequestPatchProfile } from "../types/Types";
+import {
+  ProfileInputRouteProp,
+  RequestPatchProfile,
+  RequestPutGender,
+} from "../types/Types";
+import { ProfileSubmitButton } from "../molecules/ProfileSubmitButton";
 
 type Props = {
   requestPatchProfile: RequestPatchProfile;
+  requestPutGender: RequestPutGender;
 };
 const ProfileInputTemplate: React.FC<Props> = (props) => {
+  const { requestPatchProfile, requestPutGender } = props;
   const route = useRoute<ProfileInputRouteProp>();
   const { prevValue, screen: profileInputScreen } = route.params;
   const authState = useAuthState();
@@ -24,7 +31,7 @@ const ProfileInputTemplate: React.FC<Props> = (props) => {
 
   return (
     <>
-      <ScrollView>
+      <ScrollView style={styles.scrollView}>
         <Block style={styles.container}>
           <InputBlock
             screen={profileInputScreen}
@@ -41,14 +48,15 @@ const ProfileInputTemplate: React.FC<Props> = (props) => {
           </Text>
         </Block>
       </ScrollView>
-      <SubmitProfileButton
+      <ProfileSubmitButton
         screen={profileInputScreen}
         value={value}
         canSubmit={canSubmit}
         token={authState.token}
         profileDispatch={profileDispatch}
         setValidationText={setValidationText}
-        requestPatchProfile={props.requestPatchProfile}
+        requestPatchProfile={requestPatchProfile}
+        requestPutGender={requestPutGender}
       />
     </>
   );
@@ -57,6 +65,9 @@ const ProfileInputTemplate: React.FC<Props> = (props) => {
 export default ProfileInputTemplate;
 
 const styles = StyleSheet.create({
+  scrollView: {
+    backgroundColor: "white",
+  },
   container: {
     paddingHorizontal: theme.SIZES.BASE,
     marginVertical: theme.SIZES.BASE,

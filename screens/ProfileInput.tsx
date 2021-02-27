@@ -4,10 +4,20 @@ import requestAxios from "../components/modules/axios";
 import { URLJoin } from "../components/modules/support";
 import { BASE_URL } from "../constants/env";
 import { MeProfile, MeProfileIoTs } from "../components/types/Types.context";
-import { RequestPatchProfile } from "../components/types/Types";
+import {
+  PutGenderResData,
+  PutGenderResDataIoTs,
+  RequestPatchProfile,
+  RequestPutGender,
+} from "../components/types/Types";
 
 const ProfileInput: React.FC = () => {
-  return <ProfileInputTemplate requestPatchProfile={requestPatchProfile} />;
+  return (
+    <ProfileInputTemplate
+      requestPatchProfile={requestPatchProfile}
+      requestPutGender={requestPutGender}
+    />
+  );
 };
 
 export default ProfileInput;
@@ -25,6 +35,29 @@ export const requestPatchProfile: RequestPatchProfile = (
     data: data,
     thenCallback: (resData) => {
       profileDispatch({ type: "SET_ALL", profile: resData as MeProfile });
+      successSubmit && successSubmit();
+    },
+    catchCallback: (err) => {
+      err && errorSubmit && errorSubmit(err);
+    },
+    token: token,
+  });
+};
+
+const requestPutGender: RequestPutGender = (
+  token,
+  putGenderKey,
+  profileDispatch,
+  successSubmit,
+  errorSubmit
+) => {
+  const url = URLJoin(BASE_URL, "me/gender/");
+
+  requestAxios(url, "put", PutGenderResDataIoTs, {
+    data: { key: putGenderKey },
+    thenCallback: (resData) => {
+      const _resData = resData as PutGenderResData;
+      profileDispatch({ type: "SET_ALL", profile: _resData.me });
       successSubmit && successSubmit();
     },
     catchCallback: (err) => {
