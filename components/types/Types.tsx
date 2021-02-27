@@ -95,7 +95,8 @@ export type RequestPatchProfile = (
   data: ProfileInputData,
   profileDispatch: ProfileDispatch,
   successSubmit?: SuccessSubmitProfile,
-  errorSubmit?: ErrorSubmitProfile
+  errorSubmit?: ErrorSubmitProfile,
+  finallySubmit?: () => void
 ) => void;
 export type RequestPutGender = (
   token: string,

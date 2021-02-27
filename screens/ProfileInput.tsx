@@ -27,7 +27,8 @@ export const requestPatchProfile: RequestPatchProfile = (
   data,
   profileDispatch,
   successSubmit,
-  errorSubmit
+  errorSubmit,
+  finallySubmit
 ) => {
   const url = URLJoin(BASE_URL, "me/");
 
@@ -40,6 +41,7 @@ export const requestPatchProfile: RequestPatchProfile = (
     catchCallback: (err) => {
       err && errorSubmit && errorSubmit(err);
     },
+    finallyCallback: finallySubmit,
     token: token,
   });
 };

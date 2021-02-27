@@ -16,13 +16,15 @@ import {
   useProfileState,
   useProfileDispatch,
 } from "../contexts/ProfileContext";
-import { useAuthState } from "../contexts/AuthContext";
+import { useAuthDispatch, useAuthState } from "../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 import {
   ProfileEditorNavigationPros,
   RequestPostProfileImage,
 } from "../types/Types";
 import { formatGender } from "../modules/support";
+import { MenuModal } from "../molecules/Menu";
+import { requestPatchProfile } from "../../screens/ProfileInput";
 
 const { width } = Dimensions.get("screen");
 const ProfileHr = () => <Hr h={1} mb={5} color="#e6e6e6" />;
@@ -36,11 +38,13 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
   const { requestPostProfileImage } = props;
   const navigation = useNavigation<ProfileEditorNavigationPros>();
   const profileState = useProfileState();
-  const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
+  const authState = useAuthState();
+  const authDispatch = useAuthDispatch();
   const user = profileState.profile;
 
   const [isLoadingImage, setIsLoadingImage] = useState(false);
+  const [isOpenJobModal, setIsOpenJobModal] = useState(false);
 
   const formattedGender = formatGender(user.gender, user.isSecretGender);
   return (
@@ -92,6 +96,61 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
             }
           />
         </Block>
+        <ProfileHr />
+
+        <Block style={styles.profileTextBlock}>
+          <Text size={16} bold style={{ marginBottom: 10 }}>
+            職業
+          </Text>
+          <EditorBlock
+            onPress={() => {
+              setIsOpenJobModal(true);
+            }}
+            content={
+              <Text
+                size={14}
+                style={{ lineHeight: 18, flex: editButtonRate.content }}
+              >
+                {user.job.label}
+              </Text>
+            }
+          />
+        </Block>
+        <MenuModal
+          isOpen={isOpenJobModal}
+          setIsOpen={setIsOpenJobModal}
+          items={
+            profileState.profileParams?.job &&
+            Object.values(profileState.profileParams.job).map((jobObj) => {
+              return {
+                title: jobObj.label,
+                onPress: () => {
+                  if (authState.token) {
+                    authDispatch({ type: "SET_IS_SHOW_SPINNER", value: true });
+                    requestPatchProfile(
+                      authState.token,
+                      { job: jobObj.key },
+                      profileDispatch,
+                      () => {
+                        return void 0;
+                      },
+                      () => {
+                        return void 0;
+                      },
+                      () => {
+                        authDispatch({
+                          type: "SET_IS_SHOW_SPINNER",
+                          value: false,
+                        });
+                      }
+                    );
+                  }
+                  setIsOpenJobModal(false);
+                },
+              };
+            })
+          }
+        />
         <ProfileHr />
 
         <Block style={styles.profileTextBlock}>
