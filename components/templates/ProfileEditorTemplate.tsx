@@ -22,6 +22,7 @@ import {
   ProfileEditorNavigationPros,
   RequestPostProfileImage,
 } from "../types/Types";
+import { formatGender } from "../modules/support";
 
 const { width } = Dimensions.get("screen");
 const ProfileHr = () => <Hr h={1} mb={5} color="#e6e6e6" />;
@@ -38,18 +39,10 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
   const authState = useAuthState();
   const profileDispatch = useProfileDispatch();
   const user = profileState.profile;
-  const returnGender = (gender) => {
-    if (gender === 'MALE') {
-      return '男性'
-    } else if (gender === 'FEMALE') {
-      return '女性'
-    } else {
-      return '内緒'
-    }
-  };
 
   const [isLoadingImage, setIsLoadingImage] = useState(false);
 
+  const formattedGender = formatGender(user.gender, user.isSecretGender);
   return (
     <ScrollView style={{ width: width, backgroundColor: "white" }}>
       <Block style={[styles.profileContentBottom]}>
@@ -85,8 +78,8 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
             onPress={() =>
               navigation.navigate("ProfileInput", {
                 user: user,
-                prevValue: user.name,
-                screen: "InputName",
+                prevValue: formattedGender.key,
+                screen: "InputGender",
               })
             }
             content={
@@ -94,7 +87,7 @@ export const ProfileEditorTemplate: React.FC<Props> = (props) => {
                 size={14}
                 style={{ lineHeight: 18, flex: editButtonRate.content }}
               >
-                {returnGender(user.gender.name)}
+                {formattedGender.label}
               </Text>
             }
           />

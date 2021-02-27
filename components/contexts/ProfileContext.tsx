@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext, useEffect } from "react";
+import React, { createContext, useReducer, useContext } from "react";
 import { BASE_URL } from "../../constants/env";
 import { useAxios } from "../modules/axios";
 import { asyncStoreJson, URLJoin } from "../modules/support";
@@ -60,6 +60,7 @@ export const initProfile: Profile = Object.freeze({
   introduction: "",
   numOfThunks: 0,
   gender: { key: "female", name: "", label: "" },
+  isSecretGender: false,
   job: { key: "", name: "", label: "" },
   genreOfWorries: [],
   image: "",
@@ -72,6 +73,7 @@ export const initMeProfile: MeProfile = Object.freeze({
   introduction: "",
   numOfThunks: 0,
   gender: { key: "female", name: "", label: "" },
+  isSecretGender: false,
   job: { key: "", name: "", label: "" },
   genreOfWorries: [],
   canTalkHeterosexual: false,
