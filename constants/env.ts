@@ -1,7 +1,7 @@
-const DEBUG = true;
-// const DEBUG = false;
-const ADMOB_DEBUG = true;
-// const ADMOB_DEBUG = false;
+// const DEBUG = true;
+const DEBUG = false;
+// const ADMOB_DEBUG = true;
+const ADMOB_DEBUG = false;
 
 const BASE_HOST = DEBUG ? "192.168.11.18:8080" : "fullfii.com";
 const URL_SCHEME_HTTP = DEBUG ? "http" : "https";
