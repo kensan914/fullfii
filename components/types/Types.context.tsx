@@ -69,7 +69,7 @@ export type WorriesResJson = t.TypeOf<typeof WorriesResJsonIoTs>;
 export const GenderKeyIoTs = t.keyof({
   female: null,
   male: null,
-  secret: null,
+  notset: null,
 });
 export const GenderIoTs = t.type({
   key: GenderKeyIoTs,
@@ -107,6 +107,7 @@ export const ProfileIoTs = t.type({
   id: t.string,
   name: t.string,
   gender: GenderIoTs,
+  isSecretGender: t.boolean,
   job: JobIoTs,
   introduction: t.string,
   numOfThunks: t.number,

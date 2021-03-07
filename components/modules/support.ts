@@ -5,8 +5,14 @@ import { Dimensions } from "react-native";
 
 import { FREE_PLAN } from "../../constants/env";
 import { CODE } from "../../constants/statusCodes";
-import { TypeIoTsOfResData, WsSettings } from "../types/Types";
 import {
+  FormattedGender,
+  FormattedGenderKey,
+  TypeIoTsOfResData,
+  WsSettings,
+} from "../types/Types";
+import {
+  Gender,
   MeProfile,
   Room,
   RoomJson,
@@ -592,4 +598,27 @@ export const isTalkTicket = (
  */
 export const isRoom = (room: Room | RoomJson): room is Room => {
   return !!room && "messages" in room;
+};
+
+/**
+ * gender(notset有)をformattedGender(secret有)に変換
+ * @param gender
+ * @param isSecretGender
+ */
+export const formatGender = (
+  gender: Gender,
+  isSecretGender: boolean
+): FormattedGender => {
+  const isNotSet = gender.key !== "male" && gender.key !== "female";
+  let key: FormattedGenderKey;
+  let label;
+  if (isSecretGender || (gender.key !== "male" && gender.key !== "female")) {
+    key = "secret";
+    label = "内緒";
+  } else {
+    key = gender.key;
+    label = gender.label;
+  }
+
+  return { key, label, isNotSet, realGenderKey: gender.key };
 };

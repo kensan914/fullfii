@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Alert, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
-import { Block, Button, Checkbox, Icon, Input, Text } from "galio-framework";
+import { Block, Checkbox, Icon, Input, Text } from "galio-framework";
 import * as WebBrowser from "expo-web-browser";
 
 import SignUpPageTemplate from "./SignUpPageTemplate";
@@ -14,10 +14,14 @@ import {
 } from "../../../contexts/ProfileContext";
 import { COLORS } from "../../../../constants/Theme";
 import { MenuModal } from "../../../molecules/Menu";
-import { startUpLoggedin } from "../../../../screens/StartUpManager";
-import useAllContext from "../../../contexts/ContextUtils";
 import { logEvent } from "../../../modules/firebase/logEvent";
-import { SignupResData, SignupResDataIoTs } from "../../../types/Types";
+import {
+  FormattedGenderKey,
+  SignupResData,
+  SignupResDataIoTs,
+} from "../../../types/Types";
+import GenderInputButtonList from "../../../molecules/GenderInputButtonList";
+import { GenderKey } from "../../../types/Types.context";
 
 const { width } = Dimensions.get("window");
 
@@ -32,7 +36,7 @@ const ThirdSignUpPage: React.FC = () => {
   const [isActiveUsername, setIsActiveUsername] = useState(false);
   const maxUsernameLen = 15;
 
-  const [genderKey, setGenderKey] = useState<string>();
+  const [genderKey, setGenderKey] = useState<GenderKey | FormattedGenderKey>();
 
   const [jobKey, setJobKey] = useState<string>();
   const [isOpenJobModal, setIsOpenJobModal] = useState(false);
@@ -50,7 +54,6 @@ const ThirdSignUpPage: React.FC = () => {
   };
 
   const [password] = useState(generatePassword());
-  const [states, dispatches] = useAllContext();
   const { isLoading, request } = useAxios(
     URLJoin(BASE_URL, "signup/"),
     "post",
@@ -103,33 +106,6 @@ const ThirdSignUpPage: React.FC = () => {
   };
 
   const renderContents = () => {
-    const renderGenderInputButton = (
-      iconName: string,
-      title: string,
-      isActive: boolean,
-      key: string
-    ) => {
-      const contentsColor = isActive ? COLORS.PINK : "lightgray";
-      return (
-        <Button
-          color="white"
-          shadowColor={isActive ? COLORS.PINK : "white"}
-          style={styles.genderInputButton}
-          onPress={() => setGenderKey(key)}
-        >
-          <Icon
-            family="font-awesome"
-            size={50}
-            name={iconName}
-            color={contentsColor}
-          />
-          <Text bold size={12} color={contentsColor} style={{ marginTop: 4 }}>
-            {title}
-          </Text>
-        </Button>
-      );
-    };
-
     return (
       <Block flex>
         <Block flex justifyContent="center">
@@ -160,34 +136,16 @@ const ThirdSignUpPage: React.FC = () => {
           </Block>
         </Block>
 
-        <Block flex justifyContent="center">
-          <Block flex style={styles.genderInputContainer}>
-            {profileState.profileParams?.gender &&
-              Object.values(profileState.profileParams.gender).map(
-                (genderObj, i) => {
-                  const iconNames = {
-                    female: "female",
-                    male: "male",
-                    secret: "lock",
-                  };
-                  return i < 2 ? (
-                    <Block key={i} flex style={styles.genderInput}>
-                      {renderGenderInputButton(
-                        genderObj.key in iconNames
-                          ? iconNames[genderObj.key]
-                          : "",
-                        genderObj.label,
-                        genderKey === genderObj.key,
-                        genderObj.key
-                      )}
-                    </Block>
-                  ) : (
-                    <Block key={i} />
-                  );
-                }
-              )}
-          </Block>
-        </Block>
+        {profileState.profileParams?.gender && (
+          // expected genderKeys=["female", "male", "notset"]
+          <GenderInputButtonList
+            genderKeys={Object.values(profileState.profileParams.gender).map(
+              (_gender) => _gender.key
+            )}
+            genderKey={genderKey}
+            setGenderKey={setGenderKey}
+          />
+        )}
 
         <Block flex justifyContent="center">
           <TouchableOpacity
@@ -288,18 +246,6 @@ const styles = StyleSheet.create({
   },
   usernameCounter: {
     alignItems: "flex-end",
-  },
-  genderInputContainer: {
-    flexDirection: "row",
-  },
-  genderInput: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  genderInputButton: {
-    width: width / 4,
-    height: width / 4,
-    borderRadius: width / 8,
   },
   jobInput: {
     borderWidth: 1,

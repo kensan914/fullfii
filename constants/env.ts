@@ -16,8 +16,8 @@ export const GOOGLE_FORM_URL =
 export const REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScuWE_hUXY8GN2Nu4CpMa7rNsUTtVRfcL0_avj5h69XwwjD8g/viewform";
 
-export const VERSION = "2.2.0";
-export const VERSION_NUM = 220;
+export const VERSION = "2.2.1";
+export const VERSION_NUM = 221;
 
 export const PRODUCT_ID_LIST = ["com.fullfii.fullfii.normal_plan"];
 

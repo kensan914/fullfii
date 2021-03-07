@@ -7,6 +7,7 @@ import { ImageInfo } from "expo-image-picker/build/ImagePicker.types";
 import { Asset } from "expo-asset";
 
 import {
+  GenderKey,
   MeProfile,
   MeProfileIoTs,
   MessageJsonIoTs,
@@ -57,7 +58,10 @@ export type WorrySelectNavigationProps = StackNavigationProp<
   "WorrySelect"
 >;
 
-export type ProfileInputScreen = "InputName" | "InputIntroduction";
+export type ProfileInputScreen =
+  | "InputName"
+  | "InputGender"
+  | "InputIntroduction";
 //--------- Screens.tsx ---------//
 
 //--------- Home.tsx ---------//
@@ -91,8 +95,23 @@ export type RequestPatchProfile = (
   data: ProfileInputData,
   profileDispatch: ProfileDispatch,
   successSubmit?: SuccessSubmitProfile,
+  errorSubmit?: ErrorSubmitProfile,
+  finallySubmit?: () => void
+) => void;
+export type RequestPutGender = (
+  token: string,
+  putGenderKey: FormattedGenderKey,
+  profileDispatch: ProfileDispatch,
+  successSubmit?: SuccessSubmitProfile,
   errorSubmit?: ErrorSubmitProfile
 ) => void;
+export type FormattedGenderKey = "female" | "male" | "secret";
+export type FormattedGender = {
+  key: FormattedGenderKey;
+  label: string;
+  isNotSet: boolean;
+  realGenderKey: GenderKey;
+};
 //--------- ProfileInput.tsx ---------//
 
 //--------- Chat.tsx ---------//
@@ -225,6 +244,10 @@ export const SignupResDataIoTs = t.type({
   me: MeProfileIoTs,
   token: t.string,
 });
+export type PutGenderResData = t.TypeOf<typeof PutGenderResDataIoTs>;
+export const PutGenderResDataIoTs = t.type({
+  me: MeProfileIoTs,
+});
 //--------- axios res.data ---------//
 
 //--------- ws ---------//
@@ -248,7 +271,7 @@ export type WsResChat = t.TypeOf<typeof WsResChatIoTs>;
 //--------- ws io-ts ---------//
 export const WsResNotificationAuthIoTs = t.type({
   type: t.literal("auth"),
-  profile: MeProfileIoTs,
+  // profile: MeProfileIoTs,
 });
 export const WsResNoticeTalkIoTs = t.type({
   type: t.literal("notice_talk"),

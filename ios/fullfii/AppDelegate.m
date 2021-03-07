@@ -36,21 +36,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  self.moduleRegistryAdapter = [[UMModuleRegistryAdapter alloc] initWithModuleRegistryProvider:[[UMModuleRegistryProvider alloc] init]];
-  self.launchOptions = launchOptions;
-
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#ifdef DEBUG
-  [self initializeReactNativeApp];
-#else
-  EXUpdatesAppController *controller = [EXUpdatesAppController sharedInstance];
-  controller.delegate = self;
-  [controller startAndShowLaunchScreen:self.window];
-#endif
-
-  [super application:application didFinishLaunchingWithOptions:launchOptions];
-
-  [RNSplashScreen show]; // 20/10/25
   if ([FIRApp defaultApp] == nil) {  // 20/11/3
     [FIRApp configure];
     //  20/12/07
@@ -75,6 +60,22 @@
     }
     [application registerForRemoteNotifications];
   }
+
+  self.moduleRegistryAdapter = [[UMModuleRegistryAdapter alloc] initWithModuleRegistryProvider:[[UMModuleRegistryProvider alloc] init]];
+  self.launchOptions = launchOptions;
+
+  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+#ifdef DEBUG
+  [self initializeReactNativeApp];
+#else
+  EXUpdatesAppController *controller = [EXUpdatesAppController sharedInstance];
+  controller.delegate = self;
+  [controller startAndShowLaunchScreen:self.window];
+#endif
+
+  [super application:application didFinishLaunchingWithOptions:launchOptions];
+
+  [RNSplashScreen show]; // 20/10/25
 
   /* push notification https://qiita.com/iwashi1t/items/517cda73dba715025b6c */
   UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
