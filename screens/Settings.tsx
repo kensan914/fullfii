@@ -14,6 +14,7 @@ import {
   USER_POLICY_URL,
   VERSION,
   GOOGLE_FORM_URL,
+  ACCOUNT_DELETION_URL,
   PRIVACY_POLICY_URL,
   ADMOB_UNIT_ID_SETTINGS,
   ADMOB_BANNER_HEIGHT,
@@ -38,19 +39,30 @@ const Settings: React.FC = () => {
     WebBrowser.openBrowserAsync(GOOGLE_FORM_URL);
   };
 
+  const _handleOpenWithWebBrowserAccountDeletion = () => {
+    WebBrowser.openBrowserAsync(ACCOUNT_DELETION_URL);
+  };
+
   return (
     <Block flex center>
       <ScrollView>
         <SettingsTitle title="Fullfiiについて" />
         <SettingsLabel title="バージョン" content={VERSION} />
-        <SettingsCard title="利用規約" onPress={_handleOpenWithWebBrowser} />
+        <SettingsCard title="利用規約" titleColor="dimgray" onPress={_handleOpenWithWebBrowser} />
         <SettingsCard
           title="プライバシーポリシー"
+          titleColor="dimgray"
           onPress={_handleOpenWithWebBrowserPrivacyPolicy}
         />
         <SettingsCard
           title="お問い合わせ"
+          titleColor="dimgray"
           onPress={_handleOpenWithWebBrowserContactUsForm}
+        />
+        <SettingsCard
+          title="アカウント削除"
+          titleColor="#f44336"
+          onPress={_handleOpenWithWebBrowserAccountDeletion}
         />
       </ScrollView>
 
@@ -77,13 +89,13 @@ const SettingsTitle: React.FC<{ title: string }> = (props) => {
   );
 };
 
-const SettingsCard: React.FC<{ title: string; onPress: OnPress }> = (props) => {
-  const { title, onPress } = props;
+const SettingsCard: React.FC<{ title: string; titleColor: string; onPress: OnPress }> = (props) => {
+  const { title, titleColor, onPress } = props;
   return (
     <TouchableOpacity onPress={onPress}>
       <Block flex row style={styles.settingsCard}>
         <Block flex={0.9}>
-          <Text bold size={15} color="dimgray" style={{ marginHorizontal: 15 }}>
+          <Text bold size={15} color={titleColor} style={{ marginHorizontal: 15 }}>
             {title}
           </Text>
         </Block>
