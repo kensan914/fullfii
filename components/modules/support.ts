@@ -566,7 +566,7 @@ export const generatePassword = (length = 12): string => {
   for (let i = 0; i < length; i++) {
     password += string.charAt(Math.floor(Math.random() * string.length));
   }
-  console.log("test");
+  console.log(asdfasdfasdfa);
 
   return password;
 };
