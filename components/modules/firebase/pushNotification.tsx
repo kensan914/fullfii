@@ -17,7 +17,7 @@ const configurePushNotification = (): Promise<null | string> => {
         await messaging().requestPermission();
         return initFcm();
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
     return null;
@@ -55,16 +55,7 @@ const configurePushNotification = (): Promise<null | string> => {
     });
   };
 
-  PushNotification.configure({
-    requestPermissions: false,
-    onNotification: (notification) => {
-      console.log("プッシュ通知をタップした01");
-      notification.finish(PushNotificationIOS.FetchResult.NoData);
-    },
-  });
-
   const deviceToken = initPushNotification();
-
   return deviceToken;
 };
 
