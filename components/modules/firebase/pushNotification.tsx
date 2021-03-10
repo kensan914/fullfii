@@ -1,4 +1,3 @@
-// import { useEffect, useRef, useState } from "react";
 import messaging, {
   FirebaseMessagingTypes,
 } from "@react-native-firebase/messaging";
@@ -21,8 +20,6 @@ const configurePushNotification = (): Promise<null | string> => {
         console.log(e);
       }
     }
-    csdfadferer323f 2424
-
     return null;
   };
 
