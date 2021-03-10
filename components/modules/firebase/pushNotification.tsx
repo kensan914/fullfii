@@ -5,9 +5,6 @@ import PushNotification from "react-native-push-notification";
 import PushNotificationIOS from "@react-native-community/push-notification-ios";
 
 const configurePushNotification = (): Promise<null | string> => {
-  // const [deviceToken, setDeviceToken] = useState<null | string>(null);
-  // const listenerRemovingFunctions = useRef<(() => void)[]>([]);
-
   const initPushNotification = async (): Promise<null | string> => {
     const enabled = await messaging().hasPermission();
     if (enabled) {
@@ -26,11 +23,25 @@ const configurePushNotification = (): Promise<null | string> => {
   const initFcm = async (): Promise<null | string> => {
     const _deviceToken = await messaging().getToken();
 
+    // バッジリセット
+    PushNotification.getApplicationIconBadgeNumber(
+      (badgeCount: number): void => {
+        if (badgeCount > 0) {
+          PushNotification.setApplicationIconBadgeNumber(0);
+        }
+      }
+    );
+
     PushNotification.configure({
       requestPermissions: false,
       onNotification: (notification) => {
         console.log("プッシュ通知をタップした");
         notification.finish(PushNotificationIOS.FetchResult.NoData);
+      },
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
       },
     });
 
