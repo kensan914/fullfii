@@ -21,6 +21,8 @@ const configurePushNotification = (): Promise<null | string> => {
         console.log(e);
       }
     }
+    console.log("test");
+
     return null;
   };
 
