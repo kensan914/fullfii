@@ -21,7 +21,7 @@ const configurePushNotification = (): Promise<null | string> => {
         console.log(e);
       }
     }
-    console.log("test");
+    csdfadferer323f 2424
 
     return null;
   };
