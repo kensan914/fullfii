@@ -3,6 +3,7 @@ import { Block } from "galio-framework";
 import Icon from "./Icon";
 import { Image, StyleSheet } from "react-native";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const Avatar = (props) => {
   const { size, border, style, image } = props;
   const avatarStyle = {

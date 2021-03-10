@@ -20,7 +20,7 @@ const SignUpTemplate: React.FC = () => {
       ? authState.signupBuffer.didProgressNum + 1
       : 1
   );
-  const [currentPage, scrollViewRef, goToPage] = useSlideView(initPage);
+  const [, scrollViewRef, goToPage] = useSlideView(initPage);
 
   const [pageStack, setPageStack] = useState([
     <FirstPage goToPage={goToPage} key={1} />,

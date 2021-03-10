@@ -5,6 +5,7 @@ import { Block } from "galio-framework";
  * @example
  * <Hr h={1} mb={7} mt={4} color="gainsboro" style={{ }} />
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const Hr = (props) => {
   const { h, mb, mt, color, style } = props;
 

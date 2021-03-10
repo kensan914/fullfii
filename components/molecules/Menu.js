@@ -3,6 +3,7 @@ import { StyleSheet, TouchableOpacity } from "react-native";
 import { Block, Text, Button } from "galio-framework";
 import Modal from "react-native-modal";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const MenuModal = (props) => {
   const {
     isOpen,

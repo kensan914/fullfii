@@ -8,7 +8,8 @@ const { width, height } = Dimensions.get("screen");
  * custom spinner
  * @param {*} props
  */
-const Spinner = (props) => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const Spinner = () => {
   return (
     <Block
       style={{

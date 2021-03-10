@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { Text, Button } from "galio-framework";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const SubmitButton = (props) => {
   const { canSubmit, isLoading, submit, style, children } = props;
 

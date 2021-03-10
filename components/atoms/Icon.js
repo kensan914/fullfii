@@ -11,6 +11,7 @@ export default class IconExtra extends React.Component {
     fontLoaded: false,
   };
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async componentDidMount() {
     const galioExtra = await import("../../assets/fonts/galioExtra.ttf");
     await Font.loadAsync({
@@ -19,6 +20,7 @@ export default class IconExtra extends React.Component {
     this.setState({ fontLoaded: true });
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   render() {
     const { name, family, ...rest } = this.props;
 

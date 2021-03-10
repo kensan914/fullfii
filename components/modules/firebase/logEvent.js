@@ -1,5 +1,6 @@
 import { isExpo } from "../../../constants/env";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const logEvent = async (name, params, profileState) => {
   if (!isExpo) {
     const module = await import("@react-native-firebase/analytics");

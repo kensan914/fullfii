@@ -8,13 +8,12 @@ import { URLJoin } from "../modules/support";
 import { TouchableOpacity } from "react-native";
 import ChatModal from "../molecules/ChatModal";
 import { useAxios } from "../modules/axios";
-import { ADMOB_UNIT_ID_AFTER_THX, BASE_URL, isExpo } from "../../constants/env";
+import { BASE_URL, isExpo } from "../../constants/env";
 import { useAuthDispatch } from "../contexts/AuthContext";
 import { logEvent } from "../modules/firebase/logEvent";
 import { useProfileState } from "../contexts/ProfileContext";
 import { TalkTicketKey } from "../types/Types.context";
 import { LottieSource } from "../types/Types";
-import { showAdMobInterstitial } from "../molecules/Admob";
 
 const { width } = Dimensions.get("screen");
 

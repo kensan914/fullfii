@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { theme, Block } from "galio-framework";
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const StatusIcon = () => {
   return (
     <Block style={[styles.statusContainer]}>

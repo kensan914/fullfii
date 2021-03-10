@@ -3,8 +3,9 @@ import { Dimensions, StyleSheet } from "react-native";
 import { Button } from "galio-framework";
 import { COLORS } from "../../constants/Theme";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const ModalButton = (props) => {
   const { icon, iconFamily, colorLess, onPress } = props;
 

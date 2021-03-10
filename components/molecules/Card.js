@@ -13,6 +13,7 @@ const { width } = Dimensions.get("screen");
  * item = {title, color, content, borderColor, borderLess}
  * icon-base item = {icon, iconFamily, iconColor}
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const Card = (props) => {
   const { item, style, onPress, countNum } = props;
   const titleSize = 17;

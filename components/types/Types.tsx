@@ -12,7 +12,6 @@ import {
   MeProfileIoTs,
   MessageJsonIoTs,
   ProfileDispatch,
-  ProfileIoTs,
   TalkTicketJsonIoTs,
   TalkTicketKey,
 } from "./Types.context";
@@ -181,13 +180,11 @@ export type BubbleItems = BubbleItem[];
 
 //--------- axios ---------//
 export type AxiosMethod = "get" | "post" | "delete" | "put" | "patch";
-export type AxiosHeaders =
-  | {
-      Accept: "application/json";
-      "Content-Type": "application/json";
-      Authorization: string;
-    }
-  | {};
+export type AxiosHeaders = {
+  Accept?: string;
+  "Content-Type"?: string;
+  Authorization?: string;
+};
 export type AxiosSettings = {
   url: string;
   method: AxiosMethod;

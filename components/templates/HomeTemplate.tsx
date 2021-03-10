@@ -6,7 +6,7 @@ import Card from "../molecules/Card";
 import { ADMOB_BANNER_HEIGHT } from "../../constants/env";
 import { HomeItems } from "../types/Types";
 
-const { width, height } = Dimensions.get("screen");
+const { width } = Dimensions.get("screen");
 
 type Props = {
   items: HomeItems;

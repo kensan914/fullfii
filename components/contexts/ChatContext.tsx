@@ -27,7 +27,6 @@ import {
   AllMessages,
   TalkTicketJson,
   TalkTicketKey,
-  ChatDispatchTask,
 } from "../types/Types.context";
 import { initProfile } from "./ProfileContext";
 
@@ -70,7 +69,7 @@ const chatReducer = (
   let _offlineMessages: OfflineMessage[];
   let _talkTicketCollection: TalkTicketCollection;
   let _talkTicket: TalkTicket;
-  let _chatDispatchTask: ChatDispatchTask;
+  // let _chatDispatchTask: ChatDispatchTask;
 
   // 遅延するべきか判定 ? return chatState : return null;
   const resultDelay = checkAndDoDelayDispatch(prevState, action);

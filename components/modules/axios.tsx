@@ -1,8 +1,6 @@
 import { Dispatch, useEffect, useRef, useState } from "react";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import * as t from "io-ts";
 import { isRight } from "fp-ts/lib/Either";
-import { PathReporter } from "io-ts/lib/PathReporter";
 import {
   AxiosMethod,
   AxiosSettings,
@@ -14,8 +12,6 @@ import {
   UseAxiosActionType,
 } from "../types/Types";
 import { checkCorrectKey, deepCvtKeyFromSnakeToCamel } from "./support";
-import { pipe } from "fp-ts/function";
-import { fold } from "fp-ts/Either";
 
 /**
  * カスタムHooks ver, Function verの共通init処理

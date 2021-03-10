@@ -8,7 +8,8 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "test": "node ./node_modules/jest/bin/jest.js --watchAll",
-    "lint": "eslint --fix ./components/; npx prettier --write ./components/"
+    "lint": "npx eslint --fix ./components/; npx prettier --write ./components/",
+    "justlint": "npx eslint --fix ./components/;"
   },
   "jest": {
     "preset": "jest-expo"
@@ -100,9 +101,7 @@
   },
   "lint-staged": {
     "components/**/*.{ts,js,jsx,tsx}": [
-      "npm run lint"
-    ],
-    "*.js": "eslint --cache --fix",
-    "*.{js,css,md}": "prettier --write"
+      "cd components && npm run justlint"
+    ]
   }
 }
