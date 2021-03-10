@@ -217,6 +217,7 @@
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 9PV69CABG3;
 						LastSwiftMigration = 1140;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -423,6 +424,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = fullfii/fullfii.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2.2.0;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 9PV69CABG3;
@@ -438,6 +441,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.fullfii.fullfii;
 				PRODUCT_NAME = Fullfii;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "fullfii-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -452,6 +456,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = fullfii/fullfii.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2.2.0;
 				DEVELOPMENT_TEAM = 9PV69CABG3;
 				ENABLE_BITCODE = NO;
@@ -466,6 +472,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.fullfii.fullfii;
 				PRODUCT_NAME = Fullfii;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "fullfii-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

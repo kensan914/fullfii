@@ -30,7 +30,7 @@ const configurePushNotification = (): Promise<null | string> => {
     PushNotification.configure({
       requestPermissions: false,
       onNotification: (notification) => {
-        console.log("プッシュ通知をタップした02");
+        console.log("プッシュ通知をタップした");
         notification.finish(PushNotificationIOS.FetchResult.NoData);
       },
     });
