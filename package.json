@@ -101,7 +101,7 @@
   },
   "lint-staged": {
     "components/**/*.{ts,js,jsx,tsx}": [
-      "cd components && npm run justlint"
+      "npm run justlint"
     ]
   }
 }
