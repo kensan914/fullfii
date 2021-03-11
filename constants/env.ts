@@ -17,8 +17,8 @@ export const REPORT_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLScuWE_hUXY8GN2Nu4CpMa7rNsUTtVRfcL0_avj5h69XwwjD8g/viewform";
 export const ACCOUNT_DELETION_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSclvk_l4JsWCMQf6a6qh2AmoAkiM9ReU6eZOaYTUoTz9MP3gw/viewform?usp=sf_link";
-export const VERSION = "2.2.3";
-export const VERSION_NUM = 223;
+export const VERSION = "2.2.4";
+export const VERSION_NUM = 224;
 
 export const PRODUCT_ID_LIST = ["com.fullfii.fullfii.normal_plan"];
 
