@@ -51,6 +51,9 @@ const configurePushNotification = (): Promise<null | string> => {
     messaging().onMessage((message) => {
       console.log("Foreground時にリモートプッシュ通知を受信した");
       _localNotification(message);
+
+      // badge=1が送信されるが, Foregroundであるためリセット
+      PushNotification.setApplicationIconBadgeNumber(0);
     });
 
     return _deviceToken;

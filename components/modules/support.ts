@@ -422,56 +422,6 @@ export class Ws {
     this.wsSettings.registerWs && this.wsSettings.registerWs(ws);
   };
 }
-export const initWs = (wsSettings: WsSettings): void => {
-  const connectIntervalTime = 2000;
-
-  const connect = (isReconnect = false) => {
-    const ws = new WebSocket(wsSettings.url);
-    let connectInterval: NodeJS.Timeout = setTimeout(() => {
-      return void 0;
-    }, 0);
-
-    ws.onopen = wsSettings.onopen
-      ? () => {
-          clearTimeout(connectInterval);
-          wsSettings.onopen(ws);
-        }
-      : () => {
-          return void 0;
-        };
-    ws.onmessage = wsSettings.onmessage
-      ? (e) => {
-          const eData = deepCvtKeyFromSnakeToCamel(JSON.parse(e.data));
-          const typeIoTsResult = wsSettings.typeIoTsOfResData.decode(eData);
-          if (!isRight(typeIoTsResult)) {
-            console.group();
-            console.error(
-              `Type does not match(ws onmessage). The object can be found below.`
-            );
-            console.error({ ...eData });
-            console.groupEnd();
-          }
-          wsSettings.onmessage(eData, e, ws, isReconnect);
-        }
-      : (e) => {
-          return e;
-        };
-    ws.onclose = (e) => {
-      if (e.code === CODE.WS.UNAUTHORIZED) {
-        // ログアウト
-      } else {
-        connectInterval = setTimeout(() => {
-          if (!ws || ws.readyState == WebSocket.CLOSED) {
-            connect(true); // isReconnect = true
-          }
-        }, connectIntervalTime);
-      }
-      wsSettings.onclose(e, ws);
-    };
-    wsSettings.registerWs && wsSettings.registerWs(ws);
-  };
-  connect();
-};
 
 // ios環境でcloseCodeが1001で固定されてしまうため対処
 export const closeWsSafely = (ws: WebSocket): void => {
